@@ -920,6 +920,10 @@
     height: 1px;
   }
 
+  .min-h-\[60vh\] {
+    min-height: 60vh;
+  }
+
   .min-h-\[320px\] {
     min-height: 320px;
   }
@@ -3343,12 +3347,6 @@
   }
 
   @media (width >= 48rem) {
-    .md\:col-span-2 {
-      grid-column: span 2 / span 2;
-    }
-  }
-
-  @media (width >= 48rem) {
     .md\:col-span-4 {
       grid-column: span 4 / span 4;
     }
@@ -3357,12 +3355,6 @@
   @media (width >= 48rem) {
     .md\:col-span-8 {
       grid-column: span 8 / span 8;
-    }
-  }
-
-  @media (width >= 48rem) {
-    .md\:col-span-10 {
-      grid-column: span 10 / span 10;
     }
   }
 

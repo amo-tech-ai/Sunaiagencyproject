@@ -1,20 +1,20 @@
+import { useNavigate } from 'react-router';
+import { pageToPath } from '../../../lib/navigation';
 import ProcessHeroSection from './ProcessHeroSection';
 import PhaseCardsSection from './PhaseCardsSection';
 import ClientInvolvementMatrix from './ClientInvolvementMatrix';
 import MethodologyComparison from './MethodologyComparison';
 import ProcessCTASection from './ProcessCTASection';
 
-interface ProcessPageV12Props {
-  onNavigate?: (page: string) => void;
-}
+export default function ProcessPageV12() {
+  const nav = useNavigate();
 
-export default function ProcessPageV12({ onNavigate }: ProcessPageV12Props) {
   const handleStartClick = () => {
-    onNavigate?.('booking');
+    nav(pageToPath('booking'));
   };
 
   const handleStoriesClick = () => {
-    onNavigate?.('case-studies');
+    nav(pageToPath('case-studies'));
   };
 
   return (

@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router';
+import { pageToPath } from '../lib/navigation';
 import { PROJECTS } from '../lib/data/projectsData';
 import ProjectsHero from './projects/ProjectsHero';
 import ProjectNavigation from './projects/ProjectNavigation';
@@ -7,11 +9,8 @@ import SystemDiagram from './projects/SystemDiagram';
 import ComparisonSection from './projects/ComparisonSection';
 import ProjectsFinalCTA from './projects/ProjectsFinalCTA';
 
-interface ProjectsPageProps {
-  onNavigate?: (page: string) => void;
-}
-
-export default function ProjectsPage({ onNavigate }: ProjectsPageProps) {
+export default function ProjectsPage() {
+  const nav = useNavigate();
   const [activeProjectId, setActiveProjectId] = useState<string>(PROJECTS[0]?.id);
 
   // Track scroll position to update active project
@@ -53,11 +52,11 @@ export default function ProjectsPage({ onNavigate }: ProjectsPageProps) {
   }, []);
 
   const handleStartProject = () => {
-    onNavigate?.('booking');
+    nav(pageToPath('booking'));
   };
 
   const handleViewProcess = () => {
-    onNavigate?.('process-v12');
+    nav(pageToPath('process-v12'));
   };
 
   return (

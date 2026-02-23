@@ -1,3 +1,5 @@
+import { useNavigate } from 'react-router';
+import { pageToPath } from '../lib/navigation';
 import {
   FashionHero,
   FashionIntro,
@@ -13,15 +15,11 @@ import {
   FashionCTA,
 } from './fashion';
 
-interface FashionPageProps {
-  onNavigate?: (page: string) => void;
-}
+export default function FashionPage() {
+  const nav = useNavigate();
 
-export default function FashionPage({ onNavigate }: FashionPageProps) {
   const handleCTAClick = () => {
-    if (onNavigate) {
-      onNavigate('booking');
-    }
+    nav(pageToPath('booking'));
   };
 
   return (
@@ -32,7 +30,7 @@ export default function FashionPage({ onNavigate }: FashionPageProps) {
       {/* Section 2: Introduction Copy */}
       <FashionIntro />
 
-      {/* Section 3: Industry Analysis — Key Stats */}
+      {/* Section 3: Industry Analysis - Key Stats */}
       <FashionStats />
 
       {/* Section 4: Our Approach */}
@@ -41,7 +39,7 @@ export default function FashionPage({ onNavigate }: FashionPageProps) {
       {/* Section 5: Framework (3 Tabs) */}
       <FashionFramework />
 
-      {/* Section 6: Service Cards (6 Cards in 3×2 Grid) */}
+      {/* Section 6: Service Cards (6 Cards in 3x2 Grid) */}
       <FashionServiceCards />
 
       {/* Section 7: ROI Chart (Exhibit 3) */}

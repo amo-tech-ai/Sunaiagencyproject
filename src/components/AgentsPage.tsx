@@ -1,3 +1,5 @@
+import { useNavigate } from 'react-router';
+import { pageToPath } from '../lib/navigation';
 import AgentsHero from './agents/AgentsHero';
 import AgentDefinition from './agents/AgentDefinition';
 import AgentSystemDiagram from './agents/AgentSystemDiagram';
@@ -8,11 +10,9 @@ import IndustryExamples from './agents/IndustryExamples';
 import OutcomesSection from './agents/OutcomesSection';
 import AgentsCTA from './agents/AgentsCTA';
 
-interface AgentsPageProps {
-  onNavigate?: (page: string) => void;
-}
+export default function AgentsPage() {
+  const nav = useNavigate();
 
-export default function AgentsPage({ onNavigate }: AgentsPageProps) {
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
     if (element) {
@@ -29,10 +29,7 @@ export default function AgentsPage({ onNavigate }: AgentsPageProps) {
   };
 
   const handleWizardClick = () => {
-    // Navigate to wizard or booking page
-    if (onNavigate) {
-      onNavigate('booking');
-    }
+    nav(pageToPath('booking'));
   };
 
   return (

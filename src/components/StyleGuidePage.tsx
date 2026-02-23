@@ -3,12 +3,12 @@
 import { motion, useInView } from 'motion/react';
 import { useRef } from 'react';
 import { Check, ArrowRight } from 'lucide-react';
+import { useNavigate } from 'react-router';
+import { pageToPath } from '../lib/navigation';
 
-interface StyleGuidePageProps {
-  onNavigate?: (page: string) => void;
-}
-
-export default function StyleGuidePage({ onNavigate }: StyleGuidePageProps) {
+export default function StyleGuidePage() {
+  const nav = useNavigate();
+  const onNavigate = (page: string) => nav(pageToPath(page));
   const heroRef = useRef(null);
   const heroInView = useInView(heroRef, { once: true });
 

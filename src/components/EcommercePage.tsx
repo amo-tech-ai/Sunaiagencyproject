@@ -1,3 +1,5 @@
+import { useNavigate } from 'react-router';
+import { pageToPath } from '../lib/navigation';
 import {
   EcommerceHero,
   EcommerceIntro,
@@ -13,15 +15,11 @@ import {
   EcommerceCTA,
 } from './ecommerce';
 
-interface EcommercePageProps {
-  onNavigate?: (page: string) => void;
-}
+export default function EcommercePage() {
+  const nav = useNavigate();
 
-export default function EcommercePage({ onNavigate }: EcommercePageProps) {
   const handleCTAClick = () => {
-    if (onNavigate) {
-      onNavigate('booking');
-    }
+    nav(pageToPath('booking'));
   };
 
   return (
@@ -41,7 +39,7 @@ export default function EcommercePage({ onNavigate }: EcommercePageProps) {
       {/* Section 5: Framework (3 Tabs) */}
       <EcommerceFramework />
 
-      {/* Section 6: Service Cards (6 Cards in 3×2 Grid) */}
+      {/* Section 6: Service Cards (6 Cards in 3x2 Grid) */}
       <EcommerceServiceCards />
 
       {/* Section 7: ROI Chart (Exhibit 1) */}

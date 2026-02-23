@@ -1,3 +1,5 @@
+import { useNavigate } from 'react-router';
+import { pageToPath } from '../lib/navigation';
 import V2Hero from './homev2/V2Hero';
 import V2ValueSection from './homev2/V2ValueSection';
 import V2MetricsSection from './homev2/V2MetricsSection';
@@ -11,11 +13,10 @@ import V2ProcessSection from './homev2/V2ProcessSection';
 import V2ProjectForm from './homev2/V2ProjectForm';
 import V2FinalCTA from './homev2/V2FinalCTA';
 
-interface HomePageV2Props {
-  onNavigate?: (page: string) => void;
-}
+export default function HomePageV2() {
+  const nav = useNavigate();
+  const onNavigate = (page: string) => nav(pageToPath(page));
 
-export default function HomePageV2({ onNavigate }: HomePageV2Props) {
   return (
     <div className="bg-[#FDFCFB]">
       {/* Hero Section */}

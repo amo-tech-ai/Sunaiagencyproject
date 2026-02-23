@@ -1,42 +1,54 @@
-interface FooterProps {
-  setCurrentPage: (page: string) => void;
-}
+import { Link } from 'react-router';
 
-export default function Footer({ setCurrentPage }: FooterProps) {
+export default function Footer() {
   const companyLinks = [
-    { id: 'about', label: 'About' },
-    { id: 'process', label: 'Process' },
-    { id: 'projects', label: 'Projects' },
-    { id: 'booking', label: 'Contact' },
+    { path: '/about', label: 'About' },
+    { path: '/process', label: 'Process' },
+    { path: '/projects', label: 'Projects' },
+    { path: '/booking', label: 'Contact' },
   ];
 
   const servicesLinks = [
-    { id: 'solutions', label: 'Solutions' },
-    { id: 'chatbots', label: 'AI Chatbots' },
-    { id: 'industries', label: 'Industries' },
-    { id: 'case-studies', label: 'Case Studies' },
+    { path: '/solutions', label: 'Solutions' },
+    { path: '/chatbots', label: 'AI Chatbots' },
+    { path: '/industries', label: 'Industries' },
+    { path: '/case-studies', label: 'Case Studies' },
   ];
 
   const agentsLinks = [
-    { id: 'agents', label: 'AI Agents Overview' },
-    { id: 'agents', label: 'Agent Types', hash: '#agent-types' },
-    { id: 'agents', label: 'How Agents Work', hash: '#system-diagram' },
+    { path: '/agents', label: 'AI Agents Overview' },
+    { path: '/agents#agent-types', label: 'Agent Types' },
+    { path: '/agents#system-diagram', label: 'How Agents Work' },
   ];
 
   const homeLinks = [
-    { id: 'home', label: 'Home V1' },
-    { id: 'home-v2', label: 'Home V2 (Luxury)' },
+    { path: '/home-v1', label: 'Home V1' },
+    { path: '/', label: 'Home V2 (Luxury)' },
   ];
 
   const industriesLinks = [
-    { id: 'ecommerce', label: 'E-Commerce' },
-    { id: 'fashion', label: 'Fashion' },
-    { id: 'travel', label: 'Travel & Tourism' },
+    { path: '/industries/e-commerce', label: 'E-Commerce' },
+    { path: '/industries/fashion', label: 'Fashion' },
+    { path: '/industries/travel', label: 'Travel & Tourism' },
   ];
 
   const resourcesLinks = [
-    { id: 'style-guide', label: 'Style Guide' },
+    { path: '/style-guide', label: 'Style Guide' },
   ];
+
+  const renderLinks = (links: { path: string; label: string }[]) => (
+    <div className="space-y-3">
+      {links.map((link) => (
+        <Link
+          key={link.path + link.label}
+          to={link.path}
+          className="block text-sm text-gray-400 hover:text-white transition-colors text-left"
+        >
+          {link.label}
+        </Link>
+      ))}
+    </div>
+  );
 
   return (
     <footer className="border-t border-gray-800 bg-gray-900 text-white">
@@ -58,17 +70,7 @@ export default function Footer({ setCurrentPage }: FooterProps) {
                 <h3 className="text-sm font-medium text-white mb-4 uppercase tracking-wider">
                   Company
                 </h3>
-                <div className="space-y-3">
-                  {companyLinks.map((link) => (
-                    <button
-                      key={link.id}
-                      onClick={() => setCurrentPage(link.id)}
-                      className="block text-sm text-gray-400 hover:text-white transition-colors text-left"
-                    >
-                      {link.label}
-                    </button>
-                  ))}
-                </div>
+                {renderLinks(companyLinks)}
               </div>
 
               {/* Services Column */}
@@ -76,17 +78,7 @@ export default function Footer({ setCurrentPage }: FooterProps) {
                 <h3 className="text-sm font-medium text-white mb-4 uppercase tracking-wider">
                   Services
                 </h3>
-                <div className="space-y-3">
-                  {servicesLinks.map((link) => (
-                    <button
-                      key={link.id}
-                      onClick={() => setCurrentPage(link.id)}
-                      className="block text-sm text-gray-400 hover:text-white transition-colors text-left"
-                    >
-                      {link.label}
-                    </button>
-                  ))}
-                </div>
+                {renderLinks(servicesLinks)}
               </div>
 
               {/* Industries Column */}
@@ -94,17 +86,7 @@ export default function Footer({ setCurrentPage }: FooterProps) {
                 <h3 className="text-sm font-medium text-white mb-4 uppercase tracking-wider">
                   Industries
                 </h3>
-                <div className="space-y-3">
-                  {industriesLinks.map((link) => (
-                    <button
-                      key={link.id}
-                      onClick={() => setCurrentPage(link.id)}
-                      className="block text-sm text-gray-400 hover:text-white transition-colors text-left"
-                    >
-                      {link.label}
-                    </button>
-                  ))}
-                </div>
+                {renderLinks(industriesLinks)}
               </div>
 
               {/* Agents Column */}
@@ -112,17 +94,7 @@ export default function Footer({ setCurrentPage }: FooterProps) {
                 <h3 className="text-sm font-medium text-white mb-4 uppercase tracking-wider">
                   AI Agents
                 </h3>
-                <div className="space-y-3">
-                  {agentsLinks.map((link, index) => (
-                    <button
-                      key={index}
-                      onClick={() => setCurrentPage(link.id)}
-                      className="block text-sm text-gray-400 hover:text-white transition-colors text-left"
-                    >
-                      {link.label}
-                    </button>
-                  ))}
-                </div>
+                {renderLinks(agentsLinks)}
               </div>
 
               {/* Home Column */}
@@ -130,17 +102,7 @@ export default function Footer({ setCurrentPage }: FooterProps) {
                 <h3 className="text-sm font-medium text-white mb-4 uppercase tracking-wider">
                   Home
                 </h3>
-                <div className="space-y-3">
-                  {homeLinks.map((link) => (
-                    <button
-                      key={link.id}
-                      onClick={() => setCurrentPage(link.id)}
-                      className="block text-sm text-gray-400 hover:text-white transition-colors text-left"
-                    >
-                      {link.label}
-                    </button>
-                  ))}
-                </div>
+                {renderLinks(homeLinks)}
               </div>
 
               {/* Resources Column */}
@@ -148,17 +110,7 @@ export default function Footer({ setCurrentPage }: FooterProps) {
                 <h3 className="text-sm font-medium text-white mb-4 uppercase tracking-wider">
                   Resources
                 </h3>
-                <div className="space-y-3">
-                  {resourcesLinks.map((link) => (
-                    <button
-                      key={link.id}
-                      onClick={() => setCurrentPage(link.id)}
-                      className="block text-sm text-gray-400 hover:text-white transition-colors text-left"
-                    >
-                      {link.label}
-                    </button>
-                  ))}
-                </div>
+                {renderLinks(resourcesLinks)}
               </div>
             </div>
           </div>
@@ -166,7 +118,7 @@ export default function Footer({ setCurrentPage }: FooterProps) {
 
         <div className="mt-16 pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sm text-gray-500">
-            © 2026 Sun AI Agency. All rights reserved.
+            &copy; 2026 Sun AI Agency. All rights reserved.
           </p>
           <div className="flex gap-6">
             <button className="text-sm text-gray-500 hover:text-white transition-colors">

@@ -1,3 +1,5 @@
+import { useNavigate } from 'react-router';
+import { pageToPath } from '../lib/navigation';
 import ChatbotsHero from './chatbots/ChatbotsHero';
 import ProblemSolution from './chatbots/ProblemSolution';
 import CapabilitiesGrid from './chatbots/CapabilitiesGrid';
@@ -9,11 +11,9 @@ import GeminiTechnology from './chatbots/GeminiTechnology';
 import BusinessBenefits from './chatbots/BusinessBenefits';
 import ChatbotsCTA from './chatbots/ChatbotsCTA';
 
-interface ChatbotsPageProps {
-  onNavigate?: (page: string) => void;
-}
+export default function ChatbotsPage() {
+  const nav = useNavigate();
 
-export default function ChatbotsPage({ onNavigate }: ChatbotsPageProps) {
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
     if (element) {
@@ -22,9 +22,7 @@ export default function ChatbotsPage({ onNavigate }: ChatbotsPageProps) {
   };
 
   const handlePrimaryClick = () => {
-    if (onNavigate) {
-      onNavigate('booking');
-    }
+    nav(pageToPath('booking'));
   };
 
   const handleSecondaryClick = () => {
