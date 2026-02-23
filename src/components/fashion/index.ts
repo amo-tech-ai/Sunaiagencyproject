@@ -1,0 +1,12 @@
+export { default as FashionHero } from './FashionHero';
+export { default as FashionIntro } from './FashionIntro';
+export { default as FashionStats } from './FashionStats';
+export { default as FashionApproach } from './FashionApproach';
+export { default as FashionFramework } from './FashionFramework';
+export { default as FashionServiceCards } from './FashionServiceCards';
+export { default as FashionROIChart } from './FashionROIChart';
+export { default as FashionValueChain } from './FashionValueChain';
+export { default as FashionSuggestedServices } from './FashionSuggestedServices';
+export { default as FashionInsights } from './FashionInsights';
+export { default as FashionRelatedServices } from './FashionRelatedServices';
+export { default as FashionCTA } from './FashionCTA';

@@ -1,0 +1,16 @@
+export { default as V2Hero } from './V2Hero';
+export { default as V2ValueSection } from './V2ValueSection';
+export { default as V2FeaturedWork } from './V2FeaturedWork';
+export { default as V2MetricsSection } from './V2MetricsSection';
+export { default as V2Testimonials } from './V2Testimonials';
+export { default as V2IndustriesStrip } from './V2IndustriesStrip';
+export { default as V2ServicesGrid } from './V2ServicesGrid';
+export { default as V2CreativeServices } from './V2CreativeServices';
+export { default as V2HowItWorks } from './V2HowItWorks';
+export { default as V2HighlightCards } from './V2HighlightCards';
+export { default as V2CapabilityFramework } from './V2CapabilityFramework';
+export { default as V2AIMaturityFramework } from './V2AIMaturityFramework';
+export { default as V2ProcessSection } from './V2ProcessSection';
+export { default as V2PricingSection } from './V2PricingSection';
+export { default as V2ProjectForm } from './V2ProjectForm';
+export { default as V2FinalCTA } from './V2FinalCTA';

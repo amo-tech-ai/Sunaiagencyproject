@@ -1,0 +1,10 @@
+export { default as ProjectsHero } from './ProjectsHero';
+export { default as ProjectNavigation } from './ProjectNavigation';
+export { default as ProjectModule } from './ProjectModule';
+export { default as ProjectHeader } from './ProjectHeader';
+export { default as ScreenshotCarousel } from './ScreenshotCarousel';
+export { default as ProjectStory } from './ProjectStory';
+export { default as ProjectCTA } from './ProjectCTA';
+export { default as SystemDiagram } from './SystemDiagram';
+export { default as ComparisonSection } from './ComparisonSection';
+export { default as ProjectsFinalCTA } from './ProjectsFinalCTA';
