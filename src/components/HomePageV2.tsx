@@ -12,6 +12,7 @@ import V2CapabilityFramework from './homev2/V2CapabilityFramework';
 import V2ProcessSection from './homev2/V2ProcessSection';
 import V2ProjectForm from './homev2/V2ProjectForm';
 import V2FinalCTA from './homev2/V2FinalCTA';
+import ServiceCardsGrid from './services/ServiceCardsGrid';
 
 export default function HomePageV2() {
   const nav = useNavigate();
@@ -24,6 +25,9 @@ export default function HomePageV2() {
       
       {/* Support / Value Section */}
       <V2ValueSection />
+
+      {/* Premium Service Cards */}
+      <ServiceCardsGrid />
       
       {/* Results & Metrics */}
       <V2MetricsSection />
