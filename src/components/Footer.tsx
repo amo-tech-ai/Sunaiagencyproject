@@ -42,7 +42,7 @@ export default function Footer() {
         <Link
           key={link.path + link.label}
           to={link.path}
-          className="block text-sm text-gray-400 hover:text-white transition-colors text-left"
+          className="block text-sm text-[#0A211F]/50 hover:text-[#0A211F] transition-colors text-left"
         >
           {link.label}
         </Link>
@@ -51,13 +51,13 @@ export default function Footer() {
   );
 
   return (
-    <footer className="border-t border-gray-800 bg-gray-900 text-white">
+    <footer className="border-t border-[#0A211F]/10 bg-[#F1EEEA] text-[#0A211F]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-12">
           {/* Brand */}
           <div className="md:col-span-4">
             <p className="text-xl tracking-tight mb-4">Sun AI Agency</p>
-            <p className="text-sm text-gray-400 leading-relaxed">
+            <p className="text-sm text-[#0A211F]/50 leading-relaxed">
               Premium AI services for businesses. We build real systems that solve real problems.
             </p>
           </div>
@@ -67,7 +67,7 @@ export default function Footer() {
             <div className="grid grid-cols-2 md:grid-cols-6 gap-8">
               {/* Company Column */}
               <div>
-                <h3 className="text-sm font-medium text-white mb-4 uppercase tracking-wider">
+                <h3 className="text-sm font-medium text-[#0A211F] mb-4 uppercase tracking-wider">
                   Company
                 </h3>
                 {renderLinks(companyLinks)}
@@ -75,7 +75,7 @@ export default function Footer() {
 
               {/* Services Column */}
               <div>
-                <h3 className="text-sm font-medium text-white mb-4 uppercase tracking-wider">
+                <h3 className="text-sm font-medium text-[#0A211F] mb-4 uppercase tracking-wider">
                   Services
                 </h3>
                 {renderLinks(servicesLinks)}
@@ -83,7 +83,7 @@ export default function Footer() {
 
               {/* Industries Column */}
               <div>
-                <h3 className="text-sm font-medium text-white mb-4 uppercase tracking-wider">
+                <h3 className="text-sm font-medium text-[#0A211F] mb-4 uppercase tracking-wider">
                   Industries
                 </h3>
                 {renderLinks(industriesLinks)}
@@ -91,7 +91,7 @@ export default function Footer() {
 
               {/* Agents Column */}
               <div>
-                <h3 className="text-sm font-medium text-white mb-4 uppercase tracking-wider">
+                <h3 className="text-sm font-medium text-[#0A211F] mb-4 uppercase tracking-wider">
                   AI Agents
                 </h3>
                 {renderLinks(agentsLinks)}
@@ -99,7 +99,7 @@ export default function Footer() {
 
               {/* Home Column */}
               <div>
-                <h3 className="text-sm font-medium text-white mb-4 uppercase tracking-wider">
+                <h3 className="text-sm font-medium text-[#0A211F] mb-4 uppercase tracking-wider">
                   Home
                 </h3>
                 {renderLinks(homeLinks)}
@@ -107,7 +107,7 @@ export default function Footer() {
 
               {/* Resources Column */}
               <div>
-                <h3 className="text-sm font-medium text-white mb-4 uppercase tracking-wider">
+                <h3 className="text-sm font-medium text-[#0A211F] mb-4 uppercase tracking-wider">
                   Resources
                 </h3>
                 {renderLinks(resourcesLinks)}
@@ -116,15 +116,15 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="mt-16 pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-sm text-gray-500">
+        <div className="mt-16 pt-8 border-t border-[#0A211F]/10 flex flex-col md:flex-row justify-between items-center gap-4">
+          <p className="text-sm text-[#0A211F]/40">
             &copy; 2026 Sun AI Agency. All rights reserved.
           </p>
           <div className="flex gap-6">
-            <button className="text-sm text-gray-500 hover:text-white transition-colors">
+            <button className="text-sm text-[#0A211F]/40 hover:text-[#0A211F] transition-colors">
               Privacy
             </button>
-            <button className="text-sm text-gray-500 hover:text-white transition-colors">
+            <button className="text-sm text-[#0A211F]/40 hover:text-[#0A211F] transition-colors">
               Terms
             </button>
           </div>
