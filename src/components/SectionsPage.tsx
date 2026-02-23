@@ -1,11 +1,12 @@
+import { useNavigate } from 'react-router';
+import { pageToPath } from '../lib/navigation';
 import V2PricingSection from './homev2/V2PricingSection';
 import V2AIMaturityFramework from './homev2/V2AIMaturityFramework';
 
-interface SectionsPageProps {
-  onNavigate?: (page: string) => void;
-}
+export default function SectionsPage() {
+  const nav = useNavigate();
+  const onNavigate = (page: string) => nav(pageToPath(page));
 
-export default function SectionsPage({ onNavigate }: SectionsPageProps) {
   return (
     <div className="bg-[#FDFCFB]">
       {/* Page Header */}

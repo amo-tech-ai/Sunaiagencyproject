@@ -1,11 +1,10 @@
-import { createBrowserRouter } from 'react-router';
+import { createBrowserRouter, Link } from 'react-router';
 import Layout from './components/Layout';
 import HomePageV2 from './components/HomePageV2';
 import HomePage from './components/HomePage';
 import SolutionsPage from './components/SolutionsPage';
 import IndustriesPage from './components/IndustriesPage';
 import AboutPage from './components/AboutPage';
-import ProcessPage from './components/ProcessPage';
 import ProcessPageV12 from './components/process/v12/ProcessPageV12';
 import ProjectsPage from './components/ProjectsPage';
 import AgentsPage from './components/AgentsPage';
@@ -24,12 +23,12 @@ function NotFound() {
       <div className="text-center">
         <h1 className="text-6xl tracking-tight mb-4">404</h1>
         <p className="text-xl text-gray-500 mb-8">Page not found</p>
-        <a
-          href="/"
+        <Link
+          to="/"
           className="px-8 py-3 bg-gray-900 text-white hover:bg-gray-800 transition-colors inline-block"
         >
           Back to Home
-        </a>
+        </Link>
       </div>
     </div>
   );
