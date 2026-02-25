@@ -13,37 +13,6 @@ interface PremiumServiceCardProps {
   variant: PremiumCardVariant;
 }
 
-const variantStyles: Record<
-  PremiumCardVariant,
-  {
-    bg: string;
-    title: string;
-    desc: string;
-    cta: string;
-    gradientEnd: string;
-    glowShadow: string;
-  }
-> = {
-  teal: {
-    bg: '#0F3D3E',
-    title: 'text-[#F1EEEA]',
-    desc: 'text-[#F1EEEA]/60',
-    cta: 'text-[#F1EEEA]/70 hover:text-[#F1EEEA]',
-    gradientEnd: 'rgba(15, 61, 62, 0.85)',
-    glowShadow:
-      '0 0 0 1px rgba(241,238,234,0.15), 0 20px 50px -12px rgba(0,0,0,0.4)',
-  },
-  cream: {
-    bg: '#F1EEEA',
-    title: 'text-[#000000]',
-    desc: 'text-[#000000]/55',
-    cta: 'text-[#0F3D3E]/80 hover:text-[#0F3D3E]',
-    gradientEnd: 'rgba(241, 238, 234, 0.85)',
-    glowShadow:
-      '0 0 0 1px rgba(15,61,62,0.2), 0 20px 50px -12px rgba(15,61,62,0.18)',
-  },
-};
-
 export default function PremiumServiceCard({
   title,
   description,
@@ -52,64 +21,83 @@ export default function PremiumServiceCard({
   variant,
 }: PremiumServiceCardProps) {
   const [hovered, setHovered] = useState(false);
-  const s = variantStyles[variant];
+
+  /* Variant controls the gradient tint colour */
+  const overlayGradient =
+    variant === 'teal'
+      ? 'linear-gradient(160deg, rgba(10,33,31,0.82) 0%, rgba(15,61,62,0.45) 45%, rgba(15,61,62,0.15) 100%)'
+      : 'linear-gradient(160deg, rgba(10,33,31,0.78) 0%, rgba(15,61,62,0.35) 45%, rgba(15,61,62,0.08) 100%)';
 
   return (
     <Link
       to={href}
-      className="group relative block rounded-[20px] overflow-hidden transition-all duration-[250ms] ease-out"
+      className="group relative block overflow-hidden"
       style={{
-        backgroundColor: s.bg,
+        borderRadius: '16px',
+        aspectRatio: '4 / 3.6',
         boxShadow: hovered
-          ? s.glowShadow
-          : variant === 'cream'
-          ? '0 1px 4px rgba(0,0,0,0.06)'
-          : '0 1px 4px rgba(0,0,0,0.2)',
-        transform: hovered ? 'translateY(-6px)' : 'translateY(0)',
+          ? '0 24px 48px -12px rgba(0,0,0,0.45), 0 0 0 1px rgba(241,238,234,0.08)'
+          : '0 4px 16px -4px rgba(0,0,0,0.25)',
+        transform: hovered ? 'translateY(-4px)' : 'translateY(0)',
+        transition: 'transform 350ms cubic-bezier(0.19,1,0.22,1), box-shadow 350ms cubic-bezier(0.19,1,0.22,1)',
       }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      {/* Image section — 4:5 ratio */}
-      <div className="relative w-full overflow-hidden" style={{ aspectRatio: '4 / 5' }}>
-        <ImageWithFallback
-          src={image}
-          alt={title}
-          className="absolute inset-0 w-full h-full object-cover transition-transform duration-[600ms] ease-out group-hover:scale-[1.05]"
-        />
+      {/* Full-bleed image */}
+      <ImageWithFallback
+        src={image}
+        alt={title}
+        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.06]"
+      />
 
-        {/* Teal overlay */}
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            background: `linear-gradient(180deg, rgba(15, 61, 62, 0.08) 0%, rgba(15, 61, 62, 0.25) 60%, ${s.gradientEnd} 100%)`,
-          }}
-        />
-      </div>
+      {/* Gradient overlay */}
+      <div
+        className="absolute inset-0 pointer-events-none transition-opacity duration-500"
+        style={{
+          background: overlayGradient,
+          opacity: hovered ? 0.95 : 1,
+        }}
+      />
 
-      {/* Text block */}
-      <div className="px-8 pt-7 pb-8 sm:px-9 sm:pt-8 sm:pb-9">
-        <h3
-          className={`${s.title} tracking-tight mb-2.5`}
-          style={{ fontSize: 'clamp(1.25rem, 2vw, 1.5rem)', fontWeight: 600, lineHeight: 1.25 }}
-        >
-          {title}
-        </h3>
+      {/* Content — pinned top & bottom */}
+      <div className="relative z-10 flex flex-col justify-between h-full p-7 sm:p-8">
+        {/* Top: title + description */}
+        <div>
+          <h3
+            className="text-[#F1EEEA] tracking-tight mb-2"
+            style={{
+              fontSize: 'clamp(1.15rem, 1.8vw, 1.35rem)',
+              fontWeight: 600,
+              lineHeight: 1.25,
+            }}
+          >
+            {title}
+          </h3>
+          <p
+            className="text-[#F1EEEA]/65 leading-relaxed"
+            style={{
+              fontSize: '0.875rem',
+              lineHeight: 1.55,
+              display: '-webkit-box',
+              WebkitLineClamp: 3,
+              WebkitBoxOrient: 'vertical' as const,
+              overflow: 'hidden',
+            }}
+          >
+            {description}
+          </p>
+        </div>
 
-        <p
-          className={`${s.desc} leading-relaxed mb-5`}
-          style={{ fontSize: '0.925rem', lineHeight: 1.6, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}
-        >
-          {description}
-        </p>
-
-        {/* CTA */}
+        {/* Bottom: CTA */}
         <span
-          className={`${s.cta} inline-flex items-center gap-1.5 transition-colors duration-200`}
-          style={{ fontSize: '0.875rem', fontWeight: 500 }}
+          className="inline-flex items-center gap-1.5 text-[#F1EEEA]/60 group-hover:text-[#F1EEEA] transition-colors duration-300"
+          style={{ fontSize: '0.8125rem', fontWeight: 500 }}
         >
-          Learn More
-          <ArrowRight className="w-4 h-4 transition-transform duration-[250ms] group-hover:translate-x-1" />
+          Learn more
+          <ArrowRight
+            className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-1"
+          />
         </span>
       </div>
     </Link>

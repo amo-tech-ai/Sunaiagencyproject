@@ -24,6 +24,7 @@ export default function Footer() {
   const homeLinks = [
     { path: '/home-v1', label: 'Home V1' },
     { path: '/', label: 'Home V2 (Luxury)' },
+    { path: '/home-v3', label: 'Home V3 (Spruced)' },
   ];
 
   const industriesLinks = [

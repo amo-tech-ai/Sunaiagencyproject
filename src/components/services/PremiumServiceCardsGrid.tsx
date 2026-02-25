@@ -4,7 +4,7 @@ const SERVICES = [
   {
     title: 'AI Agent Systems',
     description:
-      'Autonomous digital workers that handle leads, onboard customers, and manage operations.',
+      'Autonomous digital workers that handle leads, onboard customers, and manage operations around the clock.',
     href: '/agents',
     image:
       'https://images.unsplash.com/photo-1769839271832-cfd7a1f6854f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhcnRpZmljaWFsJTIwaW50ZWxsaWdlbmNlJTIwYXV0b21hdGlvbiUyMHJvYm90JTIwZnV0dXJpc3RpY3xlbnwxfHx8fDE3NzE4NTI2OTF8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
@@ -12,7 +12,7 @@ const SERVICES = [
   {
     title: 'AI Chatbots',
     description:
-      'Production-grade chatbots with RAG, CRM sync, and workflow execution.',
+      'Production-grade chatbots with RAG, CRM sync, and workflow execution built to scale.',
     href: '/chatbots',
     image:
       'https://images.unsplash.com/photo-1762330465857-07e4c81c0dfa?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjaGF0Ym90JTIwY29udmVyc2F0aW9uJTIwQUklMjBhc3Npc3RhbnQlMjBpbnRlcmZhY2V8ZW58MXx8fHwxNzcxODUyNjkyfDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
@@ -36,7 +36,7 @@ const SERVICES = [
   {
     title: 'AI MVP Development',
     description:
-      'Turn your AI idea into a working product in 4–6 weeks.',
+      'Turn your AI idea into a working product in 4-6 weeks with our rapid build process.',
     href: '/booking',
     image:
       'https://images.unsplash.com/photo-1740908901012-bd2608031565?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzdGFydHVwJTIwTVZQJTIwcHJvZHVjdCUyMGxhdW5jaCUyMGNvZGluZ3xlbnwxfHx8fDE3NzE4NTI2OTN8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
@@ -44,7 +44,7 @@ const SERVICES = [
   {
     title: 'Custom AI Development',
     description:
-      'RAG systems, personalization engines, predictive analytics, decision dashboards.',
+      'RAG systems, personalization engines, predictive analytics, and decision dashboards.',
     href: '/solutions',
     image:
       'https://images.unsplash.com/photo-1762968286778-60e65336d5ca?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtYWNoaW5lJTIwbGVhcm5pbmclMjBjb2RlJTIwZGVlcCUyMGxlYXJuaW5nJTIwbmV1cmFsfGVufDF8fHx8MTc3MTg1MjY5M3ww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
@@ -79,7 +79,7 @@ const SERVICES = [
     Row 1: teal, cream, teal
     Row 2: cream, teal, cream
     Row 3: teal, cream, teal
-    This gives a pleasant checkerboard feel. */
+    Controls the overlay gradient tint. */
 const variantPattern: PremiumCardVariant[] = [
   'teal', 'cream', 'teal',
   'cream', 'teal', 'cream',
@@ -90,38 +90,32 @@ export default function PremiumServiceCardsGrid() {
   return (
     <section className="bg-[#0F3D3E] py-24 sm:py-32">
       <div className="max-w-[1280px] mx-auto px-6">
-        {/* Section header */}
-        <div className="max-w-2xl mb-16 sm:mb-20">
-          <p
-            className="text-[#F1EEEA]/50 uppercase tracking-[0.2em] mb-5"
-            style={{ fontSize: '0.75rem', fontWeight: 500 }}
-          >
-            Our Services
-          </p>
+        {/* Section header — centred, reference style */}
+        <div className="text-center mb-16 sm:mb-20">
           <h2
-            className="text-[#F1EEEA] tracking-tight mb-5"
+            className="text-[#F1EEEA] tracking-tight"
             style={{
               fontFamily: "'Playfair Display', Georgia, serif",
               fontSize: 'clamp(1.875rem, 4.5vw, 3rem)',
               fontWeight: 600,
-              lineHeight: 1.12,
+              lineHeight: 1.15,
             }}
           >
-            AI solutions engineered
-            <br />
-            <span className="text-[#F1EEEA]/40">for enterprise impact</span>
+            <span style={{ fontStyle: 'italic' }}>Specialized</span> AI
+            <br className="sm:hidden" />{' '}
+            services
           </h2>
           <p
-            className="text-[#F1EEEA]/45 leading-relaxed max-w-xl"
-            style={{ fontSize: '1.05rem' }}
+            className="text-[#F1EEEA]/40 mt-4 max-w-lg mx-auto"
+            style={{ fontSize: '1rem', lineHeight: 1.6 }}
           >
-            From autonomous agents to full-stack AI products — we design, build,
-            and deploy systems that drive measurable business outcomes.
+            From autonomous agents to full-stack AI products — systems
+            engineered for enterprise impact.
           </p>
         </div>
 
         {/* Cards grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-6">
           {SERVICES.map((service, i) => (
             <PremiumServiceCard
               key={service.title}

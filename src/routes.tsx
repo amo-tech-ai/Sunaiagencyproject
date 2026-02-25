@@ -16,6 +16,8 @@ import CaseStudiesPage from './components/CaseStudiesPage';
 import BookingPage from './components/BookingPage';
 import StyleGuidePage from './components/StyleGuidePage';
 import SectionsPage from './components/SectionsPage';
+import HomePageV3 from './components/HomePageV3';
+import FinancialPage from './components/FinancialPage';
 
 function NotFound() {
   return (
@@ -55,6 +57,8 @@ export const router = createBrowserRouter([
       { path: 'booking', Component: BookingPage },
       { path: 'style-guide', Component: StyleGuidePage },
       { path: 'sections', Component: SectionsPage },
+      { path: 'home-v3', Component: HomePageV3 },
+      { path: 'financial', Component: FinancialPage },
       { path: '*', Component: NotFound },
     ],
   },
