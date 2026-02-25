@@ -8,7 +8,6 @@ import V2ServicesGrid from './homev2/V2ServicesGrid';
 import V2CreativeServices from './homev2/V2CreativeServices';
 import V2HowItWorks from './homev2/V2HowItWorks';
 import V2HighlightCards from './homev2/V2HighlightCards';
-import V2CapabilityFramework from './homev2/V2CapabilityFramework';
 import V2ProcessSection from './homev2/V2ProcessSection';
 import V2ProjectForm from './homev2/V2ProjectForm';
 import V2FinalCTA from './homev2/V2FinalCTA';
@@ -34,9 +33,6 @@ export default function HomePageV2() {
       
       {/* 2024 Highlights - Data Cards */}
       <V2HighlightCards onNavigate={onNavigate} />
-      
-      {/* Capability Framework - Strategic Diagram */}
-      <V2CapabilityFramework onNavigate={onNavigate} />
       
       {/* Industries Strip */}
       <V2IndustriesStrip onNavigate={onNavigate} />

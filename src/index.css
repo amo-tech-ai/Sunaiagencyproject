@@ -1754,10 +1754,6 @@
     background-color: oklab(76.8141% -.133694 .154614 / .2);
   }
 
-  .bg-\[\#84CC16\]\/60 {
-    background-color: oklab(76.8141% -.133694 .154614 / .6);
-  }
-
   .bg-\[\#262626\] {
     background-color: #262626;
   }
@@ -1768,6 +1764,10 @@
 
   .bg-\[\#F1EEEA\] {
     background-color: #f1eeea;
+  }
+
+  .bg-\[\#F1EEEA\]\/60 {
+    background-color: oklab(95.0323% .00157523 .00604999 / .6);
   }
 
   .bg-\[\#F2F2F2\] {

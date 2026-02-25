@@ -84,10 +84,10 @@ export default function V2CapabilityFramework({ onNavigate }: V2CapabilityFramew
           transition={{ duration: 0.6 }}
         >
           <h2 className="font-['Playfair_Display'] text-4xl lg:text-6xl font-bold text-white leading-tight">
-            How StartupAI <span className="text-[#84CC16]">Delivers Value</span>
+            How Sun AI <span className="text-[#F1EEEA]/70">Delivers Value</span>
           </h2>
           <p className="text-lg lg:text-xl text-white/70 font-['Lora'] max-w-3xl mt-6">
-            A unified capability framework that transforms ideas into fundable, execution-ready startups
+            A unified capability framework that transforms operations with production-grade AI systems
           </p>
         </motion.div>
 
@@ -105,8 +105,8 @@ export default function V2CapabilityFramework({ onNavigate }: V2CapabilityFramew
             transition={{ duration: 0.7, delay: 0.2 }}
           >
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-1 h-12 bg-[#84CC16]" />
-              <h3 className="text-xl lg:text-2xl font-bold text-[#84CC16] uppercase tracking-wide">
+              <div className="w-1 h-12 bg-[#F1EEEA]" />
+              <h3 className="text-xl lg:text-2xl font-bold text-[#F1EEEA] uppercase tracking-wide">
                 AI-Enabled Planning
               </h3>
             </div>
@@ -116,7 +116,7 @@ export default function V2CapabilityFramework({ onNavigate }: V2CapabilityFramew
                   key={index}
                   className="flex items-start gap-3 text-white/80 hover:text-white transition-colors"
                 >
-                  <div className="w-1.5 h-1.5 bg-[#84CC16]/60 mt-2 flex-shrink-0" style={{ borderRadius: '1px' }} />
+                  <div className="w-1.5 h-1.5 bg-[#F1EEEA]/60 mt-2 flex-shrink-0" style={{ borderRadius: '1px' }} />
                   <span className="text-base lg:text-lg font-['Lora'] leading-relaxed">
                     {capability}
                   </span>
@@ -143,9 +143,9 @@ export default function V2CapabilityFramework({ onNavigate }: V2CapabilityFramew
                 {segments.map((segment, index) => {
                   const isActive = activeSegment === segment.id;
                   const colors = [
-                    { base: '#84CC16', hover: '#A3E635' }, // Strategy - Lime
-                    { base: '#65A30D', hover: '#84CC16' }, // Execution - Dark Lime
-                    { base: '#4D7C0F', hover: '#65A30D' }, // Intelligence - Darker Lime
+                    { base: '#F1EEEA', hover: '#FFFFFF' }, // Strategy - Cream
+                    { base: '#C8C2BA', hover: '#F1EEEA' }, // Execution - Muted cream
+                    { base: '#9E9890', hover: '#C8C2BA' }, // Intelligence - Warm grey
                   ];
                   const color = colors[index];
                   
@@ -167,7 +167,7 @@ export default function V2CapabilityFramework({ onNavigate }: V2CapabilityFramew
                         y={250 + Math.sin((segment.angle + 60) * Math.PI / 180) * 150}
                         textAnchor="middle"
                         dominantBaseline="middle"
-                        fill="white"
+                        fill="#0F3D3E"
                         fontSize="20"
                         fontWeight="700"
                         className="pointer-events-none uppercase tracking-wider"
@@ -184,8 +184,8 @@ export default function V2CapabilityFramework({ onNavigate }: V2CapabilityFramew
                   cx="250"
                   cy="250"
                   r="110"
-                  fill="#F5F5F5"
-                  stroke="#84CC16"
+                  fill="#F1EEEA"
+                  stroke="#0F3D3E"
                   strokeWidth="3"
                 />
 
@@ -212,7 +212,7 @@ export default function V2CapabilityFramework({ onNavigate }: V2CapabilityFramew
                   className="uppercase tracking-wider"
                   style={{ fontFamily: 'Playfair Display' }}
                 >
-                  CLARITY
+                  DELIVERY
                 </text>
                 <text
                   x="250"
@@ -234,10 +234,10 @@ export default function V2CapabilityFramework({ onNavigate }: V2CapabilityFramew
                   textAnchor="middle"
                   fill="#0F3D3E"
                   fontSize="11"
-                  opacity="0.6"
+                   opacity="0.6"
                   style={{ fontFamily: 'Lora' }}
                 >
-                  Founder Intent • Strategy • Logic
+                   Strategy • Execution • Intelligence
                 </text>
               </svg>
 
@@ -257,7 +257,7 @@ export default function V2CapabilityFramework({ onNavigate }: V2CapabilityFramew
                   <ul className="space-y-2">
                     {segments.find(s => s.id === activeSegment)?.capabilities.map((cap, i) => (
                       <li key={i} className="flex items-start gap-2 text-sm text-[#0F3D3E]/80 font-['Lora']">
-                        <span className="text-[#84CC16] mt-1">•</span>
+                        <span className="text-[#0F3D3E] mt-1">•</span>
                         <span>{cap}</span>
                       </li>
                     ))}
@@ -278,8 +278,8 @@ export default function V2CapabilityFramework({ onNavigate }: V2CapabilityFramew
             transition={{ duration: 0.7, delay: 0.2 }}
           >
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-1 h-12 bg-[#84CC16]" />
-              <h3 className="text-xl lg:text-2xl font-bold text-[#84CC16] uppercase tracking-wide">
+              <div className="w-1 h-12 bg-[#F1EEEA]" />
+              <h3 className="text-xl lg:text-2xl font-bold text-[#F1EEEA] uppercase tracking-wide">
                 AI-Enabled Operations
               </h3>
             </div>
@@ -289,7 +289,7 @@ export default function V2CapabilityFramework({ onNavigate }: V2CapabilityFramew
                   key={index}
                   className="flex items-start gap-3 text-white/80 hover:text-white transition-colors"
                 >
-                  <div className="w-1.5 h-1.5 bg-[#84CC16]/60 mt-2 flex-shrink-0" style={{ borderRadius: '1px' }} />
+                  <div className="w-1.5 h-1.5 bg-[#F1EEEA]/60 mt-2 flex-shrink-0" style={{ borderRadius: '1px' }} />
                   <span className="text-base lg:text-lg font-['Lora'] leading-relaxed">
                     {capability}
                   </span>
@@ -308,7 +308,7 @@ export default function V2CapabilityFramework({ onNavigate }: V2CapabilityFramew
           transition={{ duration: 0.6, delay: 0.6 }}
         >
           <p className="text-xs text-white/50 font-['Lora'] uppercase tracking-wider">
-            Source: StartupAI Internal Framework
+            Source: Sun AI Capability Framework
           </p>
         </motion.div>
       </div>

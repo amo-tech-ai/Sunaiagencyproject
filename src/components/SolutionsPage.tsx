@@ -1,6 +1,7 @@
 import { Link } from 'react-router';
 import { ArrowRight } from 'lucide-react';
 import PremiumServiceCardsGrid from './services/PremiumServiceCardsGrid';
+import V2CapabilityFramework from './homev2/V2CapabilityFramework';
 
 export default function SolutionsPage() {
   return (
@@ -50,6 +51,9 @@ export default function SolutionsPage() {
 
       {/* Premium Service Cards */}
       <PremiumServiceCardsGrid />
+
+      {/* Capability Framework */}
+      <V2CapabilityFramework />
 
       {/* Bottom CTA */}
       <section className="bg-[#0F3D3E] py-20 sm:py-28">
