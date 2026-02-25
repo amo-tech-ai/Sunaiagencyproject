@@ -41,8 +41,9 @@ export const router = createBrowserRouter([
     path: '/',
     Component: Layout,
     children: [
-      { index: true, Component: HomePageV2 },
+      { index: true, Component: HomePageV3 },
       { path: 'home-v1', Component: HomePage },
+      { path: 'home-v4', Component: HomePageV2 },
       { path: 'solutions', Component: SolutionsPage },
       { path: 'industries', Component: IndustriesPage },
       { path: 'industries/e-commerce', Component: EcommercePage },
@@ -57,7 +58,6 @@ export const router = createBrowserRouter([
       { path: 'booking', Component: BookingPage },
       { path: 'style-guide', Component: StyleGuidePage },
       { path: 'sections', Component: SectionsPage },
-      { path: 'home-v3', Component: HomePageV3 },
       { path: 'financial', Component: FinancialPage },
       { path: '*', Component: NotFound },
     ],
