@@ -1,6 +1,8 @@
 import { Link } from 'react-router';
 import { ArrowRight, Sparkles, Bot, Workflow, BrainCircuit, BarChart3, Settings, Layers, Lightbulb, Zap } from 'lucide-react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
+import HowWeDeliverSection from './shared/HowWeDeliverSection';
+import VelocityProcessSection from './home/VelocityProcessSection';
 
 /* ═══════════════════════════════════════════════════════════════
    Sun AI Agency — HomePageV3 (Spruced-Inspired Luxury)
@@ -127,7 +129,7 @@ function HeroSection() {
 
 /* ═══════════════════════════════════════════════════════════════
    2 — AI CAPABILITIES
-   ═══════════════════════════════════════════════��═══════════════ */
+   ══════════════════════════════════════════════════════════════ */
 
 const CAPABILITIES = [
   {
@@ -203,7 +205,7 @@ function CapabilitiesSection() {
 
 /* ═══════════════════════════════════════════════════════════════
    3 — CREDIBILITY BAND
-   ═══════════════════════════════════════════════════════════════ */
+   ══════════════════════════════════════════════════════════════ */
 
 function CredibilityBand() {
   return (
@@ -778,7 +780,7 @@ function PlaybookSection() {
   );
 }
 
-/* ═════════���═════════════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════════════════
    9 — TESTIMONIAL
    ═══════════════════════════════════════════════════════════════ */
 
@@ -938,11 +940,12 @@ export default function HomePageV3() {
     <div>
       <HeroSection />
       <ServicesGrid />
+      <VelocityProcessSection />
       <CapabilitiesSection />
       <CredibilityBand />
       <StorySection />
       <SpecializedServicesSection />
-      <ProcessSection />
+      <HowWeDeliverSection />
       <PlaybookSection />
       <TestimonialSection />
       <MetricsBand />
