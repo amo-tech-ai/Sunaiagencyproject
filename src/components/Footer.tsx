@@ -31,6 +31,7 @@ export default function Footer() {
     { path: '/industries/e-commerce', label: 'E-Commerce' },
     { path: '/industries/fashion', label: 'Fashion' },
     { path: '/industries/travel', label: 'Travel & Tourism' },
+    { path: '/financial', label: 'Financial' },
   ];
 
   const resourcesLinks = [
