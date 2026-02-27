@@ -3,6 +3,7 @@ import { ArrowRight, Sparkles, Bot, Workflow, BrainCircuit, BarChart3, Settings,
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import HowWeDeliverSection from './shared/HowWeDeliverSection';
 import VelocityProcessSection from './home/VelocityProcessSection';
+import TechStackSection from './home/TechStackSection';
 
 /* ═══════════════════════════════════════════════════════════════
    Sun AI Agency — HomePageV3 (Spruced-Inspired Luxury)
@@ -941,6 +942,7 @@ export default function HomePageV3() {
       <HeroSection />
       <ServicesGrid />
       <VelocityProcessSection />
+      <TechStackSection />
       <CapabilitiesSection />
       <CredibilityBand />
       <StorySection />
