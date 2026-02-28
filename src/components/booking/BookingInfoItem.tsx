@@ -9,8 +9,13 @@ export default function BookingInfoItem({
 }: BookingInfoItemProps) {
   return (
     <div>
-      <h3 className="text-xl mb-2">{title}</h3>
-      <p className="text-gray-600">{description}</p>
+      <h3 
+        className="text-xl font-semibold mb-2"
+        style={{ fontFamily: 'Playfair Display, serif' }}
+      >
+        {title}
+      </h3>
+      <p className="text-gray-600 font-['Lora']">{description}</p>
     </div>
   );
 }

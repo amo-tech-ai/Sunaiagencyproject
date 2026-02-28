@@ -7,14 +7,17 @@ export default function BookingPage() {
   const { formData, handleChange, handleSubmit } = useBookingForm();
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
         {/* Info Column */}
         <div>
-          <h1 className="text-4xl md:text-5xl tracking-tight mb-6">
+          <h1 
+            className="text-4xl md:text-5xl tracking-tight mb-6"
+            style={{ fontFamily: 'Playfair Display, serif' }}
+          >
             Book a Call
           </h1>
-          <p className="text-lg text-gray-600 mb-8">
+          <p className="text-lg text-gray-600 mb-8 font-['Lora']">
             Let's discuss your project and explore how we can help.
           </p>
 

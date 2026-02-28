@@ -48,12 +48,12 @@ export default function MethodologyComparison() {
     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32 border-t border-gray-200">
       <div className="mb-16">
         <h2
-          className="text-5xl md:text-6xl font-bold text-[#1A1A1A] mb-6"
+          className="text-5xl md:text-6xl font-bold text-gray-900 mb-6"
           style={{ fontFamily: 'Playfair Display, serif' }}
         >
           How We Compare
         </h2>
-        <p className="text-xl text-[#666666] max-w-3xl">
+        <p className="text-xl text-gray-600 max-w-3xl font-['Lora']">
           See why leading companies choose our AI-accelerated approach.
         </p>
       </div>
@@ -61,17 +61,17 @@ export default function MethodologyComparison() {
       <div className="overflow-x-auto">
         <table className="w-full border-collapse">
           <thead>
-            <tr className="bg-[#1A1A1A] text-white">
-              <th className="py-4 px-6 text-left text-sm font-semibold uppercase tracking-wider">
+            <tr className="bg-[#0F3D3E] text-white">
+              <th className="py-4 px-6 text-left text-sm font-semibold uppercase tracking-wider font-['Lora']">
                 Feature
               </th>
-              <th className="py-4 px-6 text-left text-sm font-semibold uppercase tracking-wider">
+              <th className="py-4 px-6 text-left text-sm font-semibold uppercase tracking-wider font-['Lora']">
                 Traditional Agency
               </th>
-              <th className="py-4 px-6 text-left text-sm font-semibold uppercase tracking-wider">
+              <th className="py-4 px-6 text-left text-sm font-semibold uppercase tracking-wider font-['Lora']">
                 Freelancers
               </th>
-              <th className="py-4 px-6 text-left text-sm font-semibold uppercase tracking-wider border-b-4 border-[#F59E0B]">
+              <th className="py-4 px-6 text-left text-sm font-semibold uppercase tracking-wider border-b-4 border-[#84CC16] font-['Lora']">
                 Our Process
               </th>
             </tr>
@@ -82,10 +82,10 @@ export default function MethodologyComparison() {
                 key={index}
                 className="border-b border-[#EFE9E4] hover:bg-neutral-50 transition-colors"
               >
-                <td className="py-4 px-6 font-semibold text-[#1A1A1A]">{row.feature}</td>
-                <td className="py-4 px-6 text-[#666666]">{row.traditional}</td>
-                <td className="py-4 px-6 text-[#666666]">{row.freelancer}</td>
-                <td className="py-4 px-6 bg-[#FFF7ED] text-[#F59E0B] font-semibold">
+                <td className="py-4 px-6 font-semibold text-gray-900 font-['Lora']">{row.feature}</td>
+                <td className="py-4 px-6 text-gray-600 font-['Lora']">{row.traditional}</td>
+                <td className="py-4 px-6 text-gray-600 font-['Lora']">{row.freelancer}</td>
+                <td className="py-4 px-6 bg-[#F7FEE7] text-[#84CC16] font-semibold font-['Lora']">
                   {row.ourProcess}
                 </td>
               </tr>

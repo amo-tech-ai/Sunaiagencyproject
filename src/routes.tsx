@@ -18,6 +18,13 @@ import StyleGuidePage from './components/StyleGuidePage';
 import SectionsPage from './components/SectionsPage';
 import HomePageV3 from './components/HomePageV3';
 import FinancialPage from './components/FinancialPage';
+import { ServicesPage } from './components/services/ServicesPage';
+import WebDesignPage from './pages/WebDesignPage';
+import MVPBuilderPage from './pages/MVPBuilderPage';
+import MVPv2Page from './pages/MVPv2Page';
+import AIAgentsPage from './pages/AIAgentsPage';
+import WebAppsPage from './pages/WebAppsPage';
+import SalesCRMPage from './pages/SalesCRMPage';
 
 function NotFound() {
   return (
@@ -59,6 +66,16 @@ export const router = createBrowserRouter([
       { path: 'style-guide', Component: StyleGuidePage },
       { path: 'sections', Component: SectionsPage },
       { path: 'financial', Component: FinancialPage },
+      { path: 'services', Component: ServicesPage },
+      { path: 'web-design', Component: WebDesignPage },
+      { path: 'mvp-builder', Component: MVPBuilderPage },
+      { path: 'mvp-v2', Component: MVPv2Page },
+      { path: 'services/ai-agents', Component: AIAgentsPage },
+      { path: 'ai-agents', Component: AIAgentsPage },
+      { path: 'web-apps', Component: WebAppsPage },
+      { path: 'sales-crm', Component: SalesCRMPage },
+      { path: 'services/crm', Component: SalesCRMPage },
+      { path: 'services/sales-crm', Component: SalesCRMPage },
       { path: '*', Component: NotFound },
     ],
   },

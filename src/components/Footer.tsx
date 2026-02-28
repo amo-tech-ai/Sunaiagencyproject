@@ -9,8 +9,12 @@ export default function Footer() {
   ];
 
   const servicesLinks = [
+    { path: '/services', label: 'Services' },
     { path: '/solutions', label: 'Solutions' },
     { path: '/chatbots', label: 'AI Chatbots' },
+    { path: '/web-design', label: 'Web Design' },
+    { path: '/mvp-builder', label: 'MVP Builder' },
+    { path: '/mvp-v2', label: 'MVP Builder V2' },
     { path: '/industries', label: 'Industries' },
     { path: '/case-studies', label: 'Case Studies' },
   ];

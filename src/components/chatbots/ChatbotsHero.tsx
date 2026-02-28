@@ -23,7 +23,7 @@ export default function ChatbotsHero({ onPrimaryClick, onSecondaryClick }: Chatb
   ];
 
   return (
-    <section className="relative bg-[#1A1A1A] overflow-hidden min-h-screen flex items-center">
+    <section className="relative bg-[#0F3D3E] overflow-hidden min-h-screen flex items-center">
       {/* Animated Grid Pattern */}
       <div 
         className="absolute inset-0 opacity-[0.03]"
@@ -41,17 +41,17 @@ export default function ChatbotsHero({ onPrimaryClick, onSecondaryClick }: Chatb
       <div 
         className="absolute inset-0"
         style={{
-          background: 'radial-gradient(ellipse at center, rgba(26,26,26,0) 0%, rgba(26,26,26,0.6) 100%)',
+          background: 'radial-gradient(ellipse at center, rgba(15,61,62,0) 0%, rgba(15,61,62,0.6) 100%)',
         }}
       />
 
       {/* Floating Accent Elements */}
       <div 
-        className="absolute top-1/4 right-1/4 w-96 h-96 bg-[#F59E0B] opacity-[0.03] blur-3xl rounded-full"
+        className="absolute top-1/4 right-1/4 w-96 h-96 bg-[#84CC16] opacity-[0.03] blur-3xl rounded-full"
         style={{ transform: `translateY(${scrollY * 0.2}px)` }}
       />
       <div 
-        className="absolute bottom-1/4 left-1/4 w-96 h-96 bg-[#F59E0B] opacity-[0.02] blur-3xl rounded-full"
+        className="absolute bottom-1/4 left-1/4 w-96 h-96 bg-[#84CC16] opacity-[0.02] blur-3xl rounded-full"
         style={{ transform: `translateY(${scrollY * -0.15}px)` }}
       />
 
@@ -59,19 +59,22 @@ export default function ChatbotsHero({ onPrimaryClick, onSecondaryClick }: Chatb
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32">
         <div className="max-w-5xl mx-auto text-center">
           {/* Eyebrow */}
-          <div className="inline-block mb-6">
-            <span className="text-xs uppercase tracking-widest text-[#F59E0B] font-medium border border-[#F59E0B] px-4 py-2">
+          <div className="mb-6">
+            <span className="text-xs uppercase tracking-widest text-[#84CC16] font-semibold font-['Lora']">
               AI Chatbots That Actually Run Your Business
             </span>
           </div>
 
           {/* Main Headline */}
-          <h1 className="font-serif text-5xl md:text-6xl lg:text-7xl tracking-tight mb-6 leading-[1.1] text-white">
+          <h1 
+            className="text-5xl md:text-6xl lg:text-7xl tracking-tight mb-6 leading-[1.1] text-white"
+            style={{ fontFamily: 'Playfair Display, serif' }}
+          >
             AI Chatbots That Do the Work — Not Just Talk
           </h1>
 
           {/* Sub-headline */}
-          <p className="text-xl md:text-2xl text-gray-300 mb-12 leading-relaxed max-w-4xl mx-auto">
+          <p className="text-xl md:text-2xl text-gray-300 mb-12 leading-relaxed max-w-4xl mx-auto font-['Lora']">
             Automate sales, support, and operations with AI chatbots that answer questions, execute workflows, 
             qualify leads, and sync with your CRM — 24/7.
           </p>
@@ -86,8 +89,8 @@ export default function ChatbotsHero({ onPrimaryClick, onSecondaryClick }: Chatb
                   animation: `fadeInUp 0.6s ease-out ${index * 0.1}s both`,
                 }}
               >
-                <CheckCircle className="w-5 h-5 text-[#F59E0B] flex-shrink-0 mt-1" />
-                <span className="text-gray-300 text-sm md:text-base">{bullet}</span>
+                <CheckCircle className="w-5 h-5 text-[#84CC16] flex-shrink-0 mt-1" />
+                <span className="text-gray-300 text-sm md:text-base font-['Lora']">{bullet}</span>
               </div>
             ))}
           </div>
@@ -95,14 +98,14 @@ export default function ChatbotsHero({ onPrimaryClick, onSecondaryClick }: Chatb
           {/* CTAs */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <button
-              className="bg-[#F59E0B] hover:bg-[#FCD34D] text-[#1A1A1A] px-8 py-4 text-base font-medium transition-all duration-300 min-w-[280px] flex items-center justify-center gap-2 group"
+              className="bg-[#84CC16] hover:bg-[#73b512] text-gray-900 px-8 py-4 text-base font-semibold transition-all duration-300 min-w-[280px] flex items-center justify-center gap-2 group font-['Lora']"
               onClick={onPrimaryClick}
             >
               Get Your AI Chatbot Strategy
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </button>
             <button
-              className="border border-gray-600 hover:border-[#F59E0B] hover:bg-gray-800 text-white px-8 py-4 text-base font-medium transition-all duration-300 min-w-[280px]"
+              className="border border-gray-600 hover:border-[#84CC16] hover:bg-gray-800 text-white px-8 py-4 text-base font-semibold transition-all duration-300 min-w-[280px] font-['Lora']"
               onClick={onSecondaryClick}
             >
               See Real Use Cases

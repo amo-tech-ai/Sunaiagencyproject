@@ -97,6 +97,7 @@ function ChartCard({
       style={{
         background: 'rgba(241,238,234,0.025)',
         border: '1px solid rgba(241,238,234,0.06)',
+        minHeight: '340px',
       }}
       initial={{ opacity: 0, y: 24 }}
       whileInView={{ opacity: 1, y: 0 }}
@@ -197,12 +198,12 @@ export default function ROIMetricsSection() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Revenue Growth – Bar Chart */}
           <ChartCard
-            title="Revenue Growth"
+            title="Revenue Impact"
             subtitle="Before vs. After AI deployment ($K)"
             delay={0.1}
           >
-            <div className="h-[220px]">
-              <ResponsiveContainer width="100%" height="100%">
+            <div style={{ width: '100%', height: '220px', minHeight: '220px' }}>
+              <ResponsiveContainer width="100%" height={220}>
                 <BarChart data={revenueData} barGap={3}>
                   <CartesianGrid
                     strokeDasharray="3 6"
@@ -248,8 +249,8 @@ export default function ROIMetricsSection() {
             subtitle="Hours saved per week, cumulative"
             delay={0.2}
           >
-            <div className="h-[220px]">
-              <ResponsiveContainer width="100%" height="100%">
+            <div style={{ width: '100%', height: '220px', minHeight: '220px' }}>
+              <ResponsiveContainer width="100%" height={220}>
                 <AreaChart data={savingsData}>
                   <defs>
                     <linearGradient id="savingsGrad" x1="0" y1="0" x2="0" y2="1">

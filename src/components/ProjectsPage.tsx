@@ -60,7 +60,7 @@ export default function ProjectsPage() {
   };
 
   return (
-    <main className="bg-[#FDFCFB]">
+    <main className="bg-white">
       <ProjectsHero
         onStartClick={handleStartProject}
         onProcessClick={handleViewProcess}

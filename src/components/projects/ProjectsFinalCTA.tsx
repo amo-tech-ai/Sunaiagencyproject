@@ -10,7 +10,7 @@ export default function ProjectsFinalCTA({
   onContactUs,
 }: ProjectsFinalCTAProps) {
   return (
-    <section className="py-24 lg:py-32 bg-[#1A1A1A] text-white">
+    <section className="py-24 lg:py-32 bg-[#0F3D3E] text-white">
       <div className="max-w-4xl mx-auto px-6 lg:px-16 text-center">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -25,20 +25,20 @@ export default function ProjectsFinalCTA({
             Ready to Build a Real AI Product?
           </h2>
 
-          <p className="text-xl text-white/70 font-light mb-12">
+          <p className="text-xl text-white/70 font-light mb-12 font-['Lora']">
             From idea to production system in 8 weeks.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button
               onClick={onStartProject}
-              className="px-10 py-5 bg-[#F59E0B] text-[#1A1A1A] font-bold hover:bg-[#FCD34D] transition-all"
+              className="px-8 py-4 bg-[#84CC16] text-gray-900 font-semibold hover:bg-[#73b512] transition-colors font-['Lora']"
             >
               Start Your Project
             </button>
             <button
               onClick={onContactUs}
-              className="px-10 py-5 border border-white/20 bg-white/5 text-white font-bold hover:bg-white/10 transition-all"
+              className="px-8 py-4 border border-white/20 bg-white/5 text-white font-semibold hover:bg-white/10 transition-colors font-['Lora']"
             >
               Contact Us
             </button>

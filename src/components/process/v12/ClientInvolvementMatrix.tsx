@@ -42,12 +42,12 @@ export default function ClientInvolvementMatrix() {
     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32 border-t border-gray-200">
       <div className="mb-16">
         <h2
-          className="text-5xl md:text-6xl font-bold text-[#1A1A1A] mb-6"
+          className="text-5xl md:text-6xl font-bold text-gray-900 mb-6"
           style={{ fontFamily: 'Playfair Display, serif' }}
         >
           Your Time Investment
         </h2>
-        <p className="text-xl text-[#666666] max-w-3xl">
+        <p className="text-xl text-gray-600 max-w-3xl font-['Lora']">
           We minimize your time commitment while maximizing results.
         </p>
       </div>
@@ -55,17 +55,17 @@ export default function ClientInvolvementMatrix() {
       <div className="overflow-x-auto">
         <table className="w-full border-collapse">
           <thead>
-            <tr className="bg-[#1A1A1A] text-white">
-              <th className="py-4 px-6 text-left text-sm font-semibold uppercase tracking-wider">
+            <tr className="bg-[#0F3D3E] text-white">
+              <th className="py-4 px-6 text-left text-sm font-semibold uppercase tracking-wider font-['Lora']">
                 Phase
               </th>
-              <th className="py-4 px-6 text-left text-sm font-semibold uppercase tracking-wider">
+              <th className="py-4 px-6 text-left text-sm font-semibold uppercase tracking-wider font-['Lora']">
                 Traditional Agency
               </th>
-              <th className="py-4 px-6 text-left text-sm font-semibold uppercase tracking-wider bg-[#F59E0B]/10">
+              <th className="py-4 px-6 text-left text-sm font-semibold uppercase tracking-wider bg-[#84CC16]/10 font-['Lora']">
                 Our Process
               </th>
-              <th className="py-4 px-6 text-left text-sm font-semibold uppercase tracking-wider">
+              <th className="py-4 px-6 text-left text-sm font-semibold uppercase tracking-wider font-['Lora']">
                 Time Saved
               </th>
             </tr>
@@ -76,23 +76,23 @@ export default function ClientInvolvementMatrix() {
                 key={index}
                 className="border-b border-[#EFE9E4] hover:bg-[#FDFCFB] transition-colors"
               >
-                <td className="py-4 px-6 font-semibold text-[#1A1A1A]">{row.phase}</td>
-                <td className="py-4 px-6 text-[#666666]">{row.traditional}</td>
-                <td className="py-4 px-6 bg-[#FFF7ED] text-[#F59E0B] font-semibold">
+                <td className="py-4 px-6 font-semibold text-gray-900 font-['Lora']">{row.phase}</td>
+                <td className="py-4 px-6 text-gray-600 font-['Lora']">{row.traditional}</td>
+                <td className="py-4 px-6 bg-[#F7FEE7] text-[#84CC16] font-semibold font-['Lora']">
                   {row.ourProcess}
                 </td>
-                <td className="py-4 px-6 text-[#666666]">{row.savings}</td>
+                <td className="py-4 px-6 text-gray-600 font-['Lora']">{row.savings}</td>
               </tr>
             ))}
           </tbody>
           <tfoot>
-            <tr className="bg-[#FAF8F6] border-t-2 border-[#F59E0B]">
-              <td className="py-4 px-6 font-bold text-[#1A1A1A]">Total</td>
-              <td className="py-4 px-6 text-[#666666] font-semibold">47+ hours/week</td>
-              <td className="py-4 px-6 bg-[#FFF7ED] text-[#F59E0B] font-bold">
+            <tr className="bg-[#FAF8F6] border-t-2 border-[#84CC16]">
+              <td className="py-4 px-6 font-bold text-gray-900 font-['Lora']">Total</td>
+              <td className="py-4 px-6 text-gray-600 font-semibold font-['Lora']">47+ hours/week</td>
+              <td className="py-4 px-6 bg-[#F7FEE7] text-[#84CC16] font-bold font-['Lora']">
                 10-12 hours/week
               </td>
-              <td className="py-4 px-6 text-[#1A1A1A] font-bold">75%</td>
+              <td className="py-4 px-6 text-gray-900 font-bold font-['Lora']">75%</td>
             </tr>
           </tfoot>
         </table>

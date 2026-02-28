@@ -27,7 +27,7 @@ export default function PhaseCard({
   return (
     <div
       className={`border border-[#EFE9E4] bg-white hover:border-[#D1C7BD] transition-colors ${
-        isExpanded ? 'border-l-4 border-l-[#F59E0B]' : ''
+        isExpanded ? 'border-l-4 border-l-[#84CC16]' : ''
       }`}
     >
       {/* Header - Always Visible */}
@@ -45,17 +45,17 @@ export default function PhaseCard({
         <div className="flex-1">
           <div className="flex items-center gap-3 mb-2">
             <span
-              className="text-3xl font-bold text-[#F59E0B]"
+              className="text-3xl font-bold text-[#84CC16]"
               style={{ fontFamily: 'Playfair Display, serif' }}
             >
               {number}
             </span>
-            <span className="text-2xl font-semibold text-[#1A1A1A]">{name}</span>
-            <span className="ml-auto bg-[#FAF8F6] text-[#666666] px-4 py-1.5 text-sm">
+            <span className="text-2xl font-semibold text-[#1A1A1A] font-['Lora']">{name}</span>
+            <span className="ml-auto bg-[#FAF8F6] text-gray-600 px-4 py-1.5 text-sm font-['Lora']">
               {duration}
             </span>
           </div>
-          <p className="text-[#666666] leading-relaxed">{description}</p>
+          <p className="text-gray-600 leading-relaxed font-['Lora']">{description}</p>
         </div>
 
         {/* Expand/Collapse Icon */}
@@ -78,14 +78,14 @@ export default function PhaseCard({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {/* Deliverables */}
                 <div>
-                  <h4 className="text-sm font-bold uppercase tracking-wider text-[#999999] mb-4">
+                  <h4 className="text-sm font-bold uppercase tracking-wider text-[#999999] mb-4 font-['Lora']">
                     Deliverables
                   </h4>
                   <ul className="space-y-3">
                     {deliverables.map((item, index) => (
                       <li key={index} className="flex items-start gap-3">
-                        <div className="w-1.5 h-1.5 bg-[#F59E0B] mt-2 flex-shrink-0" />
-                        <span className="text-[#1A1A1A]">{item}</span>
+                        <div className="w-1.5 h-1.5 bg-[#84CC16] mt-2 flex-shrink-0" />
+                        <span className="text-[#1A1A1A] font-['Lora']">{item}</span>
                       </li>
                     ))}
                   </ul>
@@ -93,14 +93,14 @@ export default function PhaseCard({
 
                 {/* Client Actions */}
                 <div>
-                  <h4 className="text-sm font-bold uppercase tracking-wider text-[#999999] mb-4">
+                  <h4 className="text-sm font-bold uppercase tracking-wider text-[#999999] mb-4 font-['Lora']">
                     Your Role
                   </h4>
                   <ul className="space-y-3">
                     {clientActions.map((item, index) => (
                       <li key={index} className="flex items-start gap-3">
-                        <div className="w-1.5 h-1.5 bg-[#F59E0B] mt-2 flex-shrink-0" />
-                        <span className="text-[#1A1A1A]">{item}</span>
+                        <div className="w-1.5 h-1.5 bg-[#84CC16] mt-2 flex-shrink-0" />
+                        <span className="text-[#1A1A1A] font-['Lora']">{item}</span>
                       </li>
                     ))}
                   </ul>
