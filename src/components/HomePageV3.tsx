@@ -10,7 +10,7 @@ import TechStackSection from './home/TechStackSection';
    ═══════════════════════════════════════════════════════════════ */
 
 const HERO_IMG =
-  'https://images.unsplash.com/photo-1770210217380-d78a69acdc77?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhcnRpZmljaWFsJTIwaW50ZWxsaWdlbmNlJTIwbmV1cmFsJTIwbmV0d29yayUyMHRlY2hub2xvZ3klMjBmdXR1cmlzdGljfGVufDF8fHx8MTc3MjQxMzMzMHww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral';
+  'https://res.cloudinary.com/ddysyn5rr/image/upload/v1772367392/screens11_fgr95v.jpg';
 
 const STORY_IMG =
   'https://images.unsplash.com/photo-1765371513765-d2b624850162?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtaW5pbWFsJTIwYm9va3NoZWxmJTIwbW9kZXJuJTIwaW50ZXJpb3IlMjBkZXNpZ24lMjB3YXJtfGVufDF8fHx8MTc3MjAxMzc5MHww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral';
@@ -409,7 +409,7 @@ const SERVICE_CARDS = [
     title: 'AI Agent Systems',
     desc: 'Autonomous digital workers that handle leads, onboard customers, and manage operations.',
     extended: 'Imagine a teammate that works tirelessly, learns continuously, and adapts to your needs. That\'s the promise of AI agents. With the ability to observe, plan, and act autonomously, AI agents open a new chapter of end-to-end transformation across industries — from lead qualification and customer onboarding to operational task management and intelligent escalation workflows.',
-    image: 'https://images.unsplash.com/photo-1615632540593-0e6777a3b99f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhcnRpZmljaWFsJTIwaW50ZWxsaWdlbmNlJTIwZ3JlZW4lMjBnbG93JTIwZGFyayUyMGFic3RyYWN0fGVufDF8fHx8MTc3MjAxODI3OHww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
+    image: 'https://res.cloudinary.com/ddysyn5rr/image/upload/v1772414130/ai21_i0ctwm.jpg',
     to: '/solutions',
   },
   {
