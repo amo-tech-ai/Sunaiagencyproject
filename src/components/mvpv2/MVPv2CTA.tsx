@@ -1,6 +1,6 @@
 import { motion, useInView } from 'motion/react';
 import { useRef } from 'react';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 
 export default function MVPv2CTA() {
   const ref = useRef(null);

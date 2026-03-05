@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import { pageToPath } from '../lib/navigation';
 import V2Hero from './homev2/V2Hero';
 import V2ValueSection from './homev2/V2ValueSection';

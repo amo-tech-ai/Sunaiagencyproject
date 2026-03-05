@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { motion, useInView } from 'motion/react';
 

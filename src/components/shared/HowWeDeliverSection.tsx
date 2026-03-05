@@ -1,4 +1,4 @@
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import { Search, Layers, Code, Rocket } from 'lucide-react';
 
 /* ═══════════════════════════════════════════════════════════════

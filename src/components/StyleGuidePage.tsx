@@ -3,7 +3,7 @@
 import { motion, useInView } from 'motion/react';
 import { useRef } from 'react';
 import { Check, ArrowRight } from 'lucide-react';
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import { pageToPath } from '../lib/navigation';
 import WebDesignServicesGrid from './web-design/WebDesignServicesGrid';
 import WebDesignProcess from './web-design/WebDesignProcess';

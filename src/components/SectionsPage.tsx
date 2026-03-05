@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import { pageToPath } from '../lib/navigation';
 import V2PricingSection from './homev2/V2PricingSection';
 import V2AIMaturityFramework from './homev2/V2AIMaturityFramework';

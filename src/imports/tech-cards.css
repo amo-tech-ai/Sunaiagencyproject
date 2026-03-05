@@ -1,0 +1,107 @@
+Card Grid Layout
+
+Display 5 technology cards in a horizontal grid.
+
+Each card should have:
+
+light neutral background
+rounded corners (16px)
+soft shadow
+subtle border
+ample padding
+vertical content layout
+
+Card background colors:
+
+Card 1 – very light sage
+Card 2 – soft ivory
+Card 3 – light gray
+Card 4 – very light sage
+Card 5 – soft ivory
+
+This creates visual rhythm while keeping the section light.
+
+Card Structure
+
+Each card contains:
+
+Category label (small uppercase text)
+
+Example:
+AI & Agent Intelligence
+
+Divider line below label
+
+List of technologies with small descriptions.
+
+Example:
+
+OpenAI GPT-4o
+Advanced reasoning and language generation for AI agents
+
+Anthropic Claude
+Long-context AI reasoning for enterprise workflows
+
+LlamaIndex
+RAG framework connecting AI models to private data
+
+Add small minimal icons next to each technology name.
+
+Icons should be:
+
+thin line style
+monochrome
+muted green accent
+
+Visual Enhancements
+
+Add subtle visual layers:
+
+soft background gradient behind the section
+very faint data grid pattern
+slight glow behind the cards
+
+Cards should feel like floating panels.
+
+Hover Interactions
+
+When hovering a card:
+
+card elevates slightly
+shadow becomes stronger
+title text darkens
+subtle glow appears around the card
+
+Animations should feel smooth and premium.
+
+Spacing and Balance
+
+Ensure:
+
+equal spacing between cards
+large side margins
+breathing room around content
+
+Avoid dense layouts.
+
+Mobile Layout
+
+Stack cards vertically.
+
+Full width cards with generous spacing between them.
+
+Increase font size slightly for readability.
+
+Overall Feel
+
+The section should feel like:
+
+an AI consulting firm
+enterprise technology architecture
+premium SaaS infrastructure showcase
+
+Visual tone:
+confident
+intelligent
+minimal
+high-end

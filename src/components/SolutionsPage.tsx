@@ -1,10 +1,11 @@
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import SolutionsHero from './solutions/SolutionsHero';
 import HowItWorksSection from './solutions/HowItWorksSection';
 import PremiumServiceCardsGrid from './services/PremiumServiceCardsGrid';
 import ROIMetricsSection from './solutions/ROIMetricsSection';
 import V2CapabilityFramework from './homev2/V2CapabilityFramework';
+import TechStackShowcase from './solutions/TechStackShowcase';
 
 export default function SolutionsPage() {
   return (
@@ -24,7 +25,10 @@ export default function SolutionsPage() {
       {/* 5 — Capability Framework */}
       <V2CapabilityFramework />
 
-      {/* 6 — Bottom CTA */}
+      {/* 6 — Technology Stack Showcase */}
+      <TechStackShowcase />
+
+      {/* 7 — Bottom CTA */}
       <section className="bg-[#0A211F] py-24 sm:py-32 relative overflow-hidden">
         {/* Glow */}
         <div

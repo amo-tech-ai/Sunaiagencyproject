@@ -16,7 +16,7 @@ export default function V2ServicesGrid({ onNavigate }: V2ServicesGridProps) {
         'API integration',
         'User interface design',
       ],
-      link: 'solutions',
+      link: '/solutions',
       image: 'https://images.unsplash.com/photo-1768483538267-fce52de424d5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
     },
     {
@@ -29,7 +29,7 @@ export default function V2ServicesGrid({ onNavigate }: V2ServicesGridProps) {
         'Real-time adaptation',
         'Tool integration',
       ],
-      link: 'agents',
+      link: '/agents',
       image: 'https://images.unsplash.com/photo-1660165458059-57cfb6cc87e5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
     },
     {
@@ -42,7 +42,7 @@ export default function V2ServicesGrid({ onNavigate }: V2ServicesGridProps) {
         'Smart routing',
         'Error handling',
       ],
-      link: 'chatbots',
+      link: '/chatbots',
       image: 'https://images.unsplash.com/photo-1739298061766-e2751d92e9db?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
     },
   ];
