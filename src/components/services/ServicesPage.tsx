@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { Link } from 'react-router-dom';
 import { 
@@ -15,6 +14,7 @@ import {
   Users,
   Globe
 } from 'lucide-react';
+import { ServicesTechStack } from './ServicesTechStack';
 
 export function ServicesPage() {
   return (
@@ -611,6 +611,9 @@ export function ServicesPage() {
           </div>
         </div>
       </section>
+
+      {/* 6B. TECHNOLOGY STACK */}
+      <ServicesTechStack />
 
       {/* 7. RESULTS & OUTCOMES */}
       <section className="py-32 px-6 md:px-16">

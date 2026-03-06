@@ -7,7 +7,27 @@ import TechStackSection from './home/TechStackSection';
 import AIAgentSystemsSection from './home/AIAgentSystemsSection';
 
 /* ═══════════════════════════════════════════════════════════════
-   Sun AI Agency — HomePageV3 (Spruced-Inspired Luxury)
+   Sun AI Agency — HomePageV3 (BCG Consulting Design System)
+   ═══════════════════════════════════════════════════════════════
+   
+   Design Language: BCG / McKinsey / Bain consulting editorial
+   
+   Color Palette:
+   - Background:    #F5F5F0 (warm off-white)
+   - Surface:       #FFFFFF (clean white)
+   - Text Primary:  #1A1A1A (near-black charcoal)
+   - Text Secondary: #666666 (muted gray)
+   - Text Tertiary:  #999999 (light gray captions)
+   - Accent Green:  #00875A (BCG signature green)
+   - Dark Section:  #1A1A1A (charcoal, NOT dark green)
+   - Border:        #E8E8E4 (subtle warm gray)
+   - Sage Surface:  #EDEEEA (very light warm gray)
+   
+   Typography:
+   - Headlines: Georgia serif, editorial weight
+   - Body: system sans-serif, high readability
+   - Captions: small uppercase tracking
+   
    ═══════════════════════════════════════════════════════════════ */
 
 const HERO_IMG =
@@ -19,17 +39,19 @@ const STORY_IMG =
 const TESTIMONIAL_IMG =
   'https://images.unsplash.com/photo-1635366898830-b5d48950e4f6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwcm9mZXNzaW9uYWwlMjB3b21hbiUyMGV4ZWN1dGl2ZSUyMHBvcnRyYWl0JTIwbmF0dXJhbCUyMGxpZ2h0fGVufDF8fHx8MTc3MjAxMzc5MXww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral';
 
-/* ── Shared ── */
+/* ── BCG Design Tokens ── */
 
 const cx = {
-  bg: '#F4F3EE',
+  bg: '#F5F5F0',
   bgWhite: '#FFFFFF',
-  deepGreen: '#1E3D36',
-  sage: '#DCE5DD',
-  accent: '#2E6F5E',
-  dark: '#1C1C1C',
-  muted: '#6B6B6B',
-  border: '#E5E5E5',
+  surface: '#EDEEEA',
+  deepGreen: '#1A1A1A',
+  sage: '#EDEEEA',
+  accent: '#00875A',
+  dark: '#1A1A1A',
+  muted: '#666666',
+  caption: '#999999',
+  border: '#E8E8E4',
 };
 
 function SectionWrap({
@@ -45,7 +67,7 @@ function SectionWrap({
 }) {
   return (
     <section id={id} style={{ background: bg }} className={className}>
-      <div className="max-w-[1200px] mx-auto px-6">{children}</div>
+      <div className="max-w-[1120px] mx-auto px-6 lg:px-8">{children}</div>
     </section>
   );
 }
@@ -54,8 +76,8 @@ function BtnPrimary({ to, children }: { to: string; children: React.ReactNode })
   return (
     <Link
       to={to}
-      className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full text-white transition-all duration-300 hover:opacity-90"
-      style={{ background: cx.deepGreen, fontSize: '0.875rem', fontWeight: 500 }}
+      className="inline-flex items-center gap-2 px-7 py-3.5 rounded-none text-white transition-all duration-300 hover:opacity-90"
+      style={{ background: cx.dark, fontSize: '0.875rem', fontWeight: 500, letterSpacing: '0.02em' }}
     >
       {children}
     </Link>
@@ -66,7 +88,7 @@ function BtnOutline({ to, children }: { to: string; children: React.ReactNode })
   return (
     <Link
       to={to}
-      className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full transition-all duration-300 hover:bg-[#1E3D36]/5"
+      className="inline-flex items-center gap-2 px-7 py-3.5 rounded-none transition-all duration-300 hover:bg-black/5"
       style={{ border: `1px solid ${cx.border}`, fontSize: '0.875rem', fontWeight: 500, color: cx.dark }}
     >
       {children}
@@ -81,49 +103,61 @@ function BtnOutline({ to, children }: { to: string; children: React.ReactNode })
 function HeroSection() {
   return (
     <SectionWrap>
-      <div className="pt-28 pb-24 sm:pt-36 sm:pb-32 grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-12 items-center">
-        {/* Left */}
-        <div className="max-w-lg">
-          <h1
-            className="tracking-tight mb-6"
-            style={{
-              fontFamily: "'Playfair Display', Georgia, serif",
-              fontSize: 'clamp(2.25rem, 4.5vw, 3.5rem)',
-              fontWeight: 600,
-              lineHeight: 1.08,
-              color: cx.dark,
-            }}
-          >
-            Build intelligent AI products, agents, and automation.
-          </h1>
-          <p
-            className="mb-10"
-            style={{ fontSize: '1.05rem', lineHeight: 1.7, color: cx.muted }}
-          >
-            We design and deploy AI systems that turn ideas into scalable
-            products, operational workflows, and measurable business growth.
-          </p>
-          <div className="flex flex-wrap items-center gap-4">
-            <BtnPrimary to="/booking">Start a Project</BtnPrimary>
-            <BtnOutline to="#capabilities">View Capabilities</BtnOutline>
+      <div className="pt-32 pb-20 sm:pt-40 sm:pb-28">
+        {/* Editorial eyebrow */}
+        <p
+          className="uppercase tracking-[0.2em] mb-8"
+          style={{ fontSize: '0.7rem', fontWeight: 600, color: cx.accent }}
+        >
+          Artificial Intelligence at Scale
+        </p>
+
+        {/* Large editorial headline — BCG style */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8">
+          <div className="lg:col-span-7">
+            <h1
+              className="tracking-tight mb-8"
+              style={{
+                fontFamily: "Georgia, 'Playfair Display', serif",
+                fontSize: 'clamp(2.75rem, 5.5vw, 4.25rem)',
+                fontWeight: 400,
+                lineHeight: 1.1,
+                color: cx.dark,
+                letterSpacing: '-0.02em',
+              }}
+            >
+              Build Intelligent AI Products, Agents, and Automation
+            </h1>
+            <p
+              className="max-w-xl mb-10"
+              style={{ fontSize: '1.1rem', lineHeight: 1.75, color: cx.muted }}
+            >
+              We design and deploy AI systems that turn ideas into scalable
+              products, operational workflows, and measurable business growth.
+            </p>
+            <div className="flex flex-wrap items-center gap-4">
+              <BtnPrimary to="/booking">
+                Start a Project
+                <ArrowRight className="w-4 h-4" />
+              </BtnPrimary>
+              <BtnOutline to="#capabilities">View Capabilities</BtnOutline>
+            </div>
+          </div>
+
+          {/* Right — editorial image */}
+          <div className="lg:col-span-5">
+            <div className="overflow-hidden" style={{ borderRadius: '4px', aspectRatio: '4/3' }}>
+              <ImageWithFallback
+                src={HERO_IMG}
+                alt="AI technology and neural networks"
+                className="w-full h-full object-cover"
+              />
+            </div>
           </div>
         </div>
 
-        {/* Right — image */}
-        <div className="relative">
-          <div className="rounded-2xl overflow-hidden" style={{ aspectRatio: '4/3' }}>
-            <ImageWithFallback
-              src={HERO_IMG}
-              alt="AI technology and neural networks"
-              className="w-full h-full object-cover"
-            />
-          </div>
-          {/* Subtle decorative dot */}
-          <div
-            className="absolute -top-4 -left-4 w-8 h-8 rounded-full hidden lg:block"
-            style={{ background: cx.sage }}
-          />
-        </div>
+        {/* Thin rule divider — BCG signature */}
+        <div className="mt-20" style={{ height: '1px', background: cx.border }} />
       </div>
     </SectionWrap>
   );
@@ -153,48 +187,49 @@ const CAPABILITIES = [
 
 function CapabilitiesSection() {
   return (
-    <SectionWrap id="capabilities">
+    <SectionWrap id="capabilities" bg={cx.bgWhite}>
       <div className="py-24 sm:py-32">
-        {/* Header */}
-        <div className="text-center mb-16">
+        {/* Header — BCG editorial left-aligned */}
+        <div className="mb-16 max-w-2xl">
+          <p
+            className="uppercase tracking-[0.2em] mb-4"
+            style={{ fontSize: '0.7rem', fontWeight: 600, color: cx.accent }}
+          >
+            Our Capabilities
+          </p>
           <h2
             className="tracking-tight mb-4"
             style={{
-              fontFamily: "'Playfair Display', Georgia, serif",
-              fontSize: 'clamp(1.5rem, 3.5vw, 2.5rem)',
-              fontWeight: 600,
+              fontFamily: "Georgia, 'Playfair Display', serif",
+              fontSize: 'clamp(1.75rem, 3.5vw, 2.75rem)',
+              fontWeight: 400,
               lineHeight: 1.15,
               color: cx.dark,
             }}
           >
-            Our AI Solutions and Capabilities
+            AI Solutions and Capabilities
           </h2>
-          <p style={{ fontSize: '1rem', color: cx.muted, lineHeight: 1.6 }}>
+          <p style={{ fontSize: '1rem', color: cx.muted, lineHeight: 1.7 }}>
             Strategic design. Intelligent automation. Production-ready systems.
           </p>
         </div>
 
-        {/* Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Cards — BCG minimal with left green border */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-px" style={{ background: cx.border }}>
           {CAPABILITIES.map((cap) => (
             <div
               key={cap.title}
-              className="rounded-xl p-8 transition-all duration-300 hover:-translate-y-1"
-              style={{ background: cx.sage, border: 'none' }}
+              className="p-8 transition-all duration-300 group"
+              style={{ background: cx.bgWhite, borderTop: `3px solid ${cx.accent}`, borderBottom: 'none', borderLeft: 'none', borderRight: 'none' }}
             >
-              <div
-                className="w-10 h-10 rounded-lg flex items-center justify-center mb-5"
-                style={{ background: 'rgba(46,111,94,0.12)' }}
-              >
-                <cap.Icon className="w-5 h-5" style={{ color: cx.accent }} />
-              </div>
+              <cap.Icon className="w-6 h-6 mb-6" style={{ color: cx.accent }} strokeWidth={1.5} />
               <h3
                 className="mb-3"
                 style={{ fontSize: '1.125rem', fontWeight: 600, color: cx.dark }}
               >
                 {cap.title}
               </h3>
-              <p style={{ fontSize: '0.875rem', lineHeight: 1.65, color: cx.muted }}>
+              <p style={{ fontSize: '0.875rem', lineHeight: 1.7, color: cx.muted }}>
                 {cap.desc}
               </p>
             </div>
@@ -211,29 +246,71 @@ function CapabilitiesSection() {
 
 function CredibilityBand() {
   return (
-    <section style={{ background: cx.deepGreen }} className="py-20 sm:py-24">
-      <div className="max-w-[1200px] mx-auto px-6 text-center">
-        <p
-          className="text-white/40 uppercase tracking-[0.25em] mb-5"
-          style={{ fontSize: '0.65rem', fontWeight: 600 }}
-        >
-          Trusted by teams scaling with AI
-        </p>
-        <h2
-          className="text-white tracking-tight mb-6"
-          style={{
-            fontFamily: "'Playfair Display', Georgia, serif",
-            fontSize: 'clamp(1.5rem, 3.5vw, 2.5rem)',
-            fontWeight: 600,
-            lineHeight: 1.2,
-          }}
-        >
-          Built for teams scaling with AI.
-        </h2>
-        <p className="text-white/50" style={{ fontSize: '1.35rem', fontWeight: 500 }}>
-          <span className="text-white" style={{ fontWeight: 700 }}>94%</span>{' '}
-          client satisfaction
-        </p>
+    <section style={{ background: cx.bg }} className="py-20 sm:py-24">
+      <div className="max-w-[1120px] mx-auto px-6 lg:px-8">
+        {/* Top rule */}
+        <div className="mb-16" style={{ height: '1px', background: cx.border }} />
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-12 items-center">
+          <div className="md:col-span-5">
+            <p
+              className="uppercase tracking-[0.2em] mb-3"
+              style={{ fontSize: '0.7rem', fontWeight: 600, color: cx.accent }}
+            >
+              Client Impact
+            </p>
+            <h2
+              className="tracking-tight"
+              style={{
+                fontFamily: "Georgia, 'Playfair Display', serif",
+                fontSize: 'clamp(1.5rem, 3vw, 2.25rem)',
+                fontWeight: 400,
+                lineHeight: 1.2,
+                color: cx.dark,
+              }}
+            >
+              Built for teams scaling with AI.
+            </h2>
+          </div>
+          <div className="md:col-span-7 flex items-center gap-16 flex-wrap">
+            <div>
+              <span
+                className="block"
+                style={{
+                  fontFamily: "Georgia, serif",
+                  fontSize: 'clamp(3rem, 5vw, 4.5rem)',
+                  fontWeight: 400,
+                  color: cx.dark,
+                  lineHeight: 1,
+                }}
+              >
+                94%
+              </span>
+              <span className="block mt-2" style={{ fontSize: '0.85rem', color: cx.muted }}>
+                Client satisfaction
+              </span>
+            </div>
+            <div style={{ width: '1px', height: '60px', background: cx.border }} />
+            <div>
+              <span
+                className="block"
+                style={{
+                  fontFamily: "Georgia, serif",
+                  fontSize: 'clamp(3rem, 5vw, 4.5rem)',
+                  fontWeight: 400,
+                  color: cx.dark,
+                  lineHeight: 1,
+                }}
+              >
+                8wk
+              </span>
+              <span className="block mt-2" style={{ fontSize: '0.85rem', color: cx.muted }}>
+                Avg. delivery timeline
+              </span>
+            </div>
+          </div>
+        </div>
+        {/* Bottom rule */}
+        <div className="mt-16" style={{ height: '1px', background: cx.border }} />
       </div>
     </section>
   );
@@ -246,9 +323,9 @@ function CredibilityBand() {
 function StorySection() {
   return (
     <SectionWrap bg={cx.bgWhite}>
-      <div className="py-24 sm:py-32 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+      <div className="py-24 sm:py-32 grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
         {/* Left — image */}
-        <div className="rounded-2xl overflow-hidden" style={{ aspectRatio: '4/3' }}>
+        <div className="lg:col-span-5 overflow-hidden" style={{ borderRadius: '4px', aspectRatio: '4/3' }}>
           <ImageWithFallback
             src={STORY_IMG}
             alt="Modern workspace"
@@ -257,13 +334,19 @@ function StorySection() {
         </div>
 
         {/* Right — text */}
-        <div className="max-w-md">
+        <div className="lg:col-span-7 max-w-lg">
+          <p
+            className="uppercase tracking-[0.2em] mb-4"
+            style={{ fontSize: '0.7rem', fontWeight: 600, color: cx.accent }}
+          >
+            Our Approach
+          </p>
           <h2
-            className="tracking-tight mb-5"
+            className="tracking-tight mb-6"
             style={{
-              fontFamily: "'Playfair Display', Georgia, serif",
-              fontSize: 'clamp(1.5rem, 3vw, 2.25rem)',
-              fontWeight: 600,
+              fontFamily: "Georgia, 'Playfair Display', serif",
+              fontSize: 'clamp(1.75rem, 3vw, 2.5rem)',
+              fontWeight: 400,
               lineHeight: 1.15,
               color: cx.dark,
             }}
@@ -272,7 +355,7 @@ function StorySection() {
           </h2>
           <p
             className="mb-8"
-            style={{ fontSize: '0.95rem', lineHeight: 1.7, color: cx.muted }}
+            style={{ fontSize: '0.95rem', lineHeight: 1.8, color: cx.muted }}
           >
             We combine product design, AI architecture, and operational
             automation to build intelligent systems that scale. Every engagement
@@ -325,32 +408,36 @@ const SPECIALIZED_SERVICES = [
 
 function SpecializedServicesSection() {
   return (
-    <section style={{ background: cx.deepGreen }} className="py-24 sm:py-32">
-      <div className="max-w-[1200px] mx-auto px-6">
-        {/* Heading */}
-        <div className="text-center mb-14">
+    <section style={{ background: '#1A1A1A' }} className="py-24 sm:py-32">
+      <div className="max-w-[1120px] mx-auto px-6 lg:px-8">
+        {/* Heading — BCG editorial */}
+        <div className="mb-14 max-w-2xl">
+          <p
+            className="uppercase tracking-[0.2em] mb-4 text-white/40"
+            style={{ fontSize: '0.7rem', fontWeight: 600 }}
+          >
+            Featured Services
+          </p>
           <h2
             className="text-white tracking-tight"
             style={{
-              fontFamily: "'Playfair Display', Georgia, serif",
+              fontFamily: "Georgia, 'Playfair Display', serif",
               fontSize: 'clamp(1.75rem, 4vw, 2.75rem)',
-              fontWeight: 600,
-              lineHeight: 1.12,
+              fontWeight: 400,
+              lineHeight: 1.15,
             }}
           >
-            <span style={{ fontStyle: 'italic' }}>Specialized</span> production
-            <br />
-            services
+            Specialized Production Services
           </h2>
         </div>
 
         {/* 3-card grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {SPECIALIZED_SERVICES.map((service) => (
             <div
               key={service.title}
-              className="group relative rounded-2xl overflow-hidden cursor-pointer"
-              style={{ aspectRatio: '3 / 3.2' }}
+              className="group relative overflow-hidden cursor-pointer"
+              style={{ aspectRatio: '3 / 3.2', borderRadius: '4px' }}
             >
               {/* Background image */}
               <ImageWithFallback
@@ -474,43 +561,50 @@ const SERVICE_CARDS = [
 
 function ServicesGrid() {
   return (
-    <section style={{ background: '#F5F4F1' }}>
-      <div className="max-w-[1200px] mx-auto px-6" style={{ paddingTop: '120px', paddingBottom: '120px' }}>
-        {/* Section header */}
-        <div className="text-center" style={{ marginBottom: '48px' }}>
+    <section style={{ background: cx.bg }}>
+      <div className="max-w-[1120px] mx-auto px-6 lg:px-8" style={{ paddingTop: '100px', paddingBottom: '100px' }}>
+        {/* Section header — BCG editorial left-aligned */}
+        <div className="mb-12 max-w-2xl">
+          <p
+            className="uppercase tracking-[0.2em] mb-4"
+            style={{ fontSize: '0.7rem', fontWeight: 600, color: cx.accent }}
+          >
+            Our Solutions for AI in Business
+          </p>
           <h2
             className="tracking-tight mb-4"
             style={{
-              fontFamily: "'Playfair Display', Georgia, serif",
-              fontSize: 'clamp(1.75rem, 3.5vw, 2.5rem)',
-              fontWeight: 600,
+              fontFamily: "Georgia, 'Playfair Display', serif",
+              fontSize: 'clamp(1.75rem, 3.5vw, 2.75rem)',
+              fontWeight: 400,
               lineHeight: 1.15,
               color: cx.dark,
             }}
           >
             Our Services in Digital, Technology, and Data
           </h2>
-          <p style={{ fontSize: '1rem', lineHeight: 1.6, color: cx.muted }}>
+          <p style={{ fontSize: '1rem', lineHeight: 1.7, color: cx.muted }}>
             Strategic execution across AI, data, and digital transformation.
           </p>
         </div>
 
         {/* 3-column image card grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {SERVICE_CARDS.map((card) => (
             <div
               key={card.title}
-              className="group cursor-pointer rounded-2xl overflow-hidden transition-all duration-[250ms]"
+              className="group cursor-pointer overflow-hidden transition-all duration-[250ms]"
               style={{
                 background: '#FFFFFF',
-                border: '1px solid rgba(0,0,0,0.06)',
+                border: `1px solid ${cx.border}`,
+                borderRadius: '4px',
                 position: 'relative',
               }}
             >
-              {/* ── Default state: image + short info ── */}
+              {/* Default state: image + short info */}
               <div className="transition-opacity duration-300 group-hover:opacity-0">
                 {/* Image area */}
-                <div className="relative overflow-hidden" style={{ height: '220px' }}>
+                <div className="relative overflow-hidden" style={{ height: '200px' }}>
                   <ImageWithFallback
                     src={card.image}
                     alt={card.title}
@@ -518,13 +612,13 @@ function ServicesGrid() {
                   />
                   {'badge' in card && card.badge && (
                     <div
-                      className="absolute top-3 right-3 rounded-lg px-2.5 py-1 flex items-center justify-center"
+                      className="absolute top-3 right-3 px-2.5 py-1"
                       style={{
-                        background: 'rgba(255,255,255,0.92)',
-                        backdropFilter: 'blur(8px)',
+                        background: cx.accent,
+                        color: '#FFFFFF',
                       }}
                     >
-                      <span style={{ fontSize: '0.8rem', fontWeight: 700, color: cx.accent }}>
+                      <span style={{ fontSize: '0.75rem', fontWeight: 700 }}>
                         {card.badge}
                       </span>
                     </div>
@@ -535,12 +629,12 @@ function ServicesGrid() {
                 <div style={{ padding: '24px' }}>
                   <h3
                     style={{
-                      fontFamily: "'Playfair Display', Georgia, serif",
-                      fontSize: '1.25rem',
-                      fontWeight: 600,
+                      fontFamily: "Georgia, 'Playfair Display', serif",
+                      fontSize: '1.15rem',
+                      fontWeight: 400,
                       lineHeight: 1.3,
                       color: cx.dark,
-                      marginBottom: '6px',
+                      marginBottom: '8px',
                     }}
                   >
                     {card.title}
@@ -548,7 +642,7 @@ function ServicesGrid() {
                   <p
                     style={{
                       fontSize: '0.825rem',
-                      lineHeight: 1.5,
+                      lineHeight: 1.6,
                       color: cx.muted,
                       marginBottom: '16px',
                     }}
@@ -559,26 +653,26 @@ function ServicesGrid() {
                     className="inline-flex items-center gap-1.5"
                     style={{ fontSize: '0.8rem', fontWeight: 500, color: cx.accent }}
                   >
-                    Learn More
+                    Read More
                     <ArrowRight className="w-3.5 h-3.5" />
                   </span>
                 </div>
               </div>
 
-              {/* ─ Hover state: expanded info overlay ── */}
+              {/* Hover state: expanded info overlay */}
               <div
                 className="absolute inset-0 flex flex-col justify-between translate-y-full group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]"
                 style={{
-                  background: '#F4F3EE',
+                  background: cx.bg,
                   padding: '28px 24px',
                 }}
               >
                 <div className="translate-y-4 group-hover:translate-y-0 transition-transform duration-500 delay-100 ease-[cubic-bezier(0.22,1,0.36,1)]">
                   <h3
                     style={{
-                      fontFamily: "'Playfair Display', Georgia, serif",
-                      fontSize: '1.25rem',
-                      fontWeight: 600,
+                      fontFamily: "Georgia, 'Playfair Display', serif",
+                      fontSize: '1.15rem',
+                      fontWeight: 400,
                       lineHeight: 1.3,
                       color: cx.dark,
                       marginBottom: '14px',
@@ -599,12 +693,12 @@ function ServicesGrid() {
 
                 <Link
                   to={card.to}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full self-start translate-y-4 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-500 delay-200 ease-[cubic-bezier(0.22,1,0.36,1)] hover:opacity-85"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 self-start translate-y-4 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-500 delay-200 ease-[cubic-bezier(0.22,1,0.36,1)] hover:opacity-85"
                   style={{
-                    background: cx.deepGreen,
+                    background: cx.dark,
                     color: '#FFFFFF',
                     fontSize: '0.75rem',
-                    fontWeight: 600,
+                    fontWeight: 500,
                     letterSpacing: '0.06em',
                     textTransform: 'uppercase' as const,
                     marginTop: '20px',
@@ -718,42 +812,50 @@ function PlaybookSection() {
   return (
     <SectionWrap>
       <div className="py-24 sm:py-32">
-        <div className="text-center mb-14">
+        <div className="mb-14 max-w-2xl">
+          <p
+            className="uppercase tracking-[0.2em] mb-4"
+            style={{ fontSize: '0.7rem', fontWeight: 600, color: cx.accent }}
+          >
+            Strategic Framework
+          </p>
           <h2
             className="tracking-tight mb-3"
             style={{
-              fontFamily: "'Playfair Display', Georgia, serif",
-              fontSize: 'clamp(1.35rem, 3vw, 2rem)',
-              fontWeight: 600,
+              fontFamily: "Georgia, 'Playfair Display', serif",
+              fontSize: 'clamp(1.5rem, 3vw, 2.25rem)',
+              fontWeight: 400,
               lineHeight: 1.2,
               color: cx.dark,
             }}
           >
             The Future-Ready Playbook for Climbing the AI Maturity Curve
           </h2>
-          <p style={{ fontSize: '0.9rem', color: cx.muted }}>
+          <p style={{ fontSize: '0.95rem', color: cx.muted, lineHeight: 1.7 }}>
             A structured approach to enterprise AI adoption.
           </p>
         </div>
 
-        <div className="space-y-4 max-w-3xl mx-auto">
+        <div className="max-w-3xl">
           {PLAYBOOK_ITEMS.map((item, i) => (
             <div
               key={item.title}
-              className="rounded-xl p-6 transition-all duration-300"
+              className="py-6 transition-all duration-300"
               style={{
-                background: item.active ? cx.sage : cx.bgWhite,
-                border: `1px solid ${item.active ? 'transparent' : cx.border}`,
+                borderTop: i === 0 ? `1px solid ${cx.border}` : 'none',
+                borderBottom: `1px solid ${cx.border}`,
+                borderLeft: 'none',
+                borderRight: 'none',
               }}
             >
-              <div className="flex items-start gap-4">
+              <div className="flex items-start gap-6">
                 <span
-                  className="shrink-0 mt-0.5"
+                  className="shrink-0 mt-1"
                   style={{
-                    fontSize: '0.7rem',
-                    fontWeight: 700,
-                    color: item.active ? cx.accent : cx.muted,
-                    letterSpacing: '0.06em',
+                    fontFamily: "Georgia, serif",
+                    fontSize: '1.25rem',
+                    fontWeight: 400,
+                    color: item.active ? cx.accent : cx.caption,
                   }}
                 >
                   {String(i + 1).padStart(2, '0')}
@@ -762,14 +864,14 @@ function PlaybookSection() {
                   <h3
                     className="mb-1.5"
                     style={{
-                      fontSize: '0.95rem',
+                      fontSize: '1rem',
                       fontWeight: 600,
                       color: cx.dark,
                     }}
                   >
                     {item.title}
                   </h3>
-                  <p style={{ fontSize: '0.835rem', lineHeight: 1.6, color: cx.muted }}>
+                  <p style={{ fontSize: '0.875rem', lineHeight: 1.65, color: cx.muted }}>
                     {item.desc}
                   </p>
                 </div>
@@ -789,46 +891,51 @@ function PlaybookSection() {
 function TestimonialSection() {
   return (
     <SectionWrap bg={cx.bgWhite}>
-      <div className="py-24 sm:py-32 flex justify-center">
-        <div
-          className="max-w-2xl text-center rounded-2xl px-10 py-12 sm:px-14 sm:py-14"
-          style={{
-            background: cx.bgWhite,
-            boxShadow: '0 2px 24px -4px rgba(0,0,0,0.06)',
-            border: `1px solid ${cx.border}`,
-          }}
-        >
-          {/* Avatar */}
-          <div className="mb-6 flex justify-center">
-            <div className="w-16 h-16 rounded-full overflow-hidden">
-              <ImageWithFallback
-                src={TESTIMONIAL_IMG}
-                alt="Client"
-                className="w-full h-full object-cover"
-              />
+      <div className="py-24 sm:py-32">
+        <div className="max-w-3xl mx-auto">
+          {/* Top rule */}
+          <div className="mb-12" style={{ height: '1px', background: cx.border }} />
+          
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-10 items-start">
+            {/* Avatar column */}
+            <div className="md:col-span-3 flex md:flex-col items-center md:items-start gap-4">
+              <div className="w-16 h-16 rounded-full overflow-hidden shrink-0">
+                <ImageWithFallback
+                  src={TESTIMONIAL_IMG}
+                  alt="Client"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div>
+                <p style={{ fontSize: '0.875rem', fontWeight: 600, color: cx.dark }}>
+                  Sarah Mitchell
+                </p>
+                <p style={{ fontSize: '0.8rem', color: cx.muted }}>
+                  VP of Operations, Meridian Group
+                </p>
+              </div>
+            </div>
+
+            {/* Quote */}
+            <div className="md:col-span-9">
+              <blockquote
+                style={{
+                  fontFamily: "Georgia, 'Playfair Display', serif",
+                  fontSize: 'clamp(1.15rem, 2.5vw, 1.5rem)',
+                  lineHeight: 1.6,
+                  color: cx.dark,
+                  fontWeight: 400,
+                }}
+              >
+                "Sun AI didn't just build us an AI system — they transformed how our
+                entire team thinks about operations. The ROI was visible within the
+                first month."
+              </blockquote>
             </div>
           </div>
-
-          <blockquote
-            className="mb-6"
-            style={{
-              fontFamily: "'Playfair Display', Georgia, serif",
-              fontSize: 'clamp(1.05rem, 2vw, 1.25rem)',
-              lineHeight: 1.55,
-              color: cx.dark,
-              fontStyle: 'italic',
-            }}
-          >
-            "Sun AI didn't just build us an AI system — they transformed how our
-            entire team thinks about operations. The ROI was visible within the
-            first month."
-          </blockquote>
-          <p style={{ fontSize: '0.875rem', fontWeight: 600, color: cx.dark }}>
-            Sarah Mitchell
-          </p>
-          <p style={{ fontSize: '0.8rem', color: cx.muted }}>
-            VP of Operations, Meridian Group
-          </p>
+          
+          {/* Bottom rule */}
+          <div className="mt-12" style={{ height: '1px', background: cx.border }} />
         </div>
       </div>
     </SectionWrap>
@@ -848,26 +955,32 @@ const METRICS = [
 
 function MetricsBand() {
   return (
-    <section style={{ background: cx.sage }} className="py-20 sm:py-24">
-      <div className="max-w-[1200px] mx-auto px-6">
+    <section style={{ background: cx.bg }} className="py-20 sm:py-24">
+      <div className="max-w-[1120px] mx-auto px-6 lg:px-8">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-          {METRICS.map((m) => (
-            <div key={m.lbl} className="text-center">
+          {METRICS.map((m, i) => (
+            <div
+              key={m.lbl}
+              className="text-center"
+              style={{
+                borderRight: i < METRICS.length - 1 ? `1px solid ${cx.border}` : undefined,
+              }}
+            >
               <span
                 className="block"
                 style={{
-                  fontFamily: "'Playfair Display', Georgia, serif",
-                  fontSize: 'clamp(2rem, 4vw, 2.75rem)',
-                  fontWeight: 700,
-                  color: cx.deepGreen,
+                  fontFamily: "Georgia, serif",
+                  fontSize: 'clamp(2.25rem, 4vw, 3rem)',
+                  fontWeight: 400,
+                  color: cx.dark,
                   lineHeight: 1.1,
                 }}
               >
                 {m.val}
               </span>
               <span
-                className="block mt-2"
-                style={{ fontSize: '0.8rem', color: cx.muted, fontWeight: 500 }}
+                className="block mt-3"
+                style={{ fontSize: '0.8rem', color: cx.muted, fontWeight: 400 }}
               >
                 {m.lbl}
               </span>
@@ -885,38 +998,43 @@ function MetricsBand() {
 
 function FinalCTA() {
   return (
-    <section style={{ background: cx.deepGreen }} className="py-24 sm:py-32">
-      <div className="max-w-[1200px] mx-auto px-6 text-center">
+    <section style={{ background: cx.dark }} className="py-24 sm:py-32">
+      <div className="max-w-[1120px] mx-auto px-6 lg:px-8 text-center">
+        <p
+          className="uppercase tracking-[0.2em] mb-6 text-white/40"
+          style={{ fontSize: '0.7rem', fontWeight: 600 }}
+        >
+          Get Started
+        </p>
         <h2
-          className="text-white tracking-tight mb-5"
+          className="text-white tracking-tight mb-6"
           style={{
-            fontFamily: "'Playfair Display', Georgia, serif",
-            fontSize: 'clamp(1.5rem, 3.5vw, 2.5rem)',
-            fontWeight: 600,
+            fontFamily: "Georgia, 'Playfair Display', serif",
+            fontSize: 'clamp(1.75rem, 3.5vw, 2.75rem)',
+            fontWeight: 400,
             lineHeight: 1.15,
           }}
         >
           Ready to build a real AI system?
         </h2>
         <p
-          className="text-white/45 max-w-md mx-auto mb-10"
-          style={{ fontSize: '1rem', lineHeight: 1.6 }}
+          className="text-white/50 max-w-lg mx-auto mb-10"
+          style={{ fontSize: '1rem', lineHeight: 1.7 }}
         >
-          Let's scope your project and deliver a solution within weeks — not
-          months.
+          Let's scope your project and deliver a solution within weeks — not months.
         </p>
         <div className="flex flex-wrap justify-center gap-4">
           <Link
             to="/booking"
-            className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full text-[#1E3D36] transition-all duration-300 hover:opacity-90"
-            style={{ background: '#F4F3EE', fontSize: '0.875rem', fontWeight: 600 }}
+            className="inline-flex items-center gap-2 px-8 py-3.5 text-[#1A1A1A] transition-all duration-300 hover:opacity-90"
+            style={{ background: '#FFFFFF', fontSize: '0.875rem', fontWeight: 500 }}
           >
             Start a Project
             <ArrowRight className="w-4 h-4" />
           </Link>
           <Link
             to="/booking"
-            className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full text-white/80 hover:text-white transition-all duration-300"
+            className="inline-flex items-center gap-2 px-8 py-3.5 text-white/70 hover:text-white transition-all duration-300"
             style={{ border: '1px solid rgba(255,255,255,0.2)', fontSize: '0.875rem', fontWeight: 500 }}
           >
             Contact Us
