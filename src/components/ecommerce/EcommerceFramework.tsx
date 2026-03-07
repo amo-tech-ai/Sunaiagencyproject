@@ -94,24 +94,28 @@ export default function EcommerceFramework() {
   const isInView = useInView(ref, { once: true, margin: '-100px' });
 
   return (
-    <section ref={ref} className="bg-[#FAF8F6] py-24 lg:py-32">
-      <div className="max-w-7xl mx-auto px-6 lg:px-8">
+    <section ref={ref} className="py-24 lg:py-32" style={{ backgroundColor: '#F5F5F0' }}>
+      <div className="max-w-[1120px] mx-auto px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
           transition={{ duration: 0.8 }}
         >
           {/* Tab Navigation */}
-          <div className="flex flex-wrap gap-4 mb-12 border-b border-gray-300">
+          <div className="flex flex-wrap gap-4 mb-12 border-b" style={{ borderColor: '#E8E8E4' }}>
             {tabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`px-6 py-4 font-['Lora'] text-base transition-all duration-300 border-b-2 ${
+                className={`px-6 py-4 text-base transition-all duration-300 border-b-2 ${
                   activeTab === tab.id
-                    ? 'border-[#84CC16] text-[#0F3D3E] font-semibold'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                    ? 'font-semibold'
+                    : 'border-transparent hover:text-gray-700'
                 }`}
+                style={{
+                  borderColor: activeTab === tab.id ? '#00875A' : 'transparent',
+                  color: activeTab === tab.id ? '#1A1A1A' : '#9CA39B',
+                }}
               >
                 {tab.label}
               </button>
@@ -126,20 +130,24 @@ export default function EcommerceFramework() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.5 }}
-              className="bg-white border border-gray-300 p-8 lg:p-12"
+              className="bg-white border p-8 lg:p-12"
+              style={{ borderColor: '#E8E8E4', borderRadius: '4px' }}
             >
               <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 lg:gap-4">
                 {frameworkData[activeTab as keyof typeof frameworkData].map((step, index) => (
                   <div key={index} className="relative">
                     {/* Step Card */}
                     <div className="space-y-3">
-                      <div className="flex items-center justify-center w-12 h-12 border-2 border-[#84CC16] text-[#84CC16] font-['Playfair_Display'] text-2xl">
+                      <div
+                        className="flex items-center justify-center w-12 h-12 border-2 text-2xl"
+                        style={{ borderColor: '#00875A', color: '#00875A', fontFamily: 'Georgia, serif' }}
+                      >
                         {step.number}
                       </div>
-                      <h3 className="font-['Playfair_Display'] text-lg text-[#0F3D3E]">
+                      <h3 className="text-lg" style={{ fontFamily: 'Georgia, serif', color: '#1A1A1A' }}>
                         {step.title}
                       </h3>
-                      <p className="font-['Lora'] text-sm leading-relaxed text-gray-600 whitespace-pre-line">
+                      <p className="text-sm leading-relaxed whitespace-pre-line" style={{ color: '#6B6B63' }}>
                         {step.description}
                       </p>
                     </div>
@@ -150,7 +158,7 @@ export default function EcommerceFramework() {
                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                           <path
                             d="M1 8h14M9 1l7 7-7 7"
-                            stroke="#84CC16"
+                            stroke="#00875A"
                             strokeWidth="2"
                             strokeLinecap="round"
                             strokeLinejoin="round"

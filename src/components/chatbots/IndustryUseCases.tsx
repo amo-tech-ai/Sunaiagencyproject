@@ -1,10 +1,13 @@
+// C-CB05 — Industry Use Cases
+// BCG design system: off-white bg, charcoal text, Georgia serif, green accents, 4px radius
+
 import { ShoppingBag, Home, Calendar, Laptop, TrendingUp, Users, Zap, Shield } from 'lucide-react';
 import { motion, useScroll, useTransform } from 'motion/react';
 import { useRef } from 'react';
 
 export default function IndustryUseCases() {
   const containerRef = useRef<HTMLDivElement>(null);
-  
+
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start end", "end start"]
@@ -69,37 +72,31 @@ export default function IndustryUseCases() {
   ];
 
   return (
-    <section ref={containerRef} id="use-cases" className="bg-gradient-to-b from-gray-50 to-white py-32 md:py-40 relative overflow-hidden">
+    <section ref={containerRef} id="use-cases" className="py-24 md:py-32 relative overflow-hidden" style={{ backgroundColor: '#F5F5F0' }}>
       {/* Parallax Background */}
-      <motion.div 
-        className="absolute inset-0 opacity-[0.03]"
-        style={{ y }}
-      >
+      <motion.div className="absolute inset-0 opacity-[0.03]" style={{ y }}>
         <div className="absolute inset-0" style={{
-          backgroundImage: `repeating-linear-gradient(45deg, rgba(132,204,22,0.1) 0px, rgba(132,204,22,0.1) 2px, transparent 2px, transparent 10px)`,
+          backgroundImage: `repeating-linear-gradient(45deg, rgba(0,135,90,0.1) 0px, rgba(0,135,90,0.1) 2px, transparent 2px, transparent 10px)`,
         }} />
       </motion.div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-        <motion.div 
-          className="text-center mb-20"
-          style={{ opacity }}
-        >
+      <div className="max-w-[1120px] mx-auto px-6 relative">
+        <motion.div className="text-center mb-16" style={{ opacity }}>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
-            className="inline-block mb-6"
+            className="inline-block mb-5"
           >
-            <span className="text-xs uppercase tracking-widest text-[#84CC16] font-semibold font-['Lora']">
+            <span className="text-xs tracking-widest uppercase" style={{ color: '#00875A', letterSpacing: '0.08em' }}>
               Illustrated Visual Cards
             </span>
           </motion.div>
-          
-          <motion.h2 
-            className="text-5xl md:text-6xl tracking-tight text-gray-900 mb-6"
-            style={{ fontFamily: 'Playfair Display, serif' }}
+
+          <motion.h2
+            className="text-3xl md:text-4xl tracking-tight mb-5"
+            style={{ fontFamily: 'Georgia, serif', color: '#1A1A1A' }}
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -107,9 +104,10 @@ export default function IndustryUseCases() {
           >
             Industry Use Cases
           </motion.h2>
-          
-          <motion.p 
-            className="text-xl text-gray-600 max-w-3xl mx-auto font-['Lora']"
+
+          <motion.p
+            className="text-lg max-w-3xl mx-auto"
+            style={{ color: '#6B6B63' }}
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
@@ -119,62 +117,48 @@ export default function IndustryUseCases() {
           </motion.p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {industries.map((industry, index) => (
             <motion.div
               key={index}
-              initial={{ opacity: 0, y: 40, rotateX: 10 }}
-              whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-100px" }}
               transition={{ duration: 0.8, delay: index * 0.15 }}
-              whileHover={{ y: -12, scale: 1.02 }}
               className="group relative"
             >
-              {/* Main Card */}
-              <div className="border-2 border-gray-200 bg-white p-8 md:p-10 h-full relative overflow-hidden group-hover:border-[#84CC16] transition-all duration-500">
-                {/* Gradient Background on Hover */}
-                <div className="absolute inset-0 bg-[#84CC16]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                
+              <div className="border bg-white p-7 md:p-8 h-full relative overflow-hidden group-hover:border-[#00875A] transition-all duration-500" style={{ borderColor: '#E8E8E4', borderRadius: '4px' }}>
                 {/* Icon & Title */}
-                <div className="flex items-center gap-4 mb-8 relative">
-                  <motion.div 
-                    className="w-20 h-20 flex items-center justify-center bg-[#84CC16] text-gray-900 relative"
-                    whileHover={{ rotate: 5, scale: 1.1 }}
-                  >
-                    <industry.icon className="w-10 h-10" />
-                    {/* Corner Accent */}
-                    <div className="absolute -top-1 -right-1 w-4 h-4 bg-white" />
-                  </motion.div>
-                  
+                <div className="flex items-center gap-4 mb-7 relative">
+                  <div className="w-16 h-16 flex items-center justify-center text-white" style={{ backgroundColor: '#00875A', borderRadius: '4px' }}>
+                    <industry.icon className="w-8 h-8" />
+                  </div>
                   <div>
-                    <h3 
-                      className="text-2xl md:text-3xl text-gray-900"
-                      style={{ fontFamily: 'Playfair Display, serif' }}
-                    >
+                    <h3 className="text-xl md:text-2xl" style={{ fontFamily: 'Georgia, serif', color: '#1A1A1A' }}>
                       {industry.name}
                     </h3>
-                    <p className="text-xs uppercase tracking-widest text-gray-500 font-['Lora']">
+                    <p className="text-xs tracking-widest uppercase" style={{ color: '#6B6B63', letterSpacing: '0.06em' }}>
                       Industry #{index + 1}
                     </p>
                   </div>
                 </div>
 
-                {/* Use Cases with Icons */}
-                <div className="mb-8 space-y-4 relative">
+                {/* Use Cases */}
+                <div className="mb-7 space-y-3 relative">
                   {industry.useCases.map((useCase, i) => (
-                    <motion.div 
-                      key={i} 
-                      className="flex items-start gap-4 bg-gray-50 p-4 border border-gray-100 group/item hover:border-[#84CC16] transition-colors"
+                    <motion.div
+                      key={i}
+                      className="flex items-start gap-3 p-3 border group/item hover:border-[#00875A] transition-colors"
+                      style={{ backgroundColor: '#F5F5F0', borderColor: '#E8E8E4', borderRadius: '4px' }}
                       initial={{ opacity: 0, x: -20 }}
                       whileInView={{ opacity: 1, x: 0 }}
                       viewport={{ once: true }}
                       transition={{ duration: 0.5, delay: (index * 0.15) + (i * 0.1) }}
-                      whileHover={{ x: 5 }}
                     >
-                      <div className="w-8 h-8 flex items-center justify-center border border-gray-200 bg-white flex-shrink-0 group-hover/item:border-[#84CC16] group-hover/item:bg-[#84CC16] transition-colors">
-                        <useCase.icon className="w-4 h-4 text-gray-600 group-hover/item:text-white transition-colors" />
+                      <div className="w-7 h-7 flex items-center justify-center border bg-white flex-shrink-0 group-hover/item:border-[#00875A] group-hover/item:bg-[#00875A] transition-colors" style={{ borderColor: '#E8E8E4', borderRadius: '4px' }}>
+                        <useCase.icon className="w-3.5 h-3.5 group-hover/item:text-white transition-colors" style={{ color: '#6B6B63' }} />
                       </div>
-                      <p className="text-gray-700 leading-relaxed font-['Lora'] text-sm">
+                      <p className="text-sm leading-relaxed" style={{ color: '#1A1A1A' }}>
                         {useCase.text}
                       </p>
                     </motion.div>
@@ -182,65 +166,36 @@ export default function IndustryUseCases() {
                 </div>
 
                 {/* Outcome Section */}
-                <div className="pt-6 border-t-2 border-gray-200 relative grid grid-cols-2 gap-4">
-                  {/* Outcome Text */}
+                <div className="pt-5 border-t grid grid-cols-2 gap-4 relative" style={{ borderColor: '#E8E8E4' }}>
                   <div>
-                    <p className="text-xs uppercase tracking-widest text-gray-500 mb-2 font-['Lora']">
-                      Outcome
+                    <p className="text-xs tracking-widest uppercase mb-2" style={{ color: '#6B6B63', letterSpacing: '0.06em' }}>Outcome</p>
+                    <p style={{ color: '#1A1A1A' }}>{industry.outcome}</p>
+                  </div>
+                  <div className="text-white p-4 text-center" style={{ backgroundColor: '#1A1A1A', borderRadius: '4px' }}>
+                    <p className="text-2xl" style={{ fontFamily: 'Georgia, serif' }}>
+                      {industry.metric}
                     </p>
-                    <p className="text-gray-900 font-semibold text-base font-['Lora']">
-                      {industry.outcome}
+                    <p className="text-[10px] tracking-widest uppercase" style={{ color: 'rgba(245,245,240,0.6)', letterSpacing: '0.06em' }}>
+                      {industry.metricLabel}
                     </p>
                   </div>
-                  
-                  {/* Metric Badge */}
-                  <div className="bg-[#0F3D3E] text-white p-4 text-center relative overflow-hidden">
-                    <div className="absolute inset-0 opacity-10">
-                      <div className="absolute inset-0" style={{
-                        backgroundImage: `radial-gradient(circle, white 1px, transparent 1px)`,
-                        backgroundSize: '10px 10px'
-                      }} />
-                    </div>
-                    <div className="relative">
-                      <p className="text-2xl font-bold" style={{ fontFamily: 'Playfair Display, serif' }}>
-                        {industry.metric}
-                      </p>
-                      <p className="text-[10px] uppercase tracking-widest opacity-90">
-                        {industry.metricLabel}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Number Badge - Top Right */}
-                <div className="absolute top-6 right-6 w-10 h-10 flex items-center justify-center bg-[#84CC16] text-white font-bold text-lg opacity-0 group-hover:opacity-100 transition-opacity">
-                  {index + 1}
                 </div>
               </div>
-
-              {/* Bottom Shadow Effect */}
-              <div className="absolute bottom-0 left-4 right-4 h-2 bg-gray-200 -z-10 opacity-0 group-hover:opacity-100 transition-opacity" />
             </motion.div>
           ))}
         </div>
 
         {/* Bottom CTA */}
         <motion.div
-          className="mt-20 text-center"
+          className="mt-16 text-center"
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
         >
-          <div className="inline-block bg-gradient-to-r from-[#84CC16] to-[#73b512] text-white px-10 py-6 relative overflow-hidden">
-            <div className="absolute inset-0 opacity-20">
-              <div className="absolute inset-0" style={{
-                backgroundImage: `linear-gradient(45deg, transparent 25%, rgba(255,255,255,0.2) 25%, rgba(255,255,255,0.2) 50%, transparent 50%, transparent 75%, rgba(255,255,255,0.2) 75%)`,
-                backgroundSize: '20px 20px'
-              }} />
-            </div>
-            <p className="text-xl font-['Lora'] relative">
-              Don't see your industry? <span className="font-bold">We build custom solutions.</span>
+          <div className="inline-block text-white px-8 py-5" style={{ backgroundColor: '#00875A', borderRadius: '4px' }}>
+            <p className="text-base">
+              Don't see your industry? <span className="font-semibold">We build custom solutions.</span>
             </p>
           </div>
         </motion.div>

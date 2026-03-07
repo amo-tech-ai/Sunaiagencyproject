@@ -31,8 +31,8 @@ export default function EcommerceStats() {
   const isInView = useInView(ref, { once: true, margin: '-100px' });
 
   return (
-    <section ref={ref} className="bg-[#FAF8F6] py-24 lg:py-32">
-      <div className="max-w-7xl mx-auto px-6 lg:px-8">
+    <section ref={ref} className="py-24 lg:py-32" style={{ backgroundColor: '#F5F5F0' }}>
+      <div className="max-w-[1120px] mx-auto px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
@@ -45,16 +45,17 @@ export default function EcommerceStats() {
               initial={{ opacity: 0, y: 40 }}
               animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
               transition={{ duration: 0.8, delay: index * 0.1 }}
-              className="border-l-2 border-[#84CC16] pl-6"
+              className="border-l-2 pl-6"
+              style={{ borderColor: '#00875A' }}
             >
               <div className="space-y-3">
-                <p className="text-xs tracking-[0.2em] uppercase text-gray-500 font-['Lora']">
+                <p className="text-xs tracking-[0.2em] uppercase" style={{ color: '#9CA39B' }}>
                   {stat.label}
                 </p>
-                <p className="font-['Playfair_Display'] text-5xl lg:text-6xl text-[#84CC16] leading-none">
+                <p className="text-5xl lg:text-6xl leading-none" style={{ fontFamily: 'Georgia, serif', color: '#00875A' }}>
                   {stat.value}
                 </p>
-                <p className="text-sm leading-relaxed text-gray-600 font-['Lora']">
+                <p className="text-sm leading-relaxed" style={{ color: '#6B6B63' }}>
                   {stat.context}
                 </p>
               </div>

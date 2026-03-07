@@ -33,7 +33,7 @@ export default function EcommerceTools() {
 
   return (
     <section ref={ref} className="bg-white py-24 lg:py-32">
-      <div className="max-w-6xl mx-auto px-6 lg:px-8">
+      <div className="max-w-[1120px] mx-auto px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
@@ -42,11 +42,11 @@ export default function EcommerceTools() {
         >
           {/* Header */}
           <div className="space-y-6">
-            <h2 className="font-['Playfair_Display'] text-4xl lg:text-5xl text-[#0F3D3E]">
+            <h2 className="text-4xl lg:text-5xl" style={{ fontFamily: 'Georgia, serif', color: '#1A1A1A' }}>
               Our E-Commerce Tools and Resources
             </h2>
-            <div className="w-12 h-[3px] bg-[#84CC16]" />
-            <p className="font-['Lora'] text-lg leading-relaxed text-gray-700 max-w-4xl">
+            <div className="w-12 h-[3px]" style={{ backgroundColor: '#00875A' }} />
+            <p className="text-lg leading-relaxed max-w-4xl" style={{ color: '#6B6B63' }}>
               We bring an operator's perspective to e-commerce — because we've been there. Our 
               consulting draws on an extensive network of industry, functional, and technical experts 
               alongside agile ways of working, analytics, and AI capabilities. We also use proprietary 
@@ -66,12 +66,12 @@ export default function EcommerceTools() {
                 className="space-y-4"
               >
                 <div className="flex items-start gap-3">
-                  <CheckCircle2 className="w-6 h-6 text-[#84CC16] flex-shrink-0 mt-1" />
+                  <CheckCircle2 className="w-6 h-6 flex-shrink-0 mt-1" style={{ color: '#00875A' }} />
                   <div className="space-y-2">
-                    <h3 className="font-['Playfair_Display'] text-xl text-[#0F3D3E]">
+                    <h3 className="text-xl" style={{ fontFamily: 'Georgia, serif', color: '#1A1A1A' }}>
                       {assessment.title}
                     </h3>
-                    <p className="font-['Lora'] text-base leading-relaxed text-gray-600">
+                    <p className="text-base leading-relaxed" style={{ color: '#6B6B63' }}>
                       {assessment.description}
                     </p>
                   </div>

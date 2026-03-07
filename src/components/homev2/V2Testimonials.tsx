@@ -28,13 +28,13 @@ export default function V2Testimonials() {
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
         {/* Section Header */}
         <div className="max-w-3xl mb-20">
-          <div className="inline-block px-4 py-2 bg-[#84CC16]/10 border border-[#84CC16]/20 mb-6">
-            <span className="text-xs uppercase tracking-[0.2em] text-[#84CC16] font-medium">
+          <div className="inline-block px-3.5 py-1.5 border mb-5" style={{ backgroundColor: 'rgba(0,135,90,0.08)', borderColor: 'rgba(0,135,90,0.15)', borderRadius: '4px' }}>
+            <span className="text-xs tracking-widest uppercase" style={{ color: '#00875A', letterSpacing: '0.08em' }}>
               Client Stories
             </span>
           </div>
           
-          <h2 className="font-['Playfair_Display'] text-4xl lg:text-6xl font-bold text-[#1A1A1A] leading-[1.05]">
+          <h2 className="text-3xl lg:text-4xl leading-[1.05]" style={{ fontFamily: 'Georgia, serif', color: '#1A1A1A' }}>
             Trusted by industry leaders
           </h2>
         </div>
@@ -56,7 +56,7 @@ export default function V2Testimonials() {
                 
                 {/* Overlay with Company */}
                 <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6">
-                  <div className="text-xs uppercase tracking-[0.2em] text-[#84CC16] font-medium">
+                  <div className="text-xs tracking-widest uppercase" style={{ color: '#00875A', letterSpacing: '0.08em' }}>
                     {testimonial.company}
                   </div>
                 </div>
@@ -64,16 +64,16 @@ export default function V2Testimonials() {
               
               {/* Quote */}
               <div className="space-y-6">
-                <p className="text-lg text-[#1A1A1A] leading-relaxed font-['Lora']">
+                <p className="text-lg leading-relaxed" style={{ color: '#1A1A1A' }}>
                   "{testimonial.quote}"
                 </p>
                 
                 {/* Author */}
                 <div className="space-y-1">
-                  <div className="font-medium text-[#1A1A1A] font-['Playfair_Display'] text-lg">
+                  <div className="text-lg" style={{ fontFamily: 'Georgia, serif', color: '#1A1A1A' }}>
                     {testimonial.author}
                   </div>
-                  <div className="text-sm text-[#666666]">
+                  <div className="text-sm" style={{ color: '#6B6B63' }}>
                     {testimonial.role}
                   </div>
                 </div>

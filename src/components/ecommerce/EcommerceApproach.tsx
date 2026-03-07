@@ -9,7 +9,7 @@ export default function EcommerceApproach() {
 
   return (
     <section ref={ref} className="bg-white py-24 lg:py-32">
-      <div className="max-w-5xl mx-auto px-6 lg:px-8">
+      <div className="max-w-[1120px] mx-auto px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
@@ -18,14 +18,14 @@ export default function EcommerceApproach() {
         >
           {/* Section Title */}
           <div className="space-y-4">
-            <h2 className="font-['Playfair_Display'] text-4xl lg:text-5xl text-[#0F3D3E]">
+            <h2 className="text-4xl lg:text-5xl" style={{ fontFamily: 'Georgia, serif', color: '#1A1A1A' }}>
               Our Approach to E-Commerce AI
             </h2>
-            <div className="w-12 h-[3px] bg-[#84CC16]" />
+            <div className="w-12 h-[3px]" style={{ backgroundColor: '#00875A' }} />
           </div>
 
           {/* Body Copy */}
-          <p className="font-['Lora'] text-lg lg:text-xl leading-relaxed text-gray-700">
+          <p className="text-lg lg:text-xl leading-relaxed" style={{ color: '#6B6B63' }}>
             By combining AI expertise and strategy, we help companies seize the full potential 
             of e-commerce. There are a lot of things to get right: customer journey mapping, 
             product strategy, digital organization and operating models, new ways of reaching 

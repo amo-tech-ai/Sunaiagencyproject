@@ -1,3 +1,6 @@
+// C-B02 — Booking Info Item
+// BCG design system: Georgia serif title, charcoal text
+
 interface BookingInfoItemProps {
   title: string;
   description: string;
@@ -9,13 +12,10 @@ export default function BookingInfoItem({
 }: BookingInfoItemProps) {
   return (
     <div>
-      <h3 
-        className="text-xl font-semibold mb-2"
-        style={{ fontFamily: 'Playfair Display, serif' }}
-      >
+      <h3 className="text-lg mb-2" style={{ fontFamily: 'Georgia, serif', color: '#1A1A1A' }}>
         {title}
       </h3>
-      <p className="text-gray-600 font-['Lora']">{description}</p>
+      <p style={{ color: '#6B6B63' }}>{description}</p>
     </div>
   );
 }

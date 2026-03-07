@@ -1,3 +1,6 @@
+// C-PJ02 — Comparison Section
+// BCG design system: off-white bg, charcoal text, Georgia serif, green accent card, 4px radius
+
 import { motion } from 'motion/react';
 import { X, Check } from 'lucide-react';
 
@@ -21,17 +24,17 @@ const SUN_AI_FEATURES = [
 
 export default function ComparisonSection() {
   return (
-    <section className="py-24 lg:py-32 bg-[#FDFCFB]">
-      <div className="max-w-[1400px] mx-auto px-6 lg:px-16">
+    <section className="py-20 lg:py-28" style={{ backgroundColor: '#F5F5F0' }}>
+      <div className="max-w-[1120px] mx-auto px-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-16"
+          className="text-center mb-14"
         >
           <h2
-            className="text-4xl lg:text-5xl text-[#1A1A1A]"
-            style={{ fontFamily: 'Playfair Display, serif' }}
+            className="text-3xl lg:text-4xl"
+            style={{ fontFamily: 'Georgia, serif', color: '#1A1A1A' }}
           >
             Why Our Projects Ship Faster
           </h2>
@@ -44,18 +47,19 @@ export default function ComparisonSection() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.2 }}
-            className="p-8 border border-[#EFE9E4] bg-white"
+            className="p-8 border"
+            style={{ borderColor: '#E8E8E4', backgroundColor: '#FFFFFF', borderRadius: '4px' }}
           >
             <h3
-              className="text-2xl mb-6 text-[#666666]"
-              style={{ fontFamily: 'Playfair Display, serif' }}
+              className="text-xl mb-6"
+              style={{ fontFamily: 'Georgia, serif', color: '#6B6B63' }}
             >
               Traditional Agency
             </h3>
             <ul className="space-y-4">
               {TRADITIONAL_FEATURES.map((feature, index) => (
-                <li key={index} className="flex gap-3 text-[#999999]">
-                  <X className="w-5 h-5 text-[#999999] flex-shrink-0 mt-0.5" />
+                <li key={index} className="flex gap-3" style={{ color: '#6B6B63' }}>
+                  <X className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: '#6B6B63' }} />
                   <span>{feature}</span>
                 </li>
               ))}
@@ -68,18 +72,19 @@ export default function ComparisonSection() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.3 }}
-            className="p-8 border-2 border-[#F59E0B] bg-[#F59E0B]/5"
+            className="p-8 border-2"
+            style={{ borderColor: '#00875A', backgroundColor: 'rgba(0,135,90,0.03)', borderRadius: '4px' }}
           >
             <h3
-              className="text-2xl mb-6 text-[#1A1A1A]"
-              style={{ fontFamily: 'Playfair Display, serif' }}
+              className="text-xl mb-6"
+              style={{ fontFamily: 'Georgia, serif', color: '#1A1A1A' }}
             >
               Sun AI Agency
             </h3>
             <ul className="space-y-4">
               {SUN_AI_FEATURES.map((feature, index) => (
-                <li key={index} className="flex gap-3 text-[#666666]">
-                  <Check className="w-5 h-5 text-[#F59E0B] flex-shrink-0 mt-0.5" />
+                <li key={index} className="flex gap-3" style={{ color: '#1A1A1A' }}>
+                  <Check className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: '#00875A' }} />
                   <span>{feature}</span>
                 </li>
               ))}

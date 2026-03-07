@@ -151,8 +151,8 @@ export default function PhaseCardsSection() {
     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32">
       <div className="mb-16">
         <h2
-          className="text-5xl md:text-6xl font-bold text-[#1A1A1A] mb-6"
-          style={{ fontFamily: 'Playfair Display, serif' }}
+          className="text-3xl md:text-4xl text-[#1A1A1A] mb-6"
+          style={{ fontFamily: 'Georgia, serif' }}
         >
           Our 7-Phase Process
         </h2>

@@ -1,10 +1,13 @@
+// C-CB04 — Workflow Diagrams
+// BCG design system: white bg, charcoal text, Georgia serif, green accents, 4px radius
+
 import { ArrowRight, CheckCircle, Play, Zap, Database, Bell } from 'lucide-react';
 import { motion, useScroll, useTransform } from 'motion/react';
 import { useRef } from 'react';
 
 export default function WorkflowDiagrams() {
   const containerRef = useRef<HTMLDivElement>(null);
-  
+
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start end", "end start"]
@@ -58,73 +61,67 @@ export default function WorkflowDiagrams() {
   ];
 
   return (
-    <section ref={containerRef} className="bg-white py-32 md:py-40 relative overflow-hidden">
+    <section ref={containerRef} className="py-24 md:py-32 relative overflow-hidden" style={{ backgroundColor: '#FFFFFF' }}>
       {/* Parallax Background */}
-      <motion.div 
-        className="absolute inset-0 opacity-[0.02]"
-        style={{ y }}
-      >
+      <motion.div className="absolute inset-0 opacity-[0.02]" style={{ y }}>
         <div className="absolute inset-0" style={{
-          backgroundImage: `radial-gradient(circle at center, rgba(132,204,22,0.4) 1px, transparent 1px)`,
+          backgroundImage: `radial-gradient(circle at center, rgba(0,135,90,0.4) 1px, transparent 1px)`,
           backgroundSize: '40px 40px'
         }} />
       </motion.div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-        <motion.div 
-          className="text-center mb-20"
+      <div className="max-w-[1120px] mx-auto px-6 relative">
+        <motion.div
+          className="text-center mb-16"
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
         >
-          <div className="inline-block mb-6">
-            <span className="text-xs uppercase tracking-widest text-[#84CC16] font-semibold font-['Lora']">
+          <div className="inline-block mb-5">
+            <span className="text-xs tracking-widest uppercase" style={{ color: '#00875A', letterSpacing: '0.08em' }}>
               Scroll-Driven Storytelling
             </span>
           </div>
-          
-          <h2 
-            className="text-5xl md:text-6xl tracking-tight text-gray-900 mb-6"
-            style={{ fontFamily: 'Playfair Display, serif' }}
+
+          <h2
+            className="text-3xl md:text-4xl tracking-tight mb-5"
+            style={{ fontFamily: 'Georgia, serif', color: '#1A1A1A' }}
           >
             Real-World Workflows
           </h2>
-          
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto font-['Lora']">
+
+          <p className="text-lg max-w-3xl mx-auto" style={{ color: '#6B6B63' }}>
             Not theoretical — these are actual business processes automated end-to-end
           </p>
         </motion.div>
 
-        <div className="space-y-32">
+        <div className="space-y-24">
           {workflows.map((workflow, workflowIndex) => (
             <div key={workflowIndex} className="relative">
               {/* Workflow Header */}
               <motion.div
-                className="mb-12"
+                className="mb-10"
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-100px" }}
                 transition={{ duration: 0.8 }}
               >
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="w-16 h-16 flex items-center justify-center bg-[#84CC16] text-gray-900">
-                    <workflow.icon className="w-8 h-8" />
+                <div className="flex items-center gap-4 mb-5">
+                  <div className="w-14 h-14 flex items-center justify-center text-white" style={{ backgroundColor: '#00875A', borderRadius: '4px' }}>
+                    <workflow.icon className="w-7 h-7" />
                   </div>
                   <div>
-                    <h3 
-                      className="text-3xl md:text-4xl text-gray-900"
-                      style={{ fontFamily: 'Playfair Display, serif' }}
-                    >
+                    <h3 className="text-2xl md:text-3xl" style={{ fontFamily: 'Georgia, serif', color: '#1A1A1A' }}>
                       {workflow.title}
                     </h3>
-                    <p className="text-sm text-gray-500 font-['Lora']">Automated Workflow #{workflowIndex + 1}</p>
+                    <p className="text-sm" style={{ color: '#6B6B63' }}>Automated Workflow #{workflowIndex + 1}</p>
                   </div>
                 </div>
-                
-                <div className="inline-block bg-gray-50 border-l-4 border-[#84CC16] px-6 py-4">
-                  <p className="text-gray-600 font-['Lora']">
-                    <span className="font-semibold text-gray-900">User:</span> {workflow.userQuery}
+
+                <div className="inline-block border-l-3 px-5 py-3" style={{ backgroundColor: '#F5F5F0', borderLeftWidth: '3px', borderLeftColor: '#00875A' }}>
+                  <p style={{ color: '#6B6B63' }}>
+                    <span style={{ color: '#1A1A1A' }}>User:</span> {workflow.userQuery}
                   </p>
                 </div>
               </motion.div>
@@ -133,24 +130,24 @@ export default function WorkflowDiagrams() {
               <div className="hidden lg:block relative">
                 {/* Progress Line */}
                 <motion.div
-                  className="absolute top-24 left-0 right-0 h-1 bg-gray-200"
+                  className="absolute top-24 left-0 right-0 h-0.5"
+                  style={{ backgroundColor: '#E8E8E4' }}
                   initial={{ scaleX: 0 }}
                   whileInView={{ scaleX: 1 }}
                   viewport={{ once: true, margin: "-100px" }}
                   transition={{ duration: 1.5, delay: 0.3 }}
-                  style={{ transformOrigin: 'left' }}
                 >
                   <motion.div
-                    className="h-full bg-[#84CC16]"
+                    className="h-full"
+                    style={{ backgroundColor: '#00875A' }}
                     initial={{ scaleX: 0 }}
                     whileInView={{ scaleX: 1 }}
                     viewport={{ once: true, margin: "-100px" }}
                     transition={{ duration: 1.5, delay: 0.5 }}
-                    style={{ transformOrigin: 'left' }}
                   />
                 </motion.div>
 
-                <div className="grid grid-cols-4 gap-6">
+                <div className="grid grid-cols-4 gap-5">
                   {workflow.steps.map((step, stepIndex) => (
                     <motion.div
                       key={stepIndex}
@@ -160,11 +157,12 @@ export default function WorkflowDiagrams() {
                       viewport={{ once: true, margin: "-100px" }}
                       transition={{ duration: 0.6, delay: 0.6 + step.delay }}
                     >
-                      {/* Step Number Circle */}
+                      {/* Step Number */}
                       <motion.div
-                        className="absolute -top-3 left-1/2 transform -translate-x-1/2 w-12 h-12 flex items-center justify-center bg-[#84CC16] text-gray-900 text-lg font-bold z-10 border-4 border-white"
-                        initial={{ scale: 0, rotate: -180 }}
-                        whileInView={{ scale: 1, rotate: 0 }}
+                        className="absolute -top-3 left-1/2 transform -translate-x-1/2 w-10 h-10 flex items-center justify-center text-white text-sm z-10 border-4 border-white"
+                        style={{ backgroundColor: '#00875A', borderRadius: '4px' }}
+                        initial={{ scale: 0 }}
+                        whileInView={{ scale: 1 }}
                         viewport={{ once: true, margin: "-100px" }}
                         transition={{ duration: 0.5, delay: 0.8 + step.delay, type: "spring" }}
                       >
@@ -172,39 +170,27 @@ export default function WorkflowDiagrams() {
                       </motion.div>
 
                       {/* Step Card */}
-                      <motion.div 
-                        className="bg-white border-2 border-gray-200 p-6 pt-10 h-48 flex flex-col relative group hover:border-[#84CC16] transition-colors"
-                        whileHover={{ y: -8, scale: 1.05 }}
-                      >
-                        {/* Glow Effect */}
-                        <div className="absolute inset-0 bg-gradient-to-br from-[#84CC16]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                        
-                        {/* Icon */}
-                        <div className="flex-shrink-0 mb-4 relative">
-                          <div className="w-12 h-12 flex items-center justify-center bg-gray-50 border border-gray-200 group-hover:border-[#84CC16] group-hover:bg-[#84CC16]/10 transition-colors">
-                            <step.icon className="w-6 h-6 text-gray-600 group-hover:text-[#84CC16] transition-colors" />
+                      <div className="border bg-white p-5 pt-10 h-44 flex flex-col relative group hover:border-[#00875A] transition-colors" style={{ borderColor: '#E8E8E4', borderRadius: '4px' }}>
+                        <div className="flex-shrink-0 mb-3 relative">
+                          <div className="w-10 h-10 flex items-center justify-center border bg-white group-hover:border-[#00875A] transition-colors" style={{ borderColor: '#E8E8E4', borderRadius: '4px' }}>
+                            <step.icon className="w-5 h-5 group-hover:text-[#00875A] transition-colors" style={{ color: '#1A1A1A' }} />
                           </div>
                         </div>
-                        
-                        {/* Text */}
-                        <p className="text-sm text-gray-700 leading-relaxed font-['Lora'] relative">
+                        <p className="text-sm leading-relaxed relative" style={{ color: '#1A1A1A' }}>
                           {step.action}
                         </p>
-
-                        {/* Corner Accent */}
-                        <div className="absolute bottom-3 right-3 w-6 h-6 border-b-2 border-r-2 border-gray-200 group-hover:border-[#84CC16] transition-colors" />
-                      </motion.div>
+                      </div>
 
                       {/* Arrow Connector */}
                       {stepIndex < workflow.steps.length - 1 && (
                         <motion.div
-                          className="absolute top-20 -right-5 z-20"
+                          className="absolute top-20 -right-4 z-20"
                           initial={{ opacity: 0, x: -20 }}
                           whileInView={{ opacity: 1, x: 0 }}
                           viewport={{ once: true, margin: "-100px" }}
                           transition={{ duration: 0.5, delay: 1 + step.delay }}
                         >
-                          <ArrowRight className={`w-10 h-10 text-[#84CC16]`} />
+                          <ArrowRight className="w-8 h-8" style={{ color: '#00875A' }} />
                         </motion.div>
                       )}
                     </motion.div>
@@ -213,7 +199,7 @@ export default function WorkflowDiagrams() {
               </div>
 
               {/* Flowchart - Mobile Vertical */}
-              <div className="lg:hidden space-y-6">
+              <div className="lg:hidden space-y-5">
                 {workflow.steps.map((step, stepIndex) => (
                   <motion.div
                     key={stepIndex}
@@ -222,19 +208,19 @@ export default function WorkflowDiagrams() {
                     viewport={{ once: true, margin: "-50px" }}
                     transition={{ duration: 0.5, delay: step.delay }}
                   >
-                    <div className="bg-white border-2 border-gray-200 p-6 relative hover:border-[#84CC16] transition-colors">
+                    <div className="border bg-white p-5 relative hover:border-[#00875A] transition-colors" style={{ borderColor: '#E8E8E4', borderRadius: '4px' }}>
                       <div className="flex items-start gap-4">
-                        <div className="w-12 h-12 flex-shrink-0 flex items-center justify-center bg-[#84CC16] text-gray-900 text-lg font-bold">
+                        <div className="w-10 h-10 flex-shrink-0 flex items-center justify-center text-white text-sm" style={{ backgroundColor: '#00875A', borderRadius: '4px' }}>
                           {stepIndex + 1}
                         </div>
                         <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-3">
-                            <step.icon className="w-5 h-5 text-[#84CC16]" />
-                            <span className="text-xs uppercase tracking-widest text-gray-500 font-['Lora']">
+                          <div className="flex items-center gap-3 mb-2">
+                            <step.icon className="w-4 h-4" style={{ color: '#00875A' }} />
+                            <span className="text-xs tracking-widest uppercase" style={{ color: '#6B6B63', letterSpacing: '0.06em' }}>
                               Step {stepIndex + 1}
                             </span>
                           </div>
-                          <p className="text-sm text-gray-700 leading-relaxed font-['Lora']">
+                          <p className="text-sm leading-relaxed" style={{ color: '#1A1A1A' }}>
                             {step.action}
                           </p>
                         </div>
@@ -242,7 +228,7 @@ export default function WorkflowDiagrams() {
                     </div>
                     {stepIndex < workflow.steps.length - 1 && (
                       <div className="flex justify-center py-2">
-                        <ArrowRight className="w-6 h-6 text-[#84CC16] rotate-90" />
+                        <ArrowRight className="w-5 h-5 rotate-90" style={{ color: '#00875A' }} />
                       </div>
                     )}
                   </motion.div>
@@ -251,37 +237,31 @@ export default function WorkflowDiagrams() {
 
               {/* Result Section */}
               <motion.div
-                className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-6"
+                className="mt-10 grid grid-cols-1 md:grid-cols-2 gap-5"
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-100px" }}
                 transition={{ duration: 0.8, delay: 1.5 }}
               >
                 {/* Result Text */}
-                <div className="bg-[#84CC16]/5 border-2 border-[#84CC16] p-8">
+                <div className="border-2 p-7" style={{ borderColor: '#00875A', backgroundColor: 'rgba(0,135,90,0.03)', borderRadius: '4px' }}>
                   <div className="flex items-start gap-4">
-                    <CheckCircle className="w-8 h-8 text-[#84CC16] flex-shrink-0 mt-1" />
+                    <CheckCircle className="w-7 h-7 flex-shrink-0 mt-1" style={{ color: '#00875A' }} />
                     <div>
-                      <p className="text-xs uppercase tracking-widest text-gray-500 mb-2 font-['Lora']">Result</p>
-                      <p className="text-gray-900 font-semibold text-xl font-['Lora']">{workflow.result}</p>
+                      <p className="text-xs tracking-widest uppercase mb-2" style={{ color: '#6B6B63', letterSpacing: '0.06em' }}>Result</p>
+                      <p className="text-lg" style={{ color: '#1A1A1A' }}>{workflow.result}</p>
                     </div>
                   </div>
                 </div>
 
                 {/* Metric Card */}
-                <div className="bg-[#0F3D3E] text-white p-8 relative overflow-hidden">
-                  <div className="absolute inset-0 opacity-10">
-                    <div className="absolute inset-0" style={{
-                      backgroundImage: `radial-gradient(circle, white 1px, transparent 1px)`,
-                      backgroundSize: '20px 20px'
-                    }} />
-                  </div>
+                <div className="text-white p-7 relative overflow-hidden" style={{ backgroundColor: '#1A1A1A', borderRadius: '4px' }}>
                   <div className="relative">
-                    <p className="text-sm uppercase tracking-widest mb-2 opacity-90">Impact Metric</p>
-                    <p className="text-5xl font-bold mb-1" style={{ fontFamily: 'Playfair Display, serif' }}>
+                    <p className="text-xs tracking-widest uppercase mb-2" style={{ letterSpacing: '0.06em', color: 'rgba(245,245,240,0.5)' }}>Impact Metric</p>
+                    <p className="text-4xl mb-1" style={{ fontFamily: 'Georgia, serif' }}>
                       {workflow.metric}
                     </p>
-                    <p className="text-sm opacity-90 font-['Lora']">{workflow.metricLabel}</p>
+                    <p className="text-sm" style={{ color: 'rgba(245,245,240,0.6)' }}>{workflow.metricLabel}</p>
                   </div>
                 </div>
               </motion.div>
@@ -291,22 +271,16 @@ export default function WorkflowDiagrams() {
 
         {/* Final Insight */}
         <motion.div
-          className="mt-32 text-center"
+          className="mt-24 text-center"
           initial={{ opacity: 0, scale: 0.9 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
         >
-          <div className="inline-block bg-[#0F3D3E] text-white px-12 py-8 max-w-3xl relative overflow-hidden">
-            <div className="absolute inset-0 opacity-5">
-              <div className="absolute inset-0" style={{
-                backgroundImage: `linear-gradient(45deg, transparent 25%, rgba(255,255,255,0.1) 25%, rgba(255,255,255,0.1) 50%, transparent 50%, transparent 75%, rgba(255,255,255,0.1) 75%)`,
-                backgroundSize: '20px 20px'
-              }} />
-            </div>
+          <div className="inline-block text-white px-10 py-7 max-w-3xl relative overflow-hidden" style={{ backgroundColor: '#1A1A1A', borderRadius: '4px' }}>
             <div className="relative">
-              <p className="text-2xl font-['Lora'] leading-relaxed">
-                Every workflow is <span className="font-bold text-[#84CC16]">customizable</span>, <span className="font-bold text-[#84CC16]">scalable</span>, and <span className="font-bold text-[#84CC16]">production-ready</span>.
+              <p className="text-xl leading-relaxed">
+                Every workflow is <span style={{ color: '#00875A' }}>customizable</span>, <span style={{ color: '#00875A' }}>scalable</span>, and <span style={{ color: '#00875A' }}>production-ready</span>.
               </p>
             </div>
           </div>

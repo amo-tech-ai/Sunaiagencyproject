@@ -95,8 +95,8 @@ export default function V2AIMaturityFramework({ onNavigate }: V2AIMaturityFramew
   ];
 
   return (
-    <section className="relative bg-[#FAF8F6] py-24 lg:py-32 overflow-hidden">
-      <div className="max-w-[1600px] mx-auto px-6 lg:px-12">
+    <section className="relative py-20 lg:py-28 overflow-hidden" style={{ backgroundColor: '#F5F5F0' }}>
+      <div className="max-w-[1120px] mx-auto px-6">
         {/* Header */}
         <motion.div
           className="mb-16 lg:mb-20"
@@ -105,12 +105,12 @@ export default function V2AIMaturityFramework({ onNavigate }: V2AIMaturityFramew
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
         >
-          <div className="inline-block px-4 py-1.5 bg-[#84CC16]/10 mb-6">
-            <span className="text-xs font-medium text-[#0F3D3E] uppercase tracking-[0.2em]">
+          <div className="inline-block px-3.5 py-1.5 mb-5" style={{ backgroundColor: 'rgba(0,135,90,0.08)', borderRadius: '4px' }}>
+            <span className="text-xs tracking-widest uppercase" style={{ color: '#1A1A1A', letterSpacing: '0.08em' }}>
               EXHIBIT 2
             </span>
           </div>
-          <h2 className="font-['Playfair_Display'] text-4xl lg:text-5xl font-bold text-[#0F3D3E] leading-tight max-w-5xl">
+          <h2 className="text-3xl lg:text-4xl leading-tight max-w-5xl" style={{ fontFamily: 'Georgia, serif', color: '#1A1A1A' }}>
             The Future-Built Playbook for Climbing the AI Maturity Curve
           </h2>
         </motion.div>
@@ -134,13 +134,13 @@ export default function V2AIMaturityFramework({ onNavigate }: V2AIMaturityFramew
                   className="flex gap-4 group cursor-default"
                 >
                   <div className="flex-shrink-0 w-12 h-12 flex items-center justify-center">
-                    <Icon className="w-6 h-6 text-[#0F3D3E]/60 group-hover:text-[#0F3D3E] transition-colors" strokeWidth={1.5} />
+                    <Icon className="w-6 h-6 transition-colors" style={{ color: '#6B6B63' }} strokeWidth={1.5} />
                   </div>
                   <div>
-                    <h3 className="font-['Lora'] text-base font-semibold text-[#0F3D3E] leading-snug mb-1">
+                    <h3 className="text-base leading-snug mb-1" style={{ fontFamily: 'Georgia, serif', color: '#1A1A1A' }}>
                       {pillar.title}
                     </h3>
-                    <p className="font-['Lora'] text-sm text-[#0F3D3E]/60 leading-relaxed">
+                    <p className="text-sm leading-relaxed" style={{ color: '#6B6B63' }}>
                       {pillar.subtitle}
                     </p>
                   </div>
@@ -163,7 +163,7 @@ export default function V2AIMaturityFramework({ onNavigate }: V2AIMaturityFramew
               isActive={activeStage === 'scaling'}
               onHover={() => setActiveStage('scaling')}
               onLeave={() => setActiveStage(null)}
-              accentColor="#84CC16"
+              accentColor="#00875A"
             />
 
             {/* Future-Built Stage */}
@@ -172,22 +172,21 @@ export default function V2AIMaturityFramework({ onNavigate }: V2AIMaturityFramew
               isActive={activeStage === 'future-built'}
               onHover={() => setActiveStage('future-built')}
               onLeave={() => setActiveStage(null)}
-              accentColor="#65A30D"
+              accentColor="#00875A"
             />
 
             {/* Maturity Curve Progress Bar */}
-            <div className="mt-16 pt-8 border-t border-[#0F3D3E]/10">
+            <div className="mt-14 pt-7 border-t" style={{ borderColor: '#E8E8E4' }}>
               <div className="relative">
-                {/* Progress Line */}
-                <div className="absolute top-6 left-0 right-0 h-0.5 bg-[#0F3D3E]/10" />
+                <div className="absolute top-6 left-0 right-0 h-0.5" style={{ backgroundColor: '#E8E8E4' }} />
                 <div 
-                  className="absolute top-6 left-0 h-0.5 bg-[#84CC16] transition-all duration-700"
+                  className="absolute top-6 left-0 h-0.5 transition-all duration-700"
                   style={{ 
+                    backgroundColor: '#00875A',
                     width: activeStage === 'future-built' ? '100%' : activeStage === 'scaling' ? '50%' : '0%' 
                   }}
                 />
 
-                {/* Stage Markers */}
                 <div className="relative flex justify-between items-start">
                   {maturityStages.map((stage, index) => (
                     <div
@@ -196,16 +195,16 @@ export default function V2AIMaturityFramework({ onNavigate }: V2AIMaturityFramew
                       style={{ width: index === 0 ? 'auto' : index === 2 ? 'auto' : '50%' }}
                     >
                       <div 
-                        className={`w-3 h-3 rounded-full border-2 transition-all duration-500 ${
-                          activeStage === stage.id
-                            ? 'bg-[#84CC16] border-[#84CC16] scale-125'
-                            : 'bg-white border-[#0F3D3E]/30'
-                        }`}
+                        className="w-3 h-3 rounded-full border-2 transition-all duration-500"
+                        style={{
+                          backgroundColor: activeStage === stage.id ? '#00875A' : '#FFFFFF',
+                          borderColor: activeStage === stage.id ? '#00875A' : '#E8E8E4',
+                          transform: activeStage === stage.id ? 'scale(1.25)' : 'scale(1)',
+                        }}
                       />
                       <span 
-                        className={`mt-3 text-sm font-['Lora'] font-medium transition-colors ${
-                          activeStage === stage.id ? 'text-[#84CC16]' : 'text-[#0F3D3E]/60'
-                        }`}
+                        className="mt-3 text-sm transition-colors"
+                        style={{ color: activeStage === stage.id ? '#00875A' : '#6B6B63' }}
                       >
                         {stage.label}
                       </span>
@@ -219,13 +218,14 @@ export default function V2AIMaturityFramework({ onNavigate }: V2AIMaturityFramew
 
         {/* Footer Attribution */}
         <motion.div
-          className="mt-16 pt-8 border-t border-[#0F3D3E]/10"
+          className="mt-14 pt-7 border-t"
+          style={{ borderColor: '#E8E8E4' }}
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.6 }}
         >
-          <p className="text-xs text-[#0F3D3E]/50 font-['Lora']">
+          <p className="text-xs" style={{ color: '#6B6B63' }}>
             Source: StartupAI Strategic Framework
           </p>
         </motion.div>
@@ -252,21 +252,22 @@ function StageSection({ stage, isActive, onHover, onLeave, accentColor }: StageS
     >
       {/* Stage Header */}
       <div 
-        className="inline-block px-6 py-3 mb-6 transition-all duration-500"
+        className="inline-block px-5 py-2.5 mb-5 transition-all duration-500"
         style={{ 
           backgroundColor: isActive ? accentColor : `${accentColor}20`,
+          borderRadius: '4px',
         }}
       >
         <h3 
-          className="font-['Playfair_Display'] text-2xl lg:text-3xl font-bold transition-colors"
-          style={{ color: isActive ? 'white' : '#0F3D3E' }}
+          className="text-xl lg:text-2xl transition-colors"
+          style={{ fontFamily: 'Georgia, serif', color: isActive ? 'white' : '#1A1A1A' }}
         >
           {stage.title}
         </h3>
       </div>
 
       {/* Stage Subtitle */}
-      <p className="font-['Lora'] text-base lg:text-lg text-[#0F3D3E]/70 leading-relaxed mb-8 max-w-3xl">
+      <p className="text-base leading-relaxed mb-7 max-w-3xl" style={{ color: '#6B6B63' }}>
         {stage.subtitle}
       </p>
 
@@ -295,22 +296,19 @@ interface ActionCardProps {
 function ActionCard({ text, isParentActive, delay }: ActionCardProps) {
   return (
     <motion.div
-      className={`
-        bg-white p-6 
-        border border-[#0F3D3E]/10
-        transition-all duration-500
-        hover:border-[#84CC16]/40
-        hover:shadow-sm
-        ${isParentActive ? 'border-[#84CC16]/20' : ''}
-      `}
+      className="bg-white p-5 border transition-all duration-500 hover:shadow-sm"
+      style={{
+        borderColor: isParentActive ? 'rgba(0,135,90,0.2)' : '#E8E8E4',
+        borderRadius: '4px',
+      }}
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.5, delay }}
     >
       <div className="flex items-start gap-3">
-        <div className="flex-shrink-0 w-1.5 h-1.5 bg-[#84CC16] mt-2" style={{ borderRadius: '1px' }} />
-        <p className="font-['Lora'] text-sm lg:text-base text-[#0F3D3E]/80 leading-relaxed">
+        <div className="flex-shrink-0 w-1.5 h-1.5 mt-2" style={{ backgroundColor: '#00875A', borderRadius: '1px' }} />
+        <p className="text-sm leading-relaxed" style={{ color: '#1A1A1A' }}>
           {text}
         </p>
       </div>

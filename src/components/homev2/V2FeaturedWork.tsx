@@ -47,17 +47,17 @@ export default function V2FeaturedWork({ onNavigate }: V2FeaturedWorkProps) {
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
         {/* Section Header */}
         <div className="max-w-3xl mb-16">
-          <div className="inline-block px-4 py-2 bg-[#84CC16]/10 border border-[#84CC16]/20 mb-6">
-            <span className="text-xs uppercase tracking-[0.2em] text-[#84CC16] font-medium">
+          <div className="inline-block px-3.5 py-1.5 border mb-5" style={{ backgroundColor: 'rgba(0,135,90,0.08)', borderColor: 'rgba(0,135,90,0.15)', borderRadius: '4px' }}>
+            <span className="text-xs tracking-widest uppercase" style={{ color: '#00875A', letterSpacing: '0.08em' }}>
               Featured Work
             </span>
           </div>
           
-          <h2 className="font-['Playfair_Display'] text-4xl lg:text-6xl font-bold text-[#1A1A1A] leading-[1.05] mb-6">
+          <h2 className="text-3xl lg:text-4xl leading-[1.05] mb-5" style={{ fontFamily: 'Georgia, serif', color: '#1A1A1A' }}>
             We love making things
           </h2>
           
-          <p className="text-xl text-[#666666] leading-relaxed font-['Lora']">
+          <p className="text-lg leading-relaxed" style={{ color: '#6B6B63' }}>
             Real AI products deployed across industries, delivering measurable business outcomes.
           </p>
         </div>
@@ -87,10 +87,10 @@ export default function V2FeaturedWork({ onNavigate }: V2FeaturedWorkProps) {
                 {/* Overlay */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                   <div className="absolute bottom-0 left-0 right-0 p-8 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
-                    <div className="text-xs uppercase tracking-[0.2em] text-[#84CC16] font-medium mb-2">
+                    <div className="text-xs tracking-widest uppercase mb-2" style={{ color: '#00875A', letterSpacing: '0.08em' }}>
                       {project.category}
                     </div>
-                    <h3 className="text-2xl font-['Playfair_Display'] font-bold text-white">
+                    <h3 className="text-xl text-white" style={{ fontFamily: 'Georgia, serif' }}>
                       {project.title}
                     </h3>
                   </div>
@@ -99,10 +99,10 @@ export default function V2FeaturedWork({ onNavigate }: V2FeaturedWorkProps) {
               
               {/* Always Visible Title (Mobile) */}
               <div className="md:hidden mt-4 space-y-2">
-                <div className="text-xs uppercase tracking-[0.2em] text-[#84CC16] font-medium">
+                <div className="text-xs tracking-widest uppercase" style={{ color: '#00875A', letterSpacing: '0.08em' }}>
                   {project.category}
                 </div>
-                <h3 className="text-xl font-['Playfair_Display'] font-bold text-[#1A1A1A]">
+                <h3 className="text-lg" style={{ fontFamily: 'Georgia, serif', color: '#1A1A1A' }}>
                   {project.title}
                 </h3>
               </div>
@@ -117,7 +117,7 @@ export default function V2FeaturedWork({ onNavigate }: V2FeaturedWorkProps) {
             className="px-8 py-4 border-2 border-[#1A1A1A] text-[#1A1A1A] font-medium text-base hover:bg-[#1A1A1A] hover:text-white transition-colors inline-flex items-center gap-2"
           >
             <span>View All Projects</span>
-            <span className="text-[#84CC16]">→</span>
+            <span style={{ color: '#00875A' }}>→</span>
           </button>
         </div>
       </div>

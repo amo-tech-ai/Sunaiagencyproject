@@ -23,8 +23,8 @@ export default function V2TrustStrip() {
               key={index}
               className="flex items-center justify-center group cursor-pointer"
             >
-              <div className="w-16 h-16 border-2 border-[#EFE9E4] flex items-center justify-center group-hover:border-[#84CC16] transition-colors">
-                <span className="text-sm font-['Playfair_Display'] font-bold text-[#666666] group-hover:text-[#84CC16] transition-colors">
+              <div className="w-16 h-16 border-2 border-[#E8E8E4] flex items-center justify-center group-hover:border-[#00875A] transition-colors">
+                <span className="text-sm font-bold group-hover:text-[#00875A] transition-colors" style={{ fontFamily: 'Georgia, serif', color: '#6B6B63' }}>
                   {company.logo}
                 </span>
               </div>

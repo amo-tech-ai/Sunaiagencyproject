@@ -1,3 +1,6 @@
+// C-P01 — Process Hero Section
+// BCG design system dark variant: charcoal bg, white text, Georgia serif, green accents, 4px radius
+
 import HeroCircularDiagram from './HeroCircularDiagram';
 
 interface ProcessHeroSectionProps {
@@ -10,33 +13,31 @@ export default function ProcessHeroSection({
   onStoriesClick,
 }: ProcessHeroSectionProps) {
   return (
-    <section className="bg-[#0F3D3E] py-20 md:py-32">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="py-20 md:py-32" style={{ backgroundColor: '#1A1A1A' }}>
+      <div className="max-w-[1120px] mx-auto px-6">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
           {/* Left Column - Content */}
           <div className="lg:col-span-5">
-            <p className="text-xs font-semibold uppercase tracking-widest text-[#84CC16] mb-6 font-['Lora']">
+            <p className="text-xs tracking-widest uppercase mb-6" style={{ color: '#00875A', letterSpacing: '0.08em' }}>
               Sun AI Process
             </p>
 
             <h1 className="mb-8">
               <div
-                className="text-6xl md:text-7xl font-bold text-white mb-2"
-                style={{ fontFamily: 'Playfair Display, serif' }}
+                className="text-5xl md:text-6xl text-white mb-2"
+                style={{ fontFamily: 'Georgia, serif' }}
               >
                 8 Weeks.
               </div>
               <div
-                className="text-6xl md:text-7xl font-bold text-[#84CC16]"
-                style={{ fontFamily: 'Playfair Display, serif' }}
+                className="text-5xl md:text-6xl"
+                style={{ fontFamily: 'Georgia, serif', color: '#00875A' }}
               >
                 Not 8 Months.
               </div>
             </h1>
 
-            <p
-              className="text-lg md:text-xl text-neutral-300 mb-10 leading-relaxed font-['Lora']"
-            >
+            <p className="text-lg md:text-xl text-neutral-300 mb-10 leading-relaxed">
               We move fast without cutting corners—AI acceleration + expert delivery
               for measurable results.
             </p>
@@ -44,13 +45,15 @@ export default function ProcessHeroSection({
             <div className="flex flex-col sm:flex-row gap-4 mb-16">
               <button
                 onClick={onStartClick}
-                className="bg-[#84CC16] text-gray-900 px-8 py-4 text-base font-semibold hover:bg-[#73b512] transition-colors font-['Lora']"
+                className="px-8 py-4 text-sm transition-colors"
+                style={{ backgroundColor: '#00875A', color: '#FFFFFF', borderRadius: '4px' }}
               >
                 Start Your AI Brief
               </button>
               <button
                 onClick={onStoriesClick}
-                className="border border-white text-white px-8 py-4 text-base font-semibold hover:bg-white hover:text-[#0F3D3E] transition-colors font-['Lora']"
+                className="border px-8 py-4 text-sm transition-colors hover:bg-white hover:text-[#1A1A1A]"
+                style={{ borderColor: '#FFFFFF', color: '#FFFFFF', borderRadius: '4px' }}
               >
                 See Success Stories
               </button>
@@ -59,20 +62,20 @@ export default function ProcessHeroSection({
             {/* Stats Bar */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
               <div>
-                <div className="text-4xl font-bold text-white mb-1">40+</div>
-                <div className="text-xs uppercase tracking-wider text-neutral-400 font-['Lora']">
+                <div className="text-3xl text-white mb-1" style={{ fontFamily: 'Georgia, serif' }}>40+</div>
+                <div className="text-xs tracking-widest uppercase text-neutral-400" style={{ letterSpacing: '0.06em' }}>
                   Projects Delivered
                 </div>
               </div>
               <div>
-                <div className="text-4xl font-bold text-white mb-1">$5M+</div>
-                <div className="text-xs uppercase tracking-wider text-neutral-400 font-['Lora']">
+                <div className="text-3xl text-white mb-1" style={{ fontFamily: 'Georgia, serif' }}>$5M+</div>
+                <div className="text-xs tracking-widest uppercase text-neutral-400" style={{ letterSpacing: '0.06em' }}>
                   Client Revenue Impact
                 </div>
               </div>
               <div>
-                <div className="text-4xl font-bold text-white mb-1">4.2×</div>
-                <div className="text-xs uppercase tracking-wider text-neutral-400 font-['Lora']">
+                <div className="text-3xl text-white mb-1" style={{ fontFamily: 'Georgia, serif' }}>4.2×</div>
+                <div className="text-xs tracking-widest uppercase text-neutral-400" style={{ letterSpacing: '0.06em' }}>
                   Average ROI
                 </div>
               </div>

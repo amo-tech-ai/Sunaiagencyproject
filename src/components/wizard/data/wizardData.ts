@@ -7,7 +7,8 @@ import {
   UtensilsCrossed, Briefcase, GraduationCap, Monitor, Cog, LayoutGrid,
   TrendingUp, Zap, Smile, RefreshCw, MoreHorizontal,
   MessageSquare, ShieldCheck, Sparkles, Target, Users, Brain,
-  Clock, DollarSign, CheckSquare, FileText, FolderOpen
+  Clock, DollarSign, CheckSquare, FileText, FolderOpen,
+  Headset, Heart, Rocket, PenTool, UserPlus, CalendarCheck
 } from 'lucide-react';
 
 /* ────────────────── INDUSTRIES ────────────────── */
@@ -733,8 +734,8 @@ export const STEP1_CONTEXT: Record<string, { heading: string; body: string }> = 
     body: 'Your company name is used throughout the strategy brief and proposal. We\'ll reference it in all recommendations.',
   },
   websiteUrl: {
-    heading: 'Website analysis',
-    body: 'If you provide your website, our AI can pre-analyze your digital presence, tech stack, and customer experience to give better recommendations.',
+    heading: 'Intelligent website analysis',
+    body: 'When you provide your website, our AI reads your site content and searches public web sources to understand your business, positioning, and market context — so recommendations are tailored from the start.',
   },
   industry: {
     heading: 'Industry-specific insights',
@@ -896,7 +897,7 @@ export const AI_SYSTEMS: AISystem[] = [
   {
     id: 'onboarding-system',
     name: 'Smart Onboarding System',
-    icon: Users,
+    icon: UserPlus,
     description: 'AI-guided customer or employee onboarding that personalizes the experience and reduces time-to-value.',
     whyItFits: 'Cuts onboarding time by 50% and improves completion rates by 40%.',
     impact: 'Medium',
@@ -914,7 +915,160 @@ export const AI_SYSTEMS: AISystem[] = [
       { label: 'AI Agent Systems', path: '/services/ai-agent-systems' },
     ],
   },
+  {
+    id: 'cart-recovery',
+    name: 'Cart Recovery & Follow-Up System',
+    icon: ShoppingCart,
+    description: 'Automated abandoned cart follow-up and win-back sequences across email, SMS, and WhatsApp.',
+    whyItFits: 'Recovers 10-15% of abandoned carts automatically, directly adding to your bottom line.',
+    impact: 'High',
+    effort: 'Small',
+    timeline: '1–2 weeks',
+    triggerSignals: ['high-abandonment', 'no-follow-up', 'low-repeat-revenue'],
+    detailDescription: 'The Cart Recovery System detects abandonment intent in real time and sends perfectly-timed messages with personalized incentives across WhatsApp, email, and SMS. It knows what discount will convert each specific customer, on which channel, at what time. Includes post-purchase follow-up sequences to drive repeat revenue.',
+    tradeoffs: [
+      'Requires e-commerce platform integration (Shopify, WooCommerce, etc.)',
+      'Discount strategy needs careful calibration to protect margins',
+      'Best results with 500+ monthly abandoned carts for AI optimization',
+    ],
+    relatedServices: [
+      { label: 'E-Commerce AI', path: '/industries/e-commerce' },
+      { label: 'WhatsApp AI', path: '/whatsapp-ai' },
+    ],
+  },
+  {
+    id: 'recommendation-engine',
+    name: 'Personalized Recommendation Engine',
+    icon: Sparkles,
+    description: 'AI-driven product suggestions based on behavior, preferences, and purchase history.',
+    whyItFits: 'Increases average order value by 10-30% with individually personalized recommendations.',
+    impact: 'Medium',
+    effort: 'Medium',
+    timeline: '2–4 weeks',
+    triggerSignals: ['no-recommendations', 'low-repeat-revenue', 'no-personalized-recommendations'],
+    detailDescription: 'The Recommendation Engine analyzes customer behavior, purchase history, and browsing patterns to serve hyper-personalized product or service suggestions. Every customer sees a unique experience — dynamically generated from real-time signals. Supports collaborative filtering, content-based, and hybrid recommendation strategies.',
+    tradeoffs: [
+      'Needs minimum 1,000 monthly transactions for statistical significance',
+      'Cold-start problem for new users — requires fallback rules',
+      'Product catalog needs structured data (categories, attributes, images)',
+    ],
+    relatedServices: [
+      { label: 'E-Commerce AI', path: '/industries/e-commerce' },
+      { label: 'Fashion AI', path: '/industries/fashion' },
+    ],
+  },
+  {
+    id: 'sales-automation',
+    name: 'Sales & Marketing Automation Suite',
+    icon: Target,
+    description: 'End-to-end sales funnel automation with AI-driven outreach, scoring, and pipeline management.',
+    whyItFits: 'Automates repetitive sales tasks and increases pipeline velocity by 2-3x.',
+    impact: 'Medium',
+    effort: 'Large',
+    timeline: '4–8 weeks',
+    triggerSignals: ['manual-sales', 'limited-channels', 'manual-qualification'],
+    detailDescription: 'The Sales & Marketing Automation Suite combines CRM integration, automated outreach sequences, AI-powered lead scoring, and pipeline analytics into a single system. Handles email campaigns, social selling, proposal generation, and follow-up cadences. AI learns from your best-performing reps to optimize messaging and timing.',
+    tradeoffs: [
+      'Requires existing CRM data or migration from spreadsheets',
+      'Sales team buy-in and training period of 2-3 weeks',
+      'Complex B2B sales cycles may need custom workflow design',
+    ],
+    relatedServices: [
+      { label: 'Sales CRM', path: '/sales-crm' },
+      { label: 'AI Agents', path: '/ai-agents' },
+    ],
+  },
+  {
+    id: 'loyalty-system',
+    name: 'Customer Loyalty & Retention System',
+    icon: Heart,
+    description: 'AI-powered churn prediction and retention workflows that keep your best customers engaged.',
+    whyItFits: 'Reduces churn by 25-40% with proactive intervention and personalized re-engagement.',
+    impact: 'Medium',
+    effort: 'Medium',
+    timeline: '2–4 weeks',
+    triggerSignals: ['low-repeat-revenue', 'high-churn-rate', 'no-follow-up'],
+    detailDescription: 'The Customer Loyalty System uses predictive analytics to identify at-risk customers 30 days before they churn, then triggers personalized retention campaigns. Includes loyalty program management, VIP segmentation, win-back sequences, and NPS/CSAT automation. AI continuously optimizes intervention timing and messaging.',
+    tradeoffs: [
+      'Churn models need 3-6 months of historical data for accuracy',
+      'Retention offers must be balanced against customer lifetime value',
+      'Requires integration with billing/subscription systems',
+    ],
+    relatedServices: [
+      { label: 'AI Chatbots', path: '/services/chatbot' },
+      { label: 'E-Commerce AI', path: '/industries/e-commerce' },
+    ],
+  },
+  {
+    id: 'booking-engine',
+    name: 'Smart Booking Engine',
+    icon: CalendarCheck,
+    description: 'AI-optimized scheduling, availability management, and booking automation with smart reminders.',
+    whyItFits: 'Reduces no-shows by 50% and automates 80% of booking-related admin work.',
+    impact: 'High',
+    effort: 'Small',
+    timeline: '1–2 weeks',
+    triggerSignals: ['phone-only-bookings', 'high-no-shows', 'manual-modifications'],
+    detailDescription: 'The Smart Booking Engine handles appointment scheduling, resource allocation, and calendar management with AI-powered optimization. Includes automated reminders via SMS/WhatsApp/email, smart rescheduling, waitlist management, and no-show prediction. Integrates with Google Calendar, Outlook, and industry-specific booking platforms.',
+    tradeoffs: [
+      'Calendar integration setup varies by platform complexity',
+      'Custom availability rules may need initial configuration',
+      'Multi-timezone support adds complexity for global businesses',
+    ],
+    relatedServices: [
+      { label: 'AI Chatbots', path: '/services/chatbot' },
+      { label: 'WhatsApp AI', path: '/whatsapp-ai' },
+    ],
+  },
+  {
+    id: 'compliance-automation',
+    name: 'Compliance Automation',
+    icon: ShieldCheck,
+    description: 'Document processing, regulatory checks, audit trail management, and automated reporting.',
+    whyItFits: 'Eliminates manual compliance work and reduces regulatory risk by 80%.',
+    impact: 'High',
+    effort: 'Large',
+    timeline: '4–8 weeks',
+    triggerSignals: ['manual-compliance', 'long-onboarding', 'advisor-only-access'],
+    detailDescription: 'Compliance Automation handles KYC/AML checks, document verification, regulatory reporting, and audit trail management using AI-powered document processing. Includes automated policy enforcement, risk scoring, and real-time compliance monitoring. Supports GDPR, HIPAA, SOC 2, and industry-specific regulations.',
+    tradeoffs: [
+      'Regulatory requirements vary by jurisdiction — needs careful scoping',
+      'Integration with existing compliance tools and databases required',
+      'Ongoing regulatory updates require periodic system adjustments',
+    ],
+    relatedServices: [
+      { label: 'Financial Services AI', path: '/financial' },
+      { label: 'AI Consulting', path: '/services/ai-consulting' },
+    ],
+  },
 ];
+
+/* ────────────────── INDUSTRY → SYSTEM PRIORITY MAP ────────────────── */
+
+/** Fallback/rule-based system priority ordering per industry (Gemini 3 fallback) */
+export const INDUSTRY_SYSTEM_PRIORITY: Record<string, string[]> = {
+  'e-commerce': ['support-engine', 'cart-recovery', 'recommendation-engine', 'sales-automation', 'loyalty-system'],
+  'real-estate': ['growth-engine', 'booking-engine', 'support-engine', 'data-intelligence', 'content-engine'],
+  'healthcare': ['booking-engine', 'onboarding-system', 'support-engine', 'compliance-automation', 'data-intelligence'],
+  'financial': ['compliance-automation', 'onboarding-system', 'data-intelligence', 'support-engine', 'growth-engine'],
+  'travel': ['booking-engine', 'support-engine', 'recommendation-engine', 'loyalty-system', 'operations-autopilot'],
+  'fashion': ['recommendation-engine', 'cart-recovery', 'content-engine', 'sales-automation', 'loyalty-system'],
+  'saas': ['onboarding-system', 'support-engine', 'data-intelligence', 'growth-engine', 'loyalty-system'],
+  'professional': ['operations-autopilot', 'support-engine', 'growth-engine', 'content-engine', 'data-intelligence'],
+  'manufacturing': ['operations-autopilot', 'data-intelligence', 'support-engine', 'compliance-automation', 'booking-engine'],
+  _default: ['support-engine', 'growth-engine', 'operations-autopilot', 'data-intelligence', 'content-engine'],
+};
+
+/** Get prioritized systems for an industry */
+export function getIndustryPrioritizedSystems(industryId: string): AISystem[] {
+  const priorities = INDUSTRY_SYSTEM_PRIORITY[industryId] || INDUSTRY_SYSTEM_PRIORITY._default;
+  const prioritized = priorities
+    .map(id => AI_SYSTEMS.find(s => s.id === id))
+    .filter((s): s is AISystem => !!s);
+  // Append any remaining systems not in the priority list
+  const remaining = AI_SYSTEMS.filter(s => !priorities.includes(s.id));
+  return [...prioritized, ...remaining];
+}
 
 /* ────────────────── ROADMAP PHASES ────────────────── */
 

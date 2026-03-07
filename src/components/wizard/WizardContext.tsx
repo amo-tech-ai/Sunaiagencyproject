@@ -140,10 +140,33 @@ interface WizardContextType {
 
 const WizardContext = createContext<WizardContextType | null>(null);
 
+/** Safe default context value to prevent crashes during HMR / re-renders */
+const NOOP = () => {};
+const DEFAULT_CONTEXT: WizardContextType = {
+  state: INITIAL_STATE,
+  setStep: NOOP,
+  completeStep: NOOP,
+  updateStep1: NOOP,
+  updateStep2: NOOP,
+  updateStep3: NOOP,
+  updateStep4: NOOP,
+  setSignals: NOOP,
+  setFocusedField: NOOP,
+  goNext: NOOP,
+  goBack: NOOP,
+  resetWizard: NOOP,
+  canProceed: () => false,
+  prefill: NOOP,
+  attemptedAdvance: false,
+  currentErrors: {},
+  saveStatus: 'idle',
+  isDirty: false,
+};
+
 export function useWizard() {
   const ctx = useContext(WizardContext);
-  if (!ctx) throw new Error('useWizard must be inside WizardProvider');
-  return ctx;
+  // Return safe defaults if context is unavailable (e.g. during HMR reload)
+  return ctx ?? DEFAULT_CONTEXT;
 }
 
 /* ────────────────── PROVIDER ────────────────── */
@@ -224,6 +247,18 @@ export function WizardProvider({ children }: { children: ReactNode }) {
     }, 500);
     return () => clearTimeout(timer);
   }, [state]);
+
+  // Warn before leaving if there are unsaved changes
+  useEffect(() => {
+    if (!isDirty) return;
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      // Modern browsers show a generic message; returnValue is required for legacy compat
+      e.returnValue = '';
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [isDirty]);
 
   const setStep = useCallback((step: number) => {
     setState(s => ({ ...s, currentStep: step }));

@@ -13,7 +13,7 @@ export default function EcommerceCTA({ onCTAClick }: EcommerceCTAProps) {
   const isInView = useInView(ref, { once: true, margin: '-100px' });
 
   return (
-    <section ref={ref} className="bg-gray-100 py-24 lg:py-32">
+    <section ref={ref} className="py-24 lg:py-32" style={{ backgroundColor: '#F5F5F0' }}>
       <div className="max-w-4xl mx-auto px-6 lg:px-8 text-center">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
@@ -22,19 +22,20 @@ export default function EcommerceCTA({ onCTAClick }: EcommerceCTAProps) {
           className="space-y-8"
         >
           {/* Headline */}
-          <h2 className="font-['Playfair_Display'] text-4xl lg:text-5xl text-[#0F3D3E]">
+          <h2 className="text-4xl lg:text-5xl" style={{ fontFamily: 'Georgia, serif', color: '#1A1A1A' }}>
             Ready to transform your e-commerce with AI?
           </h2>
 
           {/* Body */}
-          <p className="font-['Lora'] text-lg lg:text-xl text-gray-700 max-w-3xl mx-auto">
+          <p className="text-lg lg:text-xl max-w-3xl mx-auto" style={{ color: '#6B6B63' }}>
             Get a free AI readiness assessment and personalized roadmap for your store.
           </p>
 
           {/* CTA Button */}
           <button
             onClick={onCTAClick}
-            className="group inline-flex items-center gap-3 px-8 py-4 bg-[#84CC16] text-[#0F3D3E] font-['Lora'] hover:bg-[#65A30D] transition-all duration-300"
+            className="group inline-flex items-center gap-3 px-8 py-4 bg-[#00875A] text-white hover:bg-[#006B47] transition-all duration-300"
+            style={{ borderRadius: '4px' }}
           >
             <span className="font-medium">Book Your Free Assessment</span>
             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />

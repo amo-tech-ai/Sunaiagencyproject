@@ -6,7 +6,7 @@ import { useRef } from 'react';
 const services = [
   {
     number: '01',
-    badge: { text: 'HIGH DEMAND', color: 'bg-[#84CC16]' },
+    badge: { text: 'HIGH DEMAND', color: 'bg-[#00875A]' },
     title: 'Hyper-Personalization Engine',
     description:
       'Every customer sees a unique homepage, product order, and pricing — dynamically generated from real-time behavior signals. Not segments. Not cohorts. Individual-level personalization that feels like the store was built just for them.',
@@ -62,7 +62,7 @@ const services = [
   },
   {
     number: '05',
-    badge: { text: 'GROWING FAST', color: 'bg-[#84CC16]' },
+    badge: { text: 'GROWING FAST', color: 'bg-[#00875A]' },
     title: 'Visual Search & Discovery',
     description:
       'Customers snap a photo or upload an image → AI instantly finds matching products from your catalog. "Shop the look" from any social media post or street photo. AR try-on integration ready for fashion, beauty, and home categories.',
@@ -96,7 +96,7 @@ export default function EcommerceServiceCards() {
 
   return (
     <section ref={ref} className="bg-white py-24 lg:py-32">
-      <div className="max-w-7xl mx-auto px-6 lg:px-8">
+      <div className="max-w-[1120px] mx-auto px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
@@ -109,28 +109,30 @@ export default function EcommerceServiceCards() {
               initial={{ opacity: 0, y: 40 }}
               animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
               transition={{ duration: 0.8, delay: index * 0.1 }}
-              className="group relative border border-gray-300 p-8 lg:p-10 hover:bg-gray-50 transition-colors duration-300"
+              className="group relative border p-8 lg:p-10 hover:bg-gray-50 transition-colors duration-300"
+              style={{ borderColor: '#E8E8E4', borderRadius: '4px' }}
             >
               {/* Large Faded Number */}
-              <div className="absolute top-6 right-6 font-['Playfair_Display'] text-8xl text-gray-200 leading-none pointer-events-none">
+              <div className="absolute top-6 right-6 text-8xl leading-none pointer-events-none" style={{ fontFamily: 'Georgia, serif', color: '#E8E8E4' }}>
                 {service.number}
               </div>
 
               <div className="relative space-y-6">
                 {/* Badge */}
                 <span
-                  className={`inline-block px-3 py-1 ${service.badge.color} text-white text-xs tracking-wider uppercase font-['Lora']`}
+                  className={`inline-block px-3 py-1 ${service.badge.color} text-white text-xs tracking-wider uppercase`}
+                  style={{ borderRadius: '4px' }}
                 >
                   {service.badge.text}
                 </span>
 
                 {/* Title */}
-                <h3 className="font-['Playfair_Display'] text-2xl lg:text-3xl text-[#0F3D3E]">
+                <h3 className="text-2xl lg:text-3xl" style={{ fontFamily: 'Georgia, serif', color: '#1A1A1A' }}>
                   {service.title}
                 </h3>
 
                 {/* Description */}
-                <p className="font-['Lora'] text-base leading-relaxed text-gray-700">
+                <p className="text-base leading-relaxed" style={{ color: '#6B6B63' }}>
                   {service.description}
                 </p>
 
@@ -139,7 +141,8 @@ export default function EcommerceServiceCards() {
                   {service.features.map((feature, idx) => (
                     <span
                       key={idx}
-                      className="px-3 py-1 border border-gray-300 text-xs text-gray-600 font-['Lora']"
+                      className="px-3 py-1 border text-xs"
+                      style={{ borderColor: '#E8E8E4', color: '#6B6B63', borderRadius: '4px' }}
                     >
                       {feature}
                     </span>
@@ -147,37 +150,37 @@ export default function EcommerceServiceCards() {
                 </div>
 
                 {/* ROI Metric */}
-                <div className="border-t border-gray-300 pt-4">
+                <div className="border-t pt-4" style={{ borderColor: '#E8E8E4' }}>
                   <div className="flex items-baseline justify-between">
-                    <span className="font-['Lora'] text-sm text-gray-600">
+                    <span className="text-sm" style={{ color: '#6B6B63' }}>
                       {service.roiLabel}
                     </span>
-                    <span className="font-['Playfair_Display'] text-3xl text-[#84CC16]">
+                    <span className="text-3xl" style={{ fontFamily: 'Georgia, serif', color: '#00875A' }}>
                       {service.roiValue}
                     </span>
                   </div>
                 </div>
 
                 {/* Real-World Example */}
-                <div className="border-l-2 border-[#84CC16] pl-4">
-                  <p className="font-['Lora'] text-sm leading-relaxed text-gray-600">
+                <div className="border-l-2 pl-4" style={{ borderColor: '#00875A' }}>
+                  <p className="text-sm leading-relaxed" style={{ color: '#6B6B63' }}>
                     {service.example}
                   </p>
                 </div>
 
                 {/* Cost & Timeline */}
-                <div className="flex items-center justify-between pt-4 border-t border-gray-300">
+                <div className="flex items-center justify-between pt-4 border-t" style={{ borderColor: '#E8E8E4' }}>
                   <div>
-                    <p className="text-xs text-gray-500 uppercase tracking-wider font-['Lora']">
+                    <p className="text-xs uppercase tracking-wider" style={{ color: '#9CA39B' }}>
                       Build Cost
                     </p>
-                    <p className="font-['Lora'] text-sm text-gray-700">{service.buildCost}</p>
+                    <p className="text-sm" style={{ color: '#1A1A1A' }}>{service.buildCost}</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-xs text-gray-500 uppercase tracking-wider font-['Lora']">
+                    <p className="text-xs uppercase tracking-wider" style={{ color: '#9CA39B' }}>
                       Time to ROI
                     </p>
-                    <p className="font-['Lora'] text-sm text-gray-700">{service.timeToROI}</p>
+                    <p className="text-sm" style={{ color: '#1A1A1A' }}>{service.timeToROI}</p>
                   </div>
                 </div>
               </div>

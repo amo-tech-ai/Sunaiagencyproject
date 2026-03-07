@@ -1,3 +1,6 @@
+// C-V2-07 — V2 Industries Strip
+// BCG design system: white bg, charcoal text, Georgia serif, green accents, 4px radius
+
 interface V2IndustriesStripProps {
   onNavigate?: (page: string) => void;
 }
@@ -13,56 +16,56 @@ export default function V2IndustriesStrip({ onNavigate }: V2IndustriesStripProps
   ];
 
   return (
-    <section className="bg-white py-24 lg:py-32">
-      <div className="max-w-7xl mx-auto px-6 lg:px-12">
+    <section className="py-20 lg:py-28" style={{ backgroundColor: '#FFFFFF' }}>
+      <div className="max-w-[1120px] mx-auto px-6">
         {/* Section Header */}
-        <div className="max-w-3xl mb-20">
-          <div className="inline-block px-4 py-2 bg-[#84CC16]/10 border border-[#84CC16]/20 mb-6">
-            <span className="text-xs uppercase tracking-[0.2em] text-[#84CC16] font-medium">
+        <div className="max-w-3xl mb-16">
+          <div className="inline-block px-3.5 py-1.5 border mb-5" style={{ backgroundColor: 'rgba(0,135,90,0.08)', borderColor: 'rgba(0,135,90,0.15)', borderRadius: '4px' }}>
+            <span className="text-xs tracking-widest uppercase" style={{ color: '#00875A', letterSpacing: '0.08em' }}>
               Cross-Industry Expertise
             </span>
           </div>
-          
-          <h2 className="font-['Playfair_Display'] text-4xl lg:text-6xl font-bold text-[#1A1A1A] leading-[1.05] mb-6">
+
+          <h2 className="text-3xl lg:text-4xl leading-[1.05] mb-5" style={{ fontFamily: 'Georgia, serif', color: '#1A1A1A' }}>
             Built for every sector
           </h2>
-          
-          <p className="text-xl text-[#666666] leading-relaxed font-['Lora']">
+
+          <p className="text-lg leading-relaxed" style={{ color: '#6B6B63' }}>
             Our AI systems adapt to the unique challenges and opportunities within your industry.
           </p>
         </div>
-        
+
         {/* Industries Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-6 lg:gap-8">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-5 lg:gap-6">
           {industries.map((industry, index) => (
             <button
               key={index}
               onClick={() => onNavigate?.('industries')}
-              className="group bg-[#FAF8F6] border-2 border-[#EFE9E4] p-10 lg:p-12 hover:border-[#84CC16] transition-all hover:shadow-lg text-left space-y-4"
+              className="group border p-8 lg:p-10 hover:border-[#00875A] transition-all text-left space-y-3"
+              style={{ backgroundColor: '#F5F5F0', borderColor: '#E8E8E4', borderRadius: '4px' }}
             >
-              <div className="space-y-3">
-                <h3 className="text-xl font-['Playfair_Display'] font-bold text-[#1A1A1A] group-hover:text-[#84CC16] transition-colors leading-tight">
-                  {industry.name}
-                </h3>
-                <div className="flex items-center gap-2">
-                  <div className="h-0.5 w-12 bg-[#84CC16]" />
-                  <span className="text-sm text-[#666666] font-medium">
-                    {industry.projects} projects
-                  </span>
-                </div>
+              <h3 className="text-lg leading-tight group-hover:text-[#00875A] transition-colors" style={{ fontFamily: 'Georgia, serif', color: '#1A1A1A' }}>
+                {industry.name}
+              </h3>
+              <div className="flex items-center gap-2">
+                <div className="h-0.5 w-10" style={{ backgroundColor: '#00875A' }} />
+                <span className="text-sm" style={{ color: '#6B6B63' }}>
+                  {industry.projects} projects
+                </span>
               </div>
             </button>
           ))}
         </div>
-        
+
         {/* View All Link */}
-        <div className="text-center mt-16">
+        <div className="text-center mt-14">
           <button
             onClick={() => onNavigate?.('industries')}
-            className="px-8 py-4 border-2 border-[#1A1A1A] text-[#1A1A1A] font-medium text-base hover:bg-[#1A1A1A] hover:text-white transition-colors inline-flex items-center gap-2"
+            className="px-8 py-4 border text-sm hover:bg-[#1A1A1A] hover:text-white transition-colors inline-flex items-center gap-2"
+            style={{ borderColor: '#1A1A1A', color: '#1A1A1A', borderRadius: '4px' }}
           >
             <span>Explore All Industries</span>
-            <span className="text-[#84CC16]">→</span>
+            <span style={{ color: '#00875A' }}>→</span>
           </button>
         </div>
       </div>

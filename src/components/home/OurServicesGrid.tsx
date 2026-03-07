@@ -3,11 +3,11 @@ import { ImageWithFallback } from '../figma/ImageWithFallback';
 import { ArrowRight } from 'lucide-react';
 
 const cx = {
-  dark: '#1E3D36',
-  muted: '#6B7370',
-  accent: '#2E6F5E',
-  deepGreen: '#1E3D36',
-  bgLight: '#F5F4F1',
+  dark: '#1A1A1A',
+  muted: '#6B6B63',
+  accent: '#00875A',
+  deepGreen: '#1A1A1A',
+  bgLight: '#F5F5F0',
 };
 
 const SERVICE_CARDS = [
@@ -86,9 +86,9 @@ export default function OurServicesGrid() {
           <h2
             className="tracking-tight mb-4"
             style={{
-              fontFamily: "'Playfair Display', Georgia, serif",
+              fontFamily: "Georgia, serif",
               fontSize: 'clamp(1.75rem, 3.5vw, 2.5rem)',
-              fontWeight: 600,
+              fontWeight: 400,
               lineHeight: 1.15,
               color: cx.dark,
             }}
@@ -140,7 +140,7 @@ export default function OurServicesGrid() {
                 <div style={{ padding: '24px' }}>
                   <h3
                     style={{
-                      fontFamily: "'Playfair Display', Georgia, serif",
+                      fontFamily: "Georgia, serif",
                       fontSize: '1.25rem',
                       fontWeight: 600,
                       lineHeight: 1.3,
@@ -181,7 +181,7 @@ export default function OurServicesGrid() {
                 <div className="translate-y-4 group-hover:translate-y-0 transition-transform duration-500 delay-100 ease-[cubic-bezier(0.22,1,0.36,1)]">
                   <h3
                     style={{
-                      fontFamily: "'Playfair Display', Georgia, serif",
+                      fontFamily: "Georgia, serif",
                       fontSize: '1.25rem',
                       fontWeight: 600,
                       lineHeight: 1.3,

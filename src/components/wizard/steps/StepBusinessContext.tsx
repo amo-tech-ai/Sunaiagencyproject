@@ -2,13 +2,310 @@
 // Company info form: name, website, industry, size, goal, challenge
 // Per-field validation errors shown after attemptedAdvance
 // Document upload zone (optional)
+// Website URL triggers simulated AI analysis (URL Context + Google Search)
 
 import { useWizard } from '../WizardContext';
 import { INDUSTRIES, COMPANY_SIZES, GOALS, STEP1_CONTEXT } from '../data/wizardData';
 import { WizardLayout } from '../WizardLayout';
 import { motion, AnimatePresence } from 'motion/react';
-import { Check, AlertCircle, Upload, X, FileText } from 'lucide-react';
-import { useState, useRef, useCallback } from 'react';
+import { Check, AlertCircle, Upload, X, FileText, Globe, Search, Sparkles, Building2, Users, Cpu, Lightbulb, ArrowRight, AlertTriangle } from 'lucide-react';
+import { useState, useRef, useCallback, useEffect } from 'react';
+
+/* ────────────────── Website Analysis Types ────────────────── */
+
+type AnalysisStatus = 'idle' | 'analyzing' | 'complete' | 'error';
+
+interface AnalysisResult {
+  companySummary: string;
+  detectedIndustry: string;
+  productsServices: string[];
+  teamSizeEstimate: string;
+  technologySignals: string[];
+  aiOpportunities: string[];
+}
+
+/* ────────────────── Mock Analysis Simulation ────────────────── */
+
+function simulateAnalysis(url: string): Promise<AnalysisResult> {
+  return new Promise((resolve, reject) => {
+    // Simulate occasional failure for demo
+    const shouldFail = url.includes('fail');
+    setTimeout(() => {
+      if (shouldFail) {
+        reject(new Error('Analysis unavailable'));
+        return;
+      }
+      // Extract company name hint from URL
+      const domain = url.replace(/^(https?:\/\/)?(www\.)?/, '').split(/[./]/)[0] || 'Company';
+      const name = domain.charAt(0).toUpperCase() + domain.slice(1);
+      resolve({
+        companySummary: `${name} appears to be a mid-market company focused on delivering technology-driven solutions. The website emphasizes customer experience and operational efficiency.`,
+        detectedIndustry: 'Technology / SaaS',
+        productsServices: ['SaaS Platform', 'Consulting Services', 'API Integrations', 'Customer Portal'],
+        teamSizeEstimate: '50–200 employees',
+        technologySignals: ['React / Next.js', 'Cloud Infrastructure', 'REST APIs', 'Analytics Suite'],
+        aiOpportunities: ['Customer support automation', 'Predictive analytics', 'Content personalization', 'Workflow optimization'],
+      });
+    }, 3800);
+  });
+}
+
+function isValidUrl(url: string): boolean {
+  if (!url.trim()) return false;
+  const pattern = /^[a-zA-Z0-9][a-zA-Z0-9-]*\.[a-zA-Z]{2,}/;
+  return pattern.test(url.trim());
+}
+
+/* ────────────────── Right Panel: Analysis States ────────────────── */
+
+function AnalysisLoadingCard() {
+  const steps = [
+    { label: 'Website content', delay: 0 },
+    { label: 'Market signals', delay: 0.8 },
+    { label: 'Business profile', delay: 1.6 },
+    { label: 'AI opportunities', delay: 2.4 },
+  ];
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -8 }}
+      transition={{ duration: 0.35 }}
+      className="border rounded p-5 space-y-5"
+      style={{ borderColor: '#E8E8E4', backgroundColor: '#FAFAF8', borderRadius: '4px' }}
+    >
+      <div>
+        <div className="flex items-center gap-2 mb-1.5">
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+          >
+            <Sparkles className="w-4 h-4" style={{ color: '#00875A' }} />
+          </motion.div>
+          <p className="text-sm" style={{ fontFamily: 'Georgia, serif', color: '#1A1A1A' }}>
+            Analyzing your website
+          </p>
+        </div>
+        <p className="text-xs leading-relaxed" style={{ color: '#6B6B63' }}>
+          We're reviewing your site content and public web signals to build a more accurate business profile.
+        </p>
+      </div>
+      <div className="space-y-3">
+        {steps.map((step) => (
+          <motion.div
+            key={step.label}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: step.delay, duration: 0.4 }}
+            className="flex items-center gap-3"
+          >
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: '100%' }}
+              transition={{ delay: step.delay + 0.2, duration: 1.8, ease: 'easeInOut' }}
+              className="flex-1 relative"
+            >
+              <div className="h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: '#F0F0EC' }}>
+                <motion.div
+                  className="h-full rounded-full"
+                  style={{ backgroundColor: '#00875A' }}
+                  initial={{ width: '0%' }}
+                  animate={{ width: '100%' }}
+                  transition={{ delay: step.delay + 0.3, duration: 2, ease: 'easeInOut' }}
+                />
+              </div>
+            </motion.div>
+            <span className="text-xs shrink-0 w-28 text-right" style={{ color: '#9CA39B' }}>
+              {step.label}
+            </span>
+          </motion.div>
+        ))}
+      </div>
+    </motion.div>
+  );
+}
+
+function AnalysisCompleteCard({
+  result,
+  onUseIndustry,
+  onUseTeamSize,
+}: {
+  result: AnalysisResult;
+  onUseIndustry: () => void;
+  onUseTeamSize: () => void;
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -8 }}
+      transition={{ duration: 0.4 }}
+      className="border rounded space-y-0 overflow-hidden"
+      style={{ borderColor: '#E8E8E4', borderRadius: '4px' }}
+    >
+      {/* Header */}
+      <div className="px-5 py-4 border-b" style={{ backgroundColor: '#FAFAF8', borderColor: '#F0F0EC' }}>
+        <div className="flex items-center gap-2">
+          <Check className="w-4 h-4" style={{ color: '#00875A' }} />
+          <p className="text-sm" style={{ fontFamily: 'Georgia, serif', color: '#1A1A1A' }}>
+            Company Analysis
+          </p>
+        </div>
+      </div>
+
+      <div className="px-5 py-4 space-y-4" style={{ backgroundColor: '#FFFFFF' }}>
+        {/* Company Summary */}
+        <div>
+          <p className="text-xs tracking-widest uppercase mb-1" style={{ color: '#9CA39B', letterSpacing: '0.06em' }}>Summary</p>
+          <p className="text-xs leading-relaxed" style={{ color: '#6B6B63' }}>{result.companySummary}</p>
+        </div>
+
+        {/* Detected Industry */}
+        <div className="flex items-center justify-between">
+          <div className="flex-1">
+            <p className="text-xs tracking-widest uppercase mb-1" style={{ color: '#9CA39B', letterSpacing: '0.06em' }}>Industry</p>
+            <p className="text-sm" style={{ color: '#1A1A1A' }}>{result.detectedIndustry}</p>
+          </div>
+          <button
+            onClick={onUseIndustry}
+            className="text-xs px-2.5 py-1 rounded border transition-colors hover:border-[#00875A]"
+            style={{ color: '#00875A', borderColor: '#E8E8E4', borderRadius: '4px' }}
+          >
+            Use this
+          </button>
+        </div>
+
+        {/* Products / Services */}
+        <div>
+          <p className="text-xs tracking-widest uppercase mb-1.5" style={{ color: '#9CA39B', letterSpacing: '0.06em' }}>Products & Services</p>
+          <div className="flex flex-wrap gap-1.5">
+            {result.productsServices.map((item) => (
+              <span key={item} className="text-xs px-2 py-0.5 rounded" style={{ backgroundColor: '#F5F5F0', color: '#6B6B63', borderRadius: '3px' }}>
+                {item}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        {/* Team Size */}
+        <div className="flex items-center justify-between">
+          <div className="flex-1">
+            <p className="text-xs tracking-widest uppercase mb-1" style={{ color: '#9CA39B', letterSpacing: '0.06em' }}>Team Size</p>
+            <p className="text-sm" style={{ color: '#1A1A1A' }}>{result.teamSizeEstimate}</p>
+          </div>
+          <button
+            onClick={onUseTeamSize}
+            className="text-xs px-2.5 py-1 rounded border transition-colors hover:border-[#00875A]"
+            style={{ color: '#00875A', borderColor: '#E8E8E4', borderRadius: '4px' }}
+          >
+            Use this
+          </button>
+        </div>
+
+        {/* Technology Signals */}
+        <div>
+          <p className="text-xs tracking-widest uppercase mb-1.5" style={{ color: '#9CA39B', letterSpacing: '0.06em' }}>Technology</p>
+          <div className="flex flex-wrap gap-1.5">
+            {result.technologySignals.map((item) => (
+              <span key={item} className="text-xs px-2 py-0.5 rounded" style={{ backgroundColor: '#F5F5F0', color: '#6B6B63', borderRadius: '3px' }}>
+                {item}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        {/* AI Opportunities */}
+        <div>
+          <p className="text-xs tracking-widest uppercase mb-1.5" style={{ color: '#9CA39B', letterSpacing: '0.06em' }}>AI Opportunities</p>
+          <div className="space-y-1.5">
+            {result.aiOpportunities.map((item) => (
+              <div key={item} className="flex items-start gap-2">
+                <Lightbulb className="w-3 h-3 mt-0.5 shrink-0" style={{ color: '#00875A' }} />
+                <span className="text-xs" style={{ color: '#6B6B63' }}>{item}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Source footer */}
+      <div className="px-5 py-3 border-t" style={{ backgroundColor: '#FAFAF8', borderColor: '#F0F0EC' }}>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5">
+            <Globe className="w-3 h-3" style={{ color: '#9CA39B' }} />
+            <span className="text-xs" style={{ color: '#9CA39B' }}>Website</span>
+          </div>
+          <span className="text-xs" style={{ color: '#E8E8E4' }}>+</span>
+          <div className="flex items-center gap-1.5">
+            <Search className="w-3 h-3" style={{ color: '#9CA39B' }} />
+            <span className="text-xs" style={{ color: '#9CA39B' }}>Google Search</span>
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+function AnalysisErrorCard() {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -8 }}
+      transition={{ duration: 0.35 }}
+      className="border rounded p-5 space-y-3"
+      style={{ borderColor: '#E8E8E4', backgroundColor: '#FAFAF8', borderRadius: '4px' }}
+    >
+      <div className="flex items-center gap-2">
+        <AlertTriangle className="w-4 h-4" style={{ color: '#9CA39B' }} />
+        <p className="text-sm" style={{ fontFamily: 'Georgia, serif', color: '#1A1A1A' }}>
+          Analysis unavailable
+        </p>
+      </div>
+      <p className="text-xs leading-relaxed" style={{ color: '#6B6B63' }}>
+        We couldn't extract website insights right now, but you can continue normally.
+      </p>
+      <p className="text-xs" style={{ color: '#9CA39B' }}>
+        Your answers will still guide the analysis.
+      </p>
+    </motion.div>
+  );
+}
+
+function HowAnalysisWorks() {
+  return (
+    <div className="border rounded p-4 space-y-3" style={{ borderColor: '#F0F0EC', backgroundColor: '#FAFAF8', borderRadius: '4px' }}>
+      <p className="text-xs tracking-widest uppercase" style={{ color: '#00875A', letterSpacing: '0.08em' }}>
+        How this helps
+      </p>
+      <div className="space-y-2.5">
+        <div className="flex items-start gap-2.5">
+          <Globe className="w-3.5 h-3.5 mt-0.5 shrink-0" style={{ color: '#6B6B63' }} />
+          <div>
+            <p className="text-xs" style={{ color: '#1A1A1A' }}>URL Context</p>
+            <p className="text-xs" style={{ color: '#9CA39B' }}>Reads your website content</p>
+          </div>
+        </div>
+        <div className="flex items-start gap-2.5">
+          <Search className="w-3.5 h-3.5 mt-0.5 shrink-0" style={{ color: '#6B6B63' }} />
+          <div>
+            <p className="text-xs" style={{ color: '#1A1A1A' }}>Google Search</p>
+            <p className="text-xs" style={{ color: '#9CA39B' }}>Adds market and public company context</p>
+          </div>
+        </div>
+        <div className="flex items-start gap-2.5">
+          <Sparkles className="w-3.5 h-3.5 mt-0.5 shrink-0" style={{ color: '#6B6B63' }} />
+          <div>
+            <p className="text-xs" style={{ color: '#1A1A1A' }}>Result</p>
+            <p className="text-xs" style={{ color: '#9CA39B' }}>Better industry detection and more relevant recommendations</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ────────────────── Main Component ────────────────── */
 
 export function StepBusinessContext() {
   const { state, updateStep1, setFocusedField, attemptedAdvance, currentErrors } = useWizard();
@@ -23,6 +320,11 @@ export function StepBusinessContext() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   const [isDragOver, setIsDragOver] = useState(false);
+
+  // Website analysis state
+  const [analysisStatus, setAnalysisStatus] = useState<AnalysisStatus>('idle');
+  const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
+  const analysisAbortRef = useRef(false);
 
   const handleFiles = useCallback((files: FileList | null) => {
     if (!files) return;
@@ -42,8 +344,64 @@ export function StepBusinessContext() {
     setUploadedFiles(prev => prev.filter((_, i) => i !== idx));
   }, []);
 
+  // Trigger analysis on blur when URL is valid
+  const handleWebsiteBlur = useCallback(() => {
+    const url = s.websiteUrl.trim();
+    if (!isValidUrl(url) || analysisStatus === 'analyzing') return;
+
+    // Reset if URL changed after previous analysis
+    analysisAbortRef.current = false;
+    setAnalysisStatus('analyzing');
+    setAnalysisResult(null);
+
+    simulateAnalysis(url)
+      .then((result) => {
+        if (!analysisAbortRef.current) {
+          setAnalysisResult(result);
+          setAnalysisStatus('complete');
+        }
+      })
+      .catch(() => {
+        if (!analysisAbortRef.current) {
+          setAnalysisStatus('error');
+        }
+      });
+  }, [s.websiteUrl, analysisStatus]);
+
+  // Reset analysis when URL is cleared
+  useEffect(() => {
+    if (!s.websiteUrl.trim()) {
+      analysisAbortRef.current = true;
+      setAnalysisStatus('idle');
+      setAnalysisResult(null);
+    }
+  }, [s.websiteUrl]);
+
+  // "Use this" suggestion handlers
+  const handleUseIndustry = useCallback(() => {
+    if (!analysisResult) return;
+    // Map detected industry to closest match
+    const detected = analysisResult.detectedIndustry.toLowerCase();
+    const match = ['e-commerce', 'real-estate', 'healthcare', 'financial', 'travel', 'fashion', 'food', 'professional', 'education', 'saas', 'manufacturing']
+      .find(id => detected.includes(id.replace('-', '')) || detected.includes(id));
+    if (match) updateStep1({ industry: match });
+    else updateStep1({ industry: 'saas' }); // fallback for "Technology / SaaS"
+  }, [analysisResult, updateStep1]);
+
+  const handleUseTeamSize = useCallback(() => {
+    if (!analysisResult) return;
+    const est = analysisResult.teamSizeEstimate;
+    if (est.includes('1–10') || est.includes('1-10')) updateStep1({ companySize: 'small' });
+    else if (est.includes('11–50') || est.includes('11-50')) updateStep1({ companySize: 'medium' });
+    else if (est.includes('51–200') || est.includes('50–200') || est.includes('50-200')) updateStep1({ companySize: 'large' });
+    else updateStep1({ companySize: 'large' }); // "50–200 employees" fallback
+  }, [analysisResult, updateStep1]);
+
+  /* ────────────── Right Panel ────────────── */
+
   const rightPanel = (
     <div className="space-y-6">
+      {/* Dynamic context blurb */}
       <motion.div key={state.focusedField} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
         <p className="text-xs tracking-widest uppercase mb-3" style={{ color: '#00875A', letterSpacing: '0.08em' }}>
           Why we ask
@@ -55,6 +413,37 @@ export function StepBusinessContext() {
           {ctx.body}
         </p>
       </motion.div>
+
+      {/* Analysis state cards */}
+      <AnimatePresence mode="wait">
+        {analysisStatus === 'analyzing' && (
+          <AnalysisLoadingCard key="loading" />
+        )}
+        {analysisStatus === 'complete' && analysisResult && (
+          <AnalysisCompleteCard
+            key="complete"
+            result={analysisResult}
+            onUseIndustry={handleUseIndustry}
+            onUseTeamSize={handleUseTeamSize}
+          />
+        )}
+        {analysisStatus === 'error' && (
+          <AnalysisErrorCard key="error" />
+        )}
+      </AnimatePresence>
+
+      {/* How analysis works — shown when idle or focused on website */}
+      {analysisStatus === 'idle' && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.15 }}
+        >
+          <HowAnalysisWorks />
+        </motion.div>
+      )}
+
+      {/* What happens next */}
       <div className="border-t pt-4" style={{ borderColor: '#F0F0EC' }}>
         <p className="text-xs tracking-widest uppercase mb-2" style={{ color: '#00875A', letterSpacing: '0.08em' }}>
           What happens next
@@ -100,10 +489,13 @@ export function StepBusinessContext() {
           />
         </FieldGroup>
 
-        {/* Website URL */}
+        {/* Website URL — Enhanced */}
         <FieldGroup label="Website URL" optional fieldId="websiteUrl">
           <div className="flex">
-            <span className="px-3 py-3 text-sm border border-r-0 rounded-l flex items-center" style={{ borderColor: '#E8E8E4', color: '#9CA39B', backgroundColor: '#FAFAF8', borderRadius: '4px 0 0 4px' }}>
+            <span
+              className="px-3 py-3 text-sm border border-r-0 flex items-center"
+              style={{ borderColor: analysisStatus === 'analyzing' ? '#00875A' : '#E8E8E4', color: '#9CA39B', backgroundColor: '#FAFAF8', borderRadius: '4px 0 0 4px', transition: 'border-color 0.2s' }}
+            >
               https://
             </span>
             <input
@@ -111,12 +503,103 @@ export function StepBusinessContext() {
               value={s.websiteUrl}
               onChange={e => updateStep1({ websiteUrl: e.target.value })}
               onFocus={() => setFocusedField('websiteUrl')}
+              onBlur={handleWebsiteBlur}
               placeholder="www.yourcompany.com"
-              className="flex-1 px-4 py-3 text-sm border rounded-r outline-none"
-              style={{ borderColor: '#E8E8E4', borderRadius: '0 4px 4px 0', color: '#1A1A1A' }}
+              className="flex-1 px-4 py-3 text-sm border outline-none transition-all"
+              style={{
+                borderColor: analysisStatus === 'analyzing' ? '#00875A' : '#E8E8E4',
+                borderRadius: '0 4px 4px 0',
+                color: '#1A1A1A',
+                transition: 'border-color 0.2s',
+              }}
             />
           </div>
-          <p className="text-xs mt-1" style={{ color: '#9CA39B' }}>Optional — helps our AI understand your business faster</p>
+
+          {/* Helper text */}
+          <p className="text-xs mt-2 leading-relaxed" style={{ color: '#6B6B63' }}>
+            Optional — we analyze your website and public web context to tailor recommendations faster.
+          </p>
+
+          {/* Trust badges: URL Context + Google Search */}
+          <div className="flex items-center gap-2 mt-2">
+            <span
+              className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded border"
+              style={{ color: '#6B6B63', borderColor: '#F0F0EC', backgroundColor: '#FAFAF8', borderRadius: '3px' }}
+            >
+              <Globe className="w-3 h-3" style={{ color: '#9CA39B' }} />
+              URL Context
+            </span>
+            <span
+              className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded border"
+              style={{ color: '#6B6B63', borderColor: '#F0F0EC', backgroundColor: '#FAFAF8', borderRadius: '3px' }}
+            >
+              <Search className="w-3 h-3" style={{ color: '#9CA39B' }} />
+              Google Search
+            </span>
+          </div>
+
+          {/* Micro explanation */}
+          <p className="text-xs mt-1.5" style={{ color: '#9CA39B' }}>
+            Used to understand your business, positioning, and likely opportunities.
+          </p>
+
+          {/* Status line */}
+          <AnimatePresence mode="wait">
+            {analysisStatus === 'idle' && s.websiteUrl.trim() === '' && (
+              <motion.p
+                key="hint"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="text-xs mt-2 flex items-center gap-1.5"
+                style={{ color: '#9CA39B' }}
+              >
+                <Sparkles className="w-3 h-3" />
+                AI analysis available when website is provided
+              </motion.p>
+            )}
+            {analysisStatus === 'idle' && isValidUrl(s.websiteUrl) && (
+              <motion.p
+                key="ready"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="text-xs mt-2 flex items-center gap-1.5"
+                style={{ color: '#00875A' }}
+              >
+                <ArrowRight className="w-3 h-3" />
+                Click away from the field to start analysis
+              </motion.p>
+            )}
+            {analysisStatus === 'analyzing' && (
+              <motion.p
+                key="running"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="text-xs mt-2 flex items-center gap-1.5"
+                style={{ color: '#00875A' }}
+              >
+                <motion.span animate={{ rotate: 360 }} transition={{ duration: 1.5, repeat: Infinity, ease: 'linear' }} className="inline-flex">
+                  <Sparkles className="w-3 h-3" />
+                </motion.span>
+                Analyzing — results will appear in the side panel
+              </motion.p>
+            )}
+            {analysisStatus === 'complete' && (
+              <motion.p
+                key="done"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="text-xs mt-2 flex items-center gap-1.5"
+                style={{ color: '#00875A' }}
+              >
+                <Check className="w-3 h-3" />
+                Analysis complete — see results in the side panel
+              </motion.p>
+            )}
+          </AnimatePresence>
         </FieldGroup>
 
         {/* Industry */}

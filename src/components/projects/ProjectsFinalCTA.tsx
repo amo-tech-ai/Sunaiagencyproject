@@ -1,3 +1,6 @@
+// C-PJ03 — Projects Final CTA
+// BCG design system dark variant: charcoal bg, white text, Georgia serif, green CTA, 4px radius
+
 import { motion } from 'motion/react';
 
 interface ProjectsFinalCTAProps {
@@ -10,8 +13,8 @@ export default function ProjectsFinalCTA({
   onContactUs,
 }: ProjectsFinalCTAProps) {
   return (
-    <section className="py-24 lg:py-32 bg-[#0F3D3E] text-white">
-      <div className="max-w-4xl mx-auto px-6 lg:px-16 text-center">
+    <section className="py-20 lg:py-28 text-white" style={{ backgroundColor: '#1A1A1A' }}>
+      <div className="max-w-[1120px] mx-auto px-6 text-center">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -19,26 +22,28 @@ export default function ProjectsFinalCTA({
           transition={{ duration: 0.6 }}
         >
           <h2
-            className="text-5xl lg:text-6xl mb-8 leading-tight"
-            style={{ fontFamily: 'Playfair Display, serif' }}
+            className="text-3xl lg:text-4xl mb-7 leading-tight"
+            style={{ fontFamily: 'Georgia, serif' }}
           >
             Ready to Build a Real AI Product?
           </h2>
 
-          <p className="text-xl text-white/70 font-light mb-12 font-['Lora']">
+          <p className="text-lg mb-10" style={{ color: 'rgba(245,245,240,0.6)' }}>
             From idea to production system in 8 weeks.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button
               onClick={onStartProject}
-              className="px-8 py-4 bg-[#84CC16] text-gray-900 font-semibold hover:bg-[#73b512] transition-colors font-['Lora']"
+              className="px-8 py-4 text-sm transition-colors"
+              style={{ backgroundColor: '#00875A', color: '#FFFFFF', borderRadius: '4px' }}
             >
               Start Your Project
             </button>
             <button
               onClick={onContactUs}
-              className="px-8 py-4 border border-white/20 bg-white/5 text-white font-semibold hover:bg-white/10 transition-colors font-['Lora']"
+              className="px-8 py-4 border text-sm transition-colors hover:bg-white/10"
+              style={{ borderColor: 'rgba(255,255,255,0.2)', color: '#FFFFFF', borderRadius: '4px' }}
             >
               Contact Us
             </button>

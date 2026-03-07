@@ -9,11 +9,11 @@ import { ArrowRight, Sparkles, CheckCircle2, Clock, TrendingUp } from 'lucide-re
    Focus: 8-week velocity system with sophistication
    
    Color Palette:
-   - Background: #F4F3EE (warm beige)
-   - Headlines: #1E3D36 (deep green)
-   - Accent: #2E6F5E (accent green)
-   - Highlight: #84CC16 (lime for energy)
-   - Muted: #DCE5DD (sage)
+   - Background: #F5F5F0 (warm off-white)
+   - Headlines: #1A1A1A (charcoal)
+   - Accent: #00875A (BCG green)
+   - Highlight: #00875A (BCG green)
+   - Muted: #E8E8E4 (border)
    
    ═══════════════════════════════════════════════════════════════ */
 
@@ -26,7 +26,7 @@ export function ProcessHero({ onNavigateToWizard, onNavigateToProjects }: Proces
   return (
     <section 
       className="relative pt-32 pb-24 lg:pt-44 lg:pb-32 overflow-hidden"
-      style={{ background: '#F4F3EE' }}
+      style={{ background: '#F5F5F0' }}
     >
       {/* Ambient Background Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -34,7 +34,7 @@ export function ProcessHero({ onNavigateToWizard, onNavigateToProjects }: Proces
         <div 
           className="absolute -top-40 -right-40 w-[600px] h-[600px] rounded-full opacity-20"
           style={{
-            background: 'radial-gradient(circle, rgba(132, 204, 22, 0.3) 0%, transparent 70%)',
+            background: 'radial-gradient(circle, rgba(0, 135, 90, 0.3) 0%, transparent 70%)',
             filter: 'blur(100px)',
           }}
         />
@@ -42,7 +42,7 @@ export function ProcessHero({ onNavigateToWizard, onNavigateToProjects }: Proces
         <div 
           className="absolute -bottom-40 -left-40 w-[500px] h-[500px] rounded-full opacity-15"
           style={{
-            background: 'radial-gradient(circle, rgba(220, 229, 221, 0.6) 0%, transparent 70%)',
+            background: 'radial-gradient(circle, rgba(232, 232, 228, 0.6) 0%, transparent 70%)',
             filter: 'blur(80px)',
           }}
         />
@@ -68,21 +68,21 @@ export function ProcessHero({ onNavigateToWizard, onNavigateToProjects }: Proces
               className="inline-flex items-center gap-2.5 mb-8 px-5 py-2.5 rounded-full backdrop-blur-md"
               style={{
                 background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.5))',
-                border: '1px solid rgba(30, 61, 54, 0.12)',
-                boxShadow: '0 4px 16px rgba(30, 61, 54, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.8)',
+                border: '1px solid rgba(26, 26, 26, 0.12)',
+                boxShadow: '0 4px 16px rgba(26, 26, 26, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.8)',
               }}
             >
               <span 
                 className="w-2 h-2 rounded-full animate-pulse"
                 style={{ 
-                  background: '#84CC16',
-                  boxShadow: '0 0 12px rgba(132, 204, 22, 0.6)',
+                  background: '#00875A',
+                  boxShadow: '0 0 12px rgba(0, 135, 90, 0.6)',
                 }}
               />
               <span 
                 className="text-sm font-semibold tracking-[0.12em] uppercase"
                 style={{ 
-                  color: '#2E6F5E',
+                  color: '#00875A',
                   fontFamily: 'Inter, system-ui, sans-serif',
                 }}
               >
@@ -97,8 +97,8 @@ export function ProcessHero({ onNavigateToWizard, onNavigateToProjects }: Proces
               transition={{ delay: 0.1, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
               className="mb-7"
               style={{ 
-                color: '#1E3D36',
-                fontFamily: 'Playfair Display, serif',
+                color: '#1A1A1A',
+                fontFamily: 'Georgia, serif',
                 fontSize: 'clamp(2.75rem, 6vw, 5rem)',
                 fontWeight: 600,
                 lineHeight: 1.08,
@@ -108,7 +108,7 @@ export function ProcessHero({ onNavigateToWizard, onNavigateToProjects }: Proces
               Build AI in{' '}
               <span 
                 className="relative inline-block"
-                style={{ color: '#2E6F5E' }}
+                style={{ color: '#00875A' }}
               >
                 8 Weeks
                 {/* Decorative underline */}
@@ -121,7 +121,7 @@ export function ProcessHero({ onNavigateToWizard, onNavigateToProjects }: Proces
                   <motion.path
                     d="M0,6 Q50,3 100,6 T200,6"
                     fill="none"
-                    stroke="#84CC16"
+                    stroke="#00875A"
                     strokeWidth="3"
                     initial={{ pathLength: 0 }}
                     animate={{ pathLength: 1 }}
@@ -130,7 +130,7 @@ export function ProcessHero({ onNavigateToWizard, onNavigateToProjects }: Proces
                 </svg>
               </span>
               .<br/>
-              <span style={{ color: 'rgba(30, 61, 54, 0.5)' }}>
+              <span style={{ color: 'rgba(26, 26, 26, 0.5)' }}>
                 Not 8 Months.
               </span>
             </motion.h1>
@@ -142,7 +142,7 @@ export function ProcessHero({ onNavigateToWizard, onNavigateToProjects }: Proces
               transition={{ delay: 0.2, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
               className="text-xl lg:text-2xl mb-10 max-w-xl"
               style={{ 
-                color: 'rgba(30, 61, 54, 0.65)',
+                color: 'rgba(26, 26, 26, 0.65)',
                 fontFamily: 'Inter, system-ui, sans-serif',
                 fontWeight: 300,
                 lineHeight: 1.6,
@@ -164,13 +164,13 @@ export function ProcessHero({ onNavigateToWizard, onNavigateToProjects }: Proces
                 onClick={onNavigateToWizard}
                 className="group inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-2xl transition-all duration-300"
                 style={{
-                  background: 'linear-gradient(135deg, #2E6F5E 0%, #1E3D36 100%)',
+                  background: 'linear-gradient(135deg, #00875A 0%, #1A1A1A 100%)',
                   border: '1px solid rgba(255, 255, 255, 0.1)',
                   color: '#FFFFFF',
                   fontFamily: 'Inter, system-ui, sans-serif',
                   fontSize: '1rem',
                   fontWeight: 600,
-                  boxShadow: '0 4px 16px rgba(30, 61, 54, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
+                  boxShadow: '0 4px 16px rgba(26, 26, 26, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
                 }}
               >
                 <span>Start Your AI Brief</span>
@@ -185,12 +185,12 @@ export function ProcessHero({ onNavigateToWizard, onNavigateToProjects }: Proces
                 className="group inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-2xl transition-all duration-300"
                 style={{
                   background: 'rgba(255, 255, 255, 0.8)',
-                  border: '1px solid rgba(30, 61, 54, 0.15)',
-                  color: '#1E3D36',
+                  border: '1px solid rgba(26, 26, 26, 0.15)',
+                  color: '#1A1A1A',
                   fontFamily: 'Inter, system-ui, sans-serif',
                   fontSize: '1rem',
                   fontWeight: 600,
-                  boxShadow: '0 2px 8px rgba(30, 61, 54, 0.08)',
+                  boxShadow: '0 2px 8px rgba(26, 26, 26, 0.08)',
                 }}
               >
                 <span>See Success Stories</span>
@@ -204,7 +204,7 @@ export function ProcessHero({ onNavigateToWizard, onNavigateToProjects }: Proces
               transition={{ delay: 0.4, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
               className="grid grid-cols-3 gap-6 pt-8"
               style={{
-                borderTop: '1px solid rgba(30, 61, 54, 0.12)',
+                borderTop: '1px solid rgba(26, 26, 26, 0.12)',
               }}
             >
               {[
@@ -216,8 +216,8 @@ export function ProcessHero({ onNavigateToWizard, onNavigateToProjects }: Proces
                   <div 
                     className="mb-1.5 transition-colors duration-300"
                     style={{
-                      color: '#1E3D36',
-                      fontFamily: 'Playfair Display, serif',
+                      color: '#1A1A1A',
+                      fontFamily: 'Georgia, serif',
                       fontSize: 'clamp(1.5rem, 3vw, 2rem)',
                       fontWeight: 600,
                       lineHeight: 1,
@@ -228,7 +228,7 @@ export function ProcessHero({ onNavigateToWizard, onNavigateToProjects }: Proces
                   <div 
                     className="transition-colors duration-300"
                     style={{
-                      color: 'rgba(30, 61, 54, 0.5)',
+                      color: 'rgba(26, 26, 26, 0.5)',
                       fontFamily: 'Inter, system-ui, sans-serif',
                       fontSize: '0.75rem',
                       fontWeight: 500,
@@ -257,15 +257,15 @@ export function ProcessHero({ onNavigateToWizard, onNavigateToProjects }: Proces
                 className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 rounded-full flex flex-col items-center justify-center z-20"
                 style={{
                   background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.85))',
-                  border: '2px solid rgba(30, 61, 54, 0.15)',
-                  boxShadow: '0 8px 32px rgba(30, 61, 54, 0.15), inset 0 1px 0 rgba(255, 255, 255, 1)',
+                  border: '2px solid rgba(26, 26, 26, 0.15)',
+                  boxShadow: '0 8px 32px rgba(26, 26, 26, 0.15), inset 0 1px 0 rgba(255, 255, 255, 1)',
                 }}
               >
                 <div 
                   className="mb-2"
                   style={{
-                    color: '#2E6F5E',
-                    fontFamily: 'Playfair Display, serif',
+                    color: '#00875A',
+                    fontFamily: 'Georgia, serif',
                     fontSize: '3rem',
                     fontWeight: 700,
                     lineHeight: 1,
@@ -276,7 +276,7 @@ export function ProcessHero({ onNavigateToWizard, onNavigateToProjects }: Proces
                 <div 
                   className="mb-1"
                   style={{
-                    color: '#1E3D36',
+                    color: '#1A1A1A',
                     fontFamily: 'Inter, system-ui, sans-serif',
                     fontSize: '1rem',
                     fontWeight: 600,
@@ -287,7 +287,7 @@ export function ProcessHero({ onNavigateToWizard, onNavigateToProjects }: Proces
                 </div>
                 <div 
                   style={{
-                    color: 'rgba(30, 61, 54, 0.5)',
+                    color: 'rgba(26, 26, 26, 0.5)',
                     fontFamily: 'Inter, system-ui, sans-serif',
                     fontSize: '0.7rem',
                     fontWeight: 500,
@@ -302,7 +302,7 @@ export function ProcessHero({ onNavigateToWizard, onNavigateToProjects }: Proces
                 <motion.div
                   className="absolute inset-0 rounded-full"
                   style={{
-                    border: '2px solid rgba(132, 204, 22, 0.3)',
+                    border: '2px solid rgba(0, 135, 90, 0.3)',
                   }}
                   animate={{
                     scale: [1, 1.15, 1],
@@ -327,7 +327,7 @@ export function ProcessHero({ onNavigateToWizard, onNavigateToProjects }: Proces
                   cy="200" 
                   r="190" 
                   fill="none" 
-                  stroke="rgba(30, 61, 54, 0.08)" 
+                  stroke="rgba(26, 26, 26, 0.08)" 
                   strokeWidth="1.5"
                 />
                 <motion.circle 
@@ -335,7 +335,7 @@ export function ProcessHero({ onNavigateToWizard, onNavigateToProjects }: Proces
                   cy="200" 
                   r="190" 
                   fill="none" 
-                  stroke="#84CC16" 
+                  stroke="#00875A" 
                   strokeWidth="3"
                   strokeLinecap="round"
                   strokeDasharray="1194" // 2 * pi * 190
@@ -347,7 +347,7 @@ export function ProcessHero({ onNavigateToWizard, onNavigateToProjects }: Proces
                     ease: [0.22, 1, 0.36, 1] 
                   }}
                   style={{
-                    filter: 'drop-shadow(0 0 8px rgba(132, 204, 22, 0.4))',
+                    filter: 'drop-shadow(0 0 8px rgba(0, 135, 90, 0.4))',
                   }}
                 />
               </svg>
@@ -411,18 +411,18 @@ export function ProcessHero({ onNavigateToWizard, onNavigateToProjects }: Proces
                       className="w-full h-full rounded-2xl flex flex-col items-center justify-center relative transition-all duration-300 group-hover:scale-110"
                       style={{
                         background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.85))',
-                        border: '1px solid rgba(30, 61, 54, 0.12)',
-                        boxShadow: '0 4px 16px rgba(30, 61, 54, 0.1), inset 0 1px 0 rgba(255, 255, 255, 1)',
+                        border: '1px solid rgba(26, 26, 26, 0.12)',
+                        boxShadow: '0 4px 16px rgba(26, 26, 26, 0.1), inset 0 1px 0 rgba(255, 255, 255, 1)',
                       }}
                     >
                       <Icon 
                         className="w-6 h-6 mb-1 transition-colors duration-300"
-                        style={{ color: '#2E6F5E' }}
+                        style={{ color: '#00875A' }}
                       />
                       <div 
                         className="text-xs font-semibold transition-colors duration-300"
                         style={{
-                          color: '#1E3D36',
+                          color: '#1A1A1A',
                           fontFamily: 'Inter, system-ui, sans-serif',
                         }}
                       >
@@ -431,7 +431,7 @@ export function ProcessHero({ onNavigateToWizard, onNavigateToProjects }: Proces
                       <div 
                         className="text-[0.6rem] transition-colors duration-300"
                         style={{
-                          color: 'rgba(30, 61, 54, 0.5)',
+                          color: 'rgba(26, 26, 26, 0.5)',
                           fontFamily: 'Inter, system-ui, sans-serif',
                         }}
                       >
@@ -442,7 +442,7 @@ export function ProcessHero({ onNavigateToWizard, onNavigateToProjects }: Proces
                       <div 
                         className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
                         style={{
-                          background: 'radial-gradient(circle, rgba(132, 204, 22, 0.1) 0%, transparent 70%)',
+                          background: 'radial-gradient(circle, rgba(0, 135, 90, 0.1) 0%, transparent 70%)',
                         }}
                       />
                     </div>
@@ -452,7 +452,7 @@ export function ProcessHero({ onNavigateToWizard, onNavigateToProjects }: Proces
                       className="absolute top-1/2 left-1/2 w-px origin-center pointer-events-none"
                       style={{
                         height: `${radius - 96}px`,
-                        background: 'linear-gradient(to bottom, rgba(30, 61, 54, 0.15), transparent)',
+                        background: 'linear-gradient(to bottom, rgba(26, 26, 26, 0.15), transparent)',
                         transform: `rotate(${180 + node.angle}deg) translateY(-40px)`,
                       }}
                     />
@@ -472,7 +472,7 @@ export function ProcessHero({ onNavigateToWizard, onNavigateToProjects }: Proces
                     key={i}
                     className="absolute top-1/2 left-1/2 w-1.5 h-1.5 rounded-full"
                     style={{
-                      background: 'rgba(132, 204, 22, 0.3)',
+                      background: 'rgba(0, 135, 90, 0.3)',
                       marginTop: '-3px',
                       marginLeft: '-3px',
                       x,

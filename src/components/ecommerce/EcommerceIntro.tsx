@@ -15,7 +15,7 @@ export default function EcommerceIntro() {
         transition={{ duration: 0.8 }}
         className="max-w-5xl mx-auto px-6 lg:px-8"
       >
-        <div className="space-y-8 font-['Lora'] text-lg lg:text-xl leading-relaxed text-gray-700">
+        <div className="space-y-8 text-lg lg:text-xl leading-relaxed" style={{ color: '#6B6B63' }}>
           <p>
             Winning with e-commerce — securing truly transformational results — takes more than 
             digital platforms and expertise. It requires a holistic strategy and a relentless focus 
@@ -24,7 +24,7 @@ export default function EcommerceIntro() {
             every interaction.
           </p>
           <p>
-            The shift is already underway. <span className="font-semibold text-[#0F3D3E]">
+            The shift is already underway. <span className="font-semibold" style={{ color: '#1A1A1A' }}>
             AI-generated search traffic to e-commerce sites grew 4,700% year over year.</span> Shoppers 
             are discovering products through ChatGPT, Copilot, and Gemini before they ever visit a website. 
             The companies that prepare now will capture this wave. Those that don't will wonder where their 

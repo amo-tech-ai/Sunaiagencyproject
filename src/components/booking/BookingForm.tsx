@@ -1,3 +1,6 @@
+// C-B01 — Booking Form
+// BCG design system: charcoal text, green accents, Georgia serif labels, 4px radius
+
 import { BookingFormData } from '../../lib/hooks/useBookingForm';
 
 interface BookingFormProps {
@@ -15,10 +18,13 @@ export default function BookingForm({
   onChange,
   onSubmit,
 }: BookingFormProps) {
+  const inputClass =
+    'w-full border px-4 py-3 text-sm focus:outline-none transition-colors';
+
   return (
     <form onSubmit={onSubmit} className="space-y-6">
       <div>
-        <label htmlFor="name" className="block text-sm mb-2 font-['Lora'] font-medium">
+        <label htmlFor="name" className="block text-sm mb-2" style={{ color: '#1A1A1A' }}>
           Name
         </label>
         <input
@@ -28,12 +34,13 @@ export default function BookingForm({
           value={formData.name}
           onChange={onChange}
           required
-          className="w-full border border-gray-300 px-4 py-3 text-sm font-['Lora'] focus:outline-none focus:border-[#84CC16] transition-colors"
+          className={inputClass}
+          style={{ borderColor: '#E8E8E4', borderRadius: '4px', color: '#1A1A1A' }}
         />
       </div>
 
       <div>
-        <label htmlFor="email" className="block text-sm mb-2 font-['Lora'] font-medium">
+        <label htmlFor="email" className="block text-sm mb-2" style={{ color: '#1A1A1A' }}>
           Email
         </label>
         <input
@@ -43,12 +50,13 @@ export default function BookingForm({
           value={formData.email}
           onChange={onChange}
           required
-          className="w-full border border-gray-300 px-4 py-3 text-sm font-['Lora'] focus:outline-none focus:border-[#84CC16] transition-colors"
+          className={inputClass}
+          style={{ borderColor: '#E8E8E4', borderRadius: '4px', color: '#1A1A1A' }}
         />
       </div>
 
       <div>
-        <label htmlFor="company" className="block text-sm mb-2 font-['Lora'] font-medium">
+        <label htmlFor="company" className="block text-sm mb-2" style={{ color: '#1A1A1A' }}>
           Company
         </label>
         <input
@@ -57,12 +65,13 @@ export default function BookingForm({
           name="company"
           value={formData.company}
           onChange={onChange}
-          className="w-full border border-gray-300 px-4 py-3 text-sm font-['Lora'] focus:outline-none focus:border-[#84CC16] transition-colors"
+          className={inputClass}
+          style={{ borderColor: '#E8E8E4', borderRadius: '4px', color: '#1A1A1A' }}
         />
       </div>
 
       <div>
-        <label htmlFor="service" className="block text-sm mb-2 font-['Lora'] font-medium">
+        <label htmlFor="service" className="block text-sm mb-2" style={{ color: '#1A1A1A' }}>
           Service Interested In
         </label>
         <select
@@ -71,7 +80,8 @@ export default function BookingForm({
           value={formData.service}
           onChange={onChange}
           required
-          className="w-full border border-gray-300 px-4 py-3 text-sm font-['Lora'] focus:outline-none focus:border-[#84CC16] transition-colors"
+          className={inputClass}
+          style={{ borderColor: '#E8E8E4', borderRadius: '4px', color: '#1A1A1A' }}
         >
           <option value="">Select a service</option>
           {services.map((service) => (
@@ -83,7 +93,7 @@ export default function BookingForm({
       </div>
 
       <div>
-        <label htmlFor="message" className="block text-sm mb-2 font-['Lora'] font-medium">
+        <label htmlFor="message" className="block text-sm mb-2" style={{ color: '#1A1A1A' }}>
           Message
         </label>
         <textarea
@@ -92,13 +102,15 @@ export default function BookingForm({
           value={formData.message}
           onChange={onChange}
           rows={5}
-          className="w-full border border-gray-300 px-4 py-3 text-sm font-['Lora'] focus:outline-none focus:border-[#84CC16] transition-colors"
+          className={inputClass}
+          style={{ borderColor: '#E8E8E4', borderRadius: '4px', color: '#1A1A1A' }}
         />
       </div>
 
       <button
         type="submit"
-        className="w-full bg-[#84CC16] text-gray-900 px-8 py-4 text-base font-semibold hover:bg-[#73b512] transition-colors font-['Lora']"
+        className="w-full px-8 py-4 text-sm transition-colors"
+        style={{ backgroundColor: '#00875A', color: '#FFFFFF', borderRadius: '4px' }}
       >
         Submit Request
       </button>

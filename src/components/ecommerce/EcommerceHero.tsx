@@ -9,7 +9,7 @@ interface EcommerceHeroProps {
 
 export default function EcommerceHero({ onCTAClick }: EcommerceHeroProps) {
   return (
-    <section className="relative bg-[#0F3D3E] text-white overflow-hidden">
+    <section className="relative bg-[#1A1A1A] text-white overflow-hidden">
       {/* Background Image with Overlay */}
       <div className="absolute inset-0">
         <img
@@ -17,11 +17,11 @@ export default function EcommerceHero({ onCTAClick }: EcommerceHeroProps) {
           alt="AI Shopping Experience"
           className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-[#0F3D3E]/85" />
+        <div className="absolute inset-0 bg-[#1A1A1A]/85" />
       </div>
 
       {/* Content */}
-      <div className="relative max-w-7xl mx-auto px-6 lg:px-8 py-32 lg:py-40">
+      <div className="relative max-w-[1120px] mx-auto px-6 lg:px-8 py-32 lg:py-40">
         {/* Breadcrumb */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -29,7 +29,7 @@ export default function EcommerceHero({ onCTAClick }: EcommerceHeroProps) {
           transition={{ duration: 0.6 }}
           className="mb-8"
         >
-          <p className="text-sm tracking-wider text-white/70 font-['Lora']">
+          <p className="text-sm tracking-wider text-white/70">
             Industries › E-Commerce
           </p>
         </motion.div>
@@ -41,7 +41,7 @@ export default function EcommerceHero({ onCTAClick }: EcommerceHeroProps) {
           transition={{ duration: 0.6, delay: 0.1 }}
           className="mb-8"
         >
-          <span className="inline-block px-4 py-2 border border-[#84CC16] text-[#84CC16] text-xs tracking-[0.2em] uppercase font-['Lora']">
+          <span className="inline-block px-4 py-2 border border-[#00875A] text-[#00875A] text-xs tracking-[0.2em] uppercase">
             AI FOR E-COMMERCE
           </span>
         </motion.div>
@@ -51,7 +51,8 @@ export default function EcommerceHero({ onCTAClick }: EcommerceHeroProps) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="font-['Playfair_Display'] text-6xl lg:text-7xl mb-8 leading-[1.05]"
+          className="text-6xl lg:text-7xl mb-8 leading-[1.05]"
+          style={{ fontFamily: 'Georgia, serif' }}
         >
           E-Commerce
         </motion.h1>
@@ -63,7 +64,7 @@ export default function EcommerceHero({ onCTAClick }: EcommerceHeroProps) {
           transition={{ duration: 0.6, delay: 0.3 }}
           className="max-w-4xl mb-12"
         >
-          <p className="font-['Lora'] text-xl lg:text-2xl leading-relaxed text-white/90">
+          <p className="text-xl lg:text-2xl leading-relaxed text-white/90">
             Many companies have seen gains from e-commerce AI — but fewer have achieved the 
             transformational results they seek. By combining AI agents, hyper-personalization, 
             and conversational commerce, we help businesses set and enable a bold vision for 
@@ -77,7 +78,8 @@ export default function EcommerceHero({ onCTAClick }: EcommerceHeroProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.4 }}
           onClick={onCTAClick}
-          className="group inline-flex items-center gap-3 px-8 py-4 bg-[#84CC16] text-[#0F3D3E] font-['Lora'] hover:bg-[#65A30D] transition-all duration-300"
+          className="group inline-flex items-center gap-3 px-8 py-4 bg-[#00875A] text-white hover:bg-[#006B47] transition-all duration-300"
+          style={{ borderRadius: '4px' }}
         >
           <span className="font-medium">Book a Strategy Call</span>
           <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />

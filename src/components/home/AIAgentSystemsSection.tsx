@@ -38,7 +38,7 @@ const modules = [
       { label: 'Conversion', value: '34%', trend: '+5%' },
     ],
     bars: [85, 65, 92, 78, 88, 70, 95],
-    accent: '#7EF473',
+    accent: '#00875A',
     position: 'top-left' as const,
   },
   {
@@ -108,7 +108,7 @@ export default function AIAgentSystemsSection() {
           style={{
             top: '-10%',
             right: '10%',
-            background: 'radial-gradient(circle, rgba(126, 244, 115, 0.08) 0%, transparent 65%)',
+            background: 'radial-gradient(circle, rgba(0, 135, 90, 0.08) 0%, transparent 65%)',
             filter: 'blur(100px)',
           }}
         />
@@ -126,7 +126,7 @@ export default function AIAgentSystemsSection() {
         <div
           className="absolute w-[800px] h-[400px] rounded-full left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
           style={{
-            background: 'radial-gradient(ellipse, rgba(126, 244, 115, 0.04) 0%, transparent 70%)',
+            background: 'radial-gradient(ellipse, rgba(0, 135, 90, 0.04) 0%, transparent 70%)',
             filter: 'blur(80px)',
           }}
         />
@@ -136,8 +136,8 @@ export default function AIAgentSystemsSection() {
           className="absolute inset-0 opacity-[0.03]"
           style={{
             backgroundImage: `
-              linear-gradient(rgba(126, 244, 115, 0.3) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(126, 244, 115, 0.3) 1px, transparent 1px)
+              linear-gradient(rgba(0, 135, 90, 0.3) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(0, 135, 90, 0.3) 1px, transparent 1px)
             `,
             backgroundSize: '80px 80px',
           }}
@@ -154,14 +154,14 @@ export default function AIAgentSystemsSection() {
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
             className="inline-flex items-center gap-2.5 mb-7 px-5 py-2 rounded-full"
             style={{
-              background: 'rgba(126, 244, 115, 0.06)',
-              border: '1px solid rgba(126, 244, 115, 0.1)',
+              background: 'rgba(0, 135, 90, 0.06)',
+              border: '1px solid rgba(0, 135, 90, 0.1)',
             }}
           >
-            <Bot size={14} style={{ color: '#7EF473' }} />
+            <Bot size={14} style={{ color: '#00875A' }} />
             <span
               className="text-xs tracking-[0.18em] uppercase"
-              style={{ color: '#7EF473', fontFamily: 'Inter, system-ui, sans-serif', fontWeight: 600 }}
+              style={{ color: '#00875A', fontFamily: 'Inter, system-ui, sans-serif', fontWeight: 600 }}
             >
               AI Agent Systems
             </span>
@@ -251,7 +251,7 @@ export default function AIAgentSystemsSection() {
                   </span>
                 </div>
                 <div className="flex gap-1.5 opacity-30">
-                  <CircuitBoard size={14} style={{ color: '#7EF473' }} />
+                  <CircuitBoard size={14} style={{ color: '#00875A' }} />
                   <Activity size={14} style={{ color: '#60A5FA' }} />
                 </div>
               </div>
@@ -289,7 +289,7 @@ export default function AIAgentSystemsSection() {
                       {/* Animated particle */}
                       <motion.circle
                         r="0.4"
-                        fill="#7EF473"
+                        fill="#00875A"
                         style={{ filter: 'blur(0.3px)' }}
                         initial={{
                           cx: stream.from.x,
@@ -400,7 +400,7 @@ export default function AIAgentSystemsSection() {
                                 {stat.trend && (
                                   <span
                                     style={{
-                                      color: stat.trend === 'live' ? '#F59E0B' : '#7EF473',
+                                      color: stat.trend === 'live' ? '#F59E0B' : '#00875A',
                                       fontSize: '0.6rem',
                                       fontWeight: 600,
                                       fontFamily: 'Inter, system-ui, sans-serif',
@@ -570,11 +570,11 @@ export default function AIAgentSystemsSection() {
                     className="w-14 h-14 rounded-full flex items-center justify-center"
                     style={{
                       background: 'linear-gradient(135deg, rgba(126, 244, 115, 0.15), rgba(96, 165, 250, 0.1))',
-                      border: '1px solid rgba(126, 244, 115, 0.2)',
-                      boxShadow: '0 0 40px rgba(126, 244, 115, 0.15), 0 0 80px rgba(96, 165, 250, 0.08)',
+                      border: '1px solid rgba(0, 135, 90, 0.2)',
+                      boxShadow: '0 0 40px rgba(0, 135, 90, 0.15), 0 0 80px rgba(96, 165, 250, 0.08)',
                     }}
                   >
-                    <Bot size={22} style={{ color: '#7EF473' }} strokeWidth={1.5} />
+                    <Bot size={22} style={{ color: '#00875A' }} strokeWidth={1.5} />
                   </div>
                   {/* Pulse ring */}
                   <div

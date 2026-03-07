@@ -1,3 +1,6 @@
+// C-CB06 — Chatbots CTA
+// BCG design system dark variant: charcoal bg, white text, Georgia serif, green CTA, 4px radius
+
 import { ArrowRight } from 'lucide-react';
 
 interface ChatbotsCTAProps {
@@ -7,9 +10,9 @@ interface ChatbotsCTAProps {
 
 export default function ChatbotsCTA({ onPrimaryClick, onSecondaryClick }: ChatbotsCTAProps) {
   return (
-    <section className="relative bg-[#0F3D3E] py-32 md:py-40 overflow-hidden">
+    <section className="relative py-24 md:py-32 overflow-hidden" style={{ backgroundColor: '#1A1A1A' }}>
       {/* Grid Pattern */}
-      <div 
+      <div
         className="absolute inset-0 opacity-[0.03]"
         style={{
           backgroundImage: `
@@ -20,37 +23,31 @@ export default function ChatbotsCTA({ onPrimaryClick, onSecondaryClick }: Chatbo
         }}
       />
 
-      {/* Radial Glow */}
-      <div 
-        className="absolute inset-0"
-        style={{
-          background: 'radial-gradient(ellipse at center, rgba(132,204,22,0.05) 0%, rgba(15,61,62,0) 70%)',
-        }}
-      />
-
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-4xl mx-auto">
-          <h2 
-            className="text-4xl md:text-5xl lg:text-6xl text-white mb-6 leading-tight tracking-tight"
-            style={{ fontFamily: 'Playfair Display, serif' }}
+      <div className="relative max-w-[1120px] mx-auto px-6">
+        <div className="text-center max-w-3xl mx-auto">
+          <h2
+            className="text-3xl md:text-4xl text-white mb-6 leading-tight tracking-tight"
+            style={{ fontFamily: 'Georgia, serif' }}
           >
             Ready to Turn Conversations into Revenue?
           </h2>
 
-          <p className="text-lg md:text-xl text-gray-400 mb-12 max-w-2xl mx-auto font-['Lora']">
+          <p className="text-lg mb-10 max-w-2xl mx-auto" style={{ color: 'rgba(245,245,240,0.5)' }}>
             Get a custom AI chatbot strategy designed for your business, industry, and goals.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <button
-              className="bg-[#84CC16] hover:bg-[#73b512] text-gray-900 px-8 py-4 text-base font-semibold transition-all duration-300 min-w-[280px] flex items-center justify-center gap-2 group font-['Lora']"
+              className="px-8 py-4 text-sm transition-all min-w-[280px] flex items-center justify-center gap-2 group"
+              style={{ backgroundColor: '#00875A', color: '#FFFFFF', borderRadius: '4px' }}
               onClick={onPrimaryClick}
             >
               Design My AI Chatbot System
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </button>
             <button
-              className="border border-gray-600 hover:border-[#84CC16] hover:bg-gray-800 text-white px-8 py-4 text-base font-semibold transition-all duration-300 min-w-[280px] font-['Lora']"
+              className="border px-8 py-4 text-sm transition-all min-w-[280px] hover:bg-white/10"
+              style={{ borderColor: 'rgba(255,255,255,0.3)', color: '#FFFFFF', borderRadius: '4px' }}
               onClick={onSecondaryClick}
             >
               See Chatbot Use Cases by Industry

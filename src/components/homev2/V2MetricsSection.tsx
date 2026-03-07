@@ -18,7 +18,7 @@ export default function V2MetricsSection() {
   ];
 
   return (
-    <section className="bg-[#0F3D3E] py-32 lg:py-40 relative overflow-hidden">
+    <section className="py-24 lg:py-32 relative overflow-hidden" style={{ backgroundColor: '#1A1A1A' }}>
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-5">
         <div className="absolute inset-0" style={{
@@ -30,17 +30,17 @@ export default function V2MetricsSection() {
       <div className="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
         {/* Section Header */}
         <div className="max-w-4xl mb-20">
-          <div className="inline-block px-4 py-2 bg-[#84CC16]/10 border border-[#84CC16]/20 mb-8">
-            <span className="text-xs uppercase tracking-[0.2em] text-[#84CC16] font-medium">
+          <div className="inline-block px-3.5 py-1.5 border mb-7" style={{ backgroundColor: 'rgba(0,135,90,0.08)', borderColor: 'rgba(0,135,90,0.15)', borderRadius: '4px' }}>
+            <span className="text-xs tracking-widest uppercase" style={{ color: '#00875A', letterSpacing: '0.08em' }}>
               Why creative teams choose digistudio
             </span>
           </div>
           
-          <h2 className="font-['Playfair_Display'] text-5xl lg:text-7xl font-bold text-white leading-[1.05] mb-8">
+          <h2 className="text-4xl lg:text-5xl text-white leading-[1.05] mb-7" style={{ fontFamily: 'Georgia, serif' }}>
             A proven process for real, only measurable success
           </h2>
           
-          <p className="text-xl lg:text-2xl text-white/70 leading-relaxed font-['Lora'] max-w-3xl">
+          <p className="text-lg lg:text-xl text-white/70 leading-relaxed max-w-3xl">
             We don't just deliver projects—we build long-term partnerships that drive continuous growth and innovation.
           </p>
         </div>
@@ -53,14 +53,14 @@ export default function V2MetricsSection() {
               className="space-y-6 group"
             >
               <div className="space-y-4">
-                <div className="text-7xl lg:text-8xl font-['Playfair_Display'] font-bold text-[#84CC16] leading-none group-hover:scale-105 transition-transform duration-300 inline-block">
+                <div className="text-6xl lg:text-7xl leading-none group-hover:scale-105 transition-transform duration-300 inline-block" style={{ fontFamily: 'Georgia, serif', color: '#00875A' }}>
                   {metric.number}
                 </div>
-                <div className="h-0.5 w-16 bg-[#84CC16]" />
+                <div className="h-0.5 w-14" style={{ backgroundColor: '#00875A' }} />
               </div>
               
               <div className="space-y-3">
-                <div className="text-xl font-medium text-white font-['Playfair_Display']">
+                <div className="text-lg text-white" style={{ fontFamily: 'Georgia, serif' }}>
                   {metric.label}
                 </div>
                 <div className="text-base text-white/60 leading-relaxed">

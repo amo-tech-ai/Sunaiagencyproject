@@ -1,3 +1,6 @@
+// C-V2-06 — V2 Pricing Section
+// BCG design system: white bg, charcoal text, Georgia serif, green accents, 4px radius
+
 import { Check } from 'lucide-react';
 
 interface V2PricingSectionProps {
@@ -6,138 +9,69 @@ interface V2PricingSectionProps {
 
 export default function V2PricingSection({ onNavigate }: V2PricingSectionProps) {
   const tiers = [
-    {
-      name: 'Discovery',
-      description: 'For businesses exploring AI opportunities',
-      price: 'Custom',
-      duration: '2-4 weeks',
-      features: [
-        'AI strategy workshop',
-        'Opportunity assessment',
-        'Technical feasibility study',
-        'ROI projections',
-        'Implementation roadmap',
-      ],
-      cta: 'Start Discovery',
-      highlighted: false,
-    },
-    {
-      name: 'Build',
-      description: 'For companies ready to deploy AI systems',
-      price: 'Custom',
-      duration: '8-16 weeks',
-      features: [
-        'Everything in Discovery',
-        'Custom AI development',
-        'Model training & testing',
-        'System integration',
-        'Deployment & monitoring',
-        'Team training',
-      ],
-      cta: 'Start Build',
-      highlighted: true,
-    },
-    {
-      name: 'Partnership',
-      description: 'For organizations scaling AI operations',
-      price: 'Custom',
-      duration: 'Ongoing',
-      features: [
-        'Everything in Build',
-        'Dedicated AI team',
-        'Continuous optimization',
-        'Priority support',
-        'Strategic guidance',
-        'Quarterly reviews',
-      ],
-      cta: 'Become Partner',
-      highlighted: false,
-    },
+    { name: 'Discovery', description: 'For businesses exploring AI opportunities', price: 'Custom', duration: '2-4 weeks', features: ['AI strategy workshop', 'Opportunity assessment', 'Technical feasibility study', 'ROI projections', 'Implementation roadmap'], cta: 'Start Discovery', highlighted: false },
+    { name: 'Build', description: 'For companies ready to deploy AI systems', price: 'Custom', duration: '8-16 weeks', features: ['Everything in Discovery', 'Custom AI development', 'Model training & testing', 'System integration', 'Deployment & monitoring', 'Team training'], cta: 'Start Build', highlighted: true },
+    { name: 'Partnership', description: 'For organizations scaling AI operations', price: 'Custom', duration: 'Ongoing', features: ['Everything in Build', 'Dedicated AI team', 'Continuous optimization', 'Priority support', 'Strategic guidance', 'Quarterly reviews'], cta: 'Become Partner', highlighted: false },
   ];
 
   return (
-    <section className="bg-white py-24 lg:py-32">
-      <div className="max-w-7xl mx-auto px-6 lg:px-12">
-        {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-20">
-          <div className="inline-block px-4 py-2 bg-[#84CC16]/10 border border-[#84CC16]/20 mb-6">
-            <span className="text-xs uppercase tracking-[0.2em] text-[#84CC16] font-medium">
-              Investment Levels
-            </span>
+    <section className="py-20 lg:py-28" style={{ backgroundColor: '#FFFFFF' }}>
+      <div className="max-w-[1120px] mx-auto px-6">
+        <div className="text-center max-w-3xl mx-auto mb-16">
+          <div className="inline-block px-3.5 py-1.5 border mb-5" style={{ backgroundColor: 'rgba(0,135,90,0.08)', borderColor: 'rgba(0,135,90,0.15)', borderRadius: '4px' }}>
+            <span className="text-xs tracking-widest uppercase" style={{ color: '#00875A', letterSpacing: '0.08em' }}>Investment Levels</span>
           </div>
-          
-          <h2 className="font-['Playfair_Display'] text-4xl lg:text-6xl font-bold text-[#1A1A1A] leading-[1.05] mb-6">
+          <h2 className="text-3xl lg:text-4xl leading-[1.05] mb-5" style={{ fontFamily: 'Georgia, serif', color: '#1A1A1A' }}>
             Flexible engagement models
           </h2>
-          
-          <p className="text-xl text-[#666666] leading-relaxed font-['Lora']">
+          <p className="text-lg leading-relaxed" style={{ color: '#6B6B63' }}>
             Choose the partnership level that matches your ambition and timeline.
           </p>
         </div>
-        
-        {/* Pricing Grid */}
-        <div className="grid lg:grid-cols-3 gap-8 lg:gap-12">
+
+        <div className="grid lg:grid-cols-3 gap-6 lg:gap-8">
           {tiers.map((tier, index) => (
-            <div 
+            <div
               key={index}
-              className={`bg-[#FAF8F6] border-2 p-10 lg:p-12 space-y-8 relative transition-all hover:shadow-xl ${
-                tier.highlighted 
-                  ? 'border-[#84CC16] lg:scale-105' 
-                  : 'border-[#EFE9E4]'
-              }`}
+              className={`border p-8 lg:p-10 space-y-7 relative transition-all hover:shadow-lg ${tier.highlighted ? 'lg:scale-105' : ''}`}
+              style={{ backgroundColor: '#F5F5F0', borderColor: tier.highlighted ? '#00875A' : '#E8E8E4', borderWidth: tier.highlighted ? '2px' : '1px', borderRadius: '4px' }}
             >
               {tier.highlighted && (
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-[#84CC16] px-6 py-2">
-                  <span className="text-xs uppercase tracking-[0.2em] text-[#1A1A1A] font-medium">
-                    Most Popular
-                  </span>
+                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-5 py-1.5 text-white" style={{ backgroundColor: '#00875A', borderRadius: '4px' }}>
+                  <span className="text-xs tracking-widest uppercase" style={{ letterSpacing: '0.06em' }}>Most Popular</span>
                 </div>
               )}
-              
-              {/* Header */}
-              <div className="space-y-6 pt-4">
-                <div className="space-y-3">
-                  <h3 className="text-3xl font-['Playfair_Display'] font-bold text-[#1A1A1A]">
-                    {tier.name}
-                  </h3>
-                  <p className="text-base text-[#666666] leading-relaxed">
-                    {tier.description}
-                  </p>
+
+              <div className="space-y-5 pt-2">
+                <div className="space-y-2">
+                  <h3 className="text-2xl" style={{ fontFamily: 'Georgia, serif', color: '#1A1A1A' }}>{tier.name}</h3>
+                  <p className="text-sm leading-relaxed" style={{ color: '#6B6B63' }}>{tier.description}</p>
                 </div>
-                
-                <div className="pt-4 border-t border-[#EFE9E4]">
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-5xl font-['Playfair_Display'] font-bold text-[#1A1A1A]">
-                      {tier.price}
-                    </span>
-                  </div>
-                  <div className="text-sm text-[#666666] mt-2">
-                    Timeline: {tier.duration}
-                  </div>
+                <div className="pt-4 border-t" style={{ borderColor: '#E8E8E4' }}>
+                  <div className="text-4xl" style={{ fontFamily: 'Georgia, serif', color: '#1A1A1A' }}>{tier.price}</div>
+                  <div className="text-sm mt-1" style={{ color: '#6B6B63' }}>Timeline: {tier.duration}</div>
                 </div>
               </div>
-              
-              {/* Features */}
-              <div className="border-t-2 border-[#EFE9E4] pt-8 space-y-4">
+
+              <div className="border-t pt-7 space-y-3" style={{ borderColor: '#E8E8E4' }}>
                 {tier.features.map((feature, idx) => (
                   <div key={idx} className="flex items-start gap-3">
-                    <div className="w-6 h-6 bg-[#84CC16] flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <Check className="w-4 h-4 text-[#1A1A1A]" />
+                    <div className="w-5 h-5 flex items-center justify-center flex-shrink-0 mt-0.5" style={{ backgroundColor: '#00875A', borderRadius: '2px' }}>
+                      <Check className="w-3.5 h-3.5 text-white" />
                     </div>
-                    <span className="text-base text-[#666666]">{feature}</span>
+                    <span className="text-sm" style={{ color: '#6B6B63' }}>{feature}</span>
                   </div>
                 ))}
               </div>
-              
-              {/* CTA */}
-              <div className="pt-6">
+
+              <div className="pt-4">
                 <button
                   onClick={() => onNavigate?.('booking')}
-                  className={`w-full py-4 text-center font-medium text-base transition-all ${
-                    tier.highlighted
-                      ? 'bg-[#84CC16] text-[#1A1A1A] hover:bg-[#65A30D] hover:scale-105'
-                      : 'border-2 border-[#1A1A1A] text-[#1A1A1A] hover:bg-[#1A1A1A] hover:text-white'
-                  }`}
+                  className="w-full py-3.5 text-center text-sm transition-all"
+                  style={tier.highlighted
+                    ? { backgroundColor: '#00875A', color: '#FFFFFF', borderRadius: '4px' }
+                    : { border: '1px solid #1A1A1A', color: '#1A1A1A', borderRadius: '4px' }
+                  }
                 >
                   {tier.cta}
                 </button>
@@ -145,10 +79,9 @@ export default function V2PricingSection({ onNavigate }: V2PricingSectionProps) 
             </div>
           ))}
         </div>
-        
-        {/* Note */}
-        <div className="text-center mt-16 max-w-2xl mx-auto">
-          <p className="text-base text-[#666666] leading-relaxed">
+
+        <div className="text-center mt-14 max-w-2xl mx-auto">
+          <p className="text-sm leading-relaxed" style={{ color: '#6B6B63' }}>
             All engagements are customized to your specific needs and goals. Final pricing is determined after the discovery phase based on project scope and complexity.
           </p>
         </div>

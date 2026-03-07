@@ -12,12 +12,12 @@ export default function BookingPage() {
         {/* Info Column */}
         <div>
           <h1 
-            className="text-4xl md:text-5xl tracking-tight mb-6"
-            style={{ fontFamily: 'Playfair Display, serif' }}
+            className="text-3xl md:text-4xl tracking-tight mb-6"
+            style={{ fontFamily: 'Georgia, serif', color: '#1A1A1A' }}
           >
             Book a Call
           </h1>
-          <p className="text-lg text-gray-600 mb-8 font-['Lora']">
+          <p className="text-lg mb-8" style={{ color: '#6B6B63' }}>
             Let's discuss your project and explore how we can help.
           </p>
 

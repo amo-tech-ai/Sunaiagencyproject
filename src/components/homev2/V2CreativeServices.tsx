@@ -18,7 +18,7 @@ export default function V2CreativeServices({ onNavigate }: V2CreativeServicesPro
       description: 'Responsive, conversion-focused websites that elevate your brand and drive results.',
       image: 'https://images.unsplash.com/photo-1556755732-ae0506f4a7a2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0YWJsZXQlMjB3ZWJzaXRlJTIwZGVzaWduJTIwbW9ja3VwJTIwaGFuZHN8ZW58MXx8fHwxNzcwMjI4NjYwfDA&ixlib=rb-4.1.0&q=80&w=1080',
       color: 'from-[#2D1B1E] to-[#1A1A1A]',
-      accentColor: 'text-[#84CC16]',
+      accentColor: 'text-[#00875A]',
     },
     {
       title: 'Social Media Creative',
@@ -33,7 +33,7 @@ export default function V2CreativeServices({ onNavigate }: V2CreativeServicesPro
       subtitle: 'Direct Communication',
       description: 'Beautiful, responsive email campaigns that convert subscribers into customers.',
       image: 'https://images.unsplash.com/photo-1514473777127-61e2dc1dded3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzbWFydHBob25lJTIwZW1haWwlMjBkZXNpZ24lMjBkYXJrfGVufDF8fHx8MTc3MDIyODY2MXww&ixlib=rb-4.1.0&q=80&w=1080',
-      color: 'from-[#1B4D3E] to-[#0F3D3E]',
+      color: 'from-[#1B4D3E] to-[#1A1A1A]',
       accentColor: 'text-emerald-400',
     },
     {
@@ -57,8 +57,16 @@ export default function V2CreativeServices({ onNavigate }: V2CreativeServicesPro
       subtitle: 'Intelligent Systems',
       description: 'Custom AI agents that automate workflows and enhance business intelligence.',
       image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
-      color: 'from-[#0F3D3E] to-[#1B5A5E]',
-      accentColor: 'text-[#84CC16]',
+      color: 'from-[#1A2F2F] to-[#1B4A4E]',
+      accentColor: 'text-[#00875A]',
+    },
+    {
+      title: 'Graphic Design',
+      subtitle: 'Visual Branding',
+      description: 'Professional graphic design that enhances your brand identity and visual appeal.',
+      image: 'https://images.unsplash.com/photo-1556755732-ae0506f4a7a2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0YWJsZXQlMjB3ZWJzaXRlJTIwZGVzaWduJTIwbW9ja3VwJTIwaGFuZHN8ZW58MXx8fHwxNzcwMjI4NjYwfDA&ixlib=rb-4.1.0&q=80&w=1080',
+      color: 'from-[#1A1A1A] to-[#1B4A4E]',
+      accentColor: 'text-[#00875A]',
     },
   ];
 
@@ -102,7 +110,7 @@ export default function V2CreativeServices({ onNavigate }: V2CreativeServicesPro
   };
 
   return (
-    <section className="relative bg-[#0F3D3E] py-32 lg:py-40 overflow-hidden">
+    <section className="relative py-24 lg:py-32 overflow-hidden" style={{ backgroundColor: '#1A1A1A' }}>
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-5">
         <div className="absolute inset-0" style={{
@@ -120,18 +128,18 @@ export default function V2CreativeServices({ onNavigate }: V2CreativeServicesPro
           viewport={{ once: true }}
           transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
         >
-          <div className="inline-block px-4 py-2 bg-[#84CC16]/10 border border-[#84CC16]/20 mb-8">
-            <span className="text-xs uppercase tracking-[0.2em] text-[#84CC16] font-medium">
+          <div className="inline-block px-3.5 py-1.5 border mb-7" style={{ backgroundColor: 'rgba(0,135,90,0.08)', borderColor: 'rgba(0,135,90,0.15)', borderRadius: '4px' }}>
+            <span className="text-xs tracking-widest uppercase" style={{ color: '#00875A', letterSpacing: '0.08em' }}>
               Easy & Hassle-Free
             </span>
           </div>
           
-          <h2 className="font-['Playfair_Display'] text-5xl lg:text-7xl font-bold text-white leading-[1.05] mb-8">
+          <h2 className="text-4xl lg:text-5xl text-white leading-[1.05] mb-7" style={{ fontFamily: 'Georgia, serif' }}>
             One subscription for access to{' '}
             <span className="italic">all our creative services</span>
           </h2>
           
-          <p className="text-xl text-white/60 leading-relaxed font-['Lora'] max-w-2xl mx-auto">
+          <p className="text-lg text-white/60 leading-relaxed max-w-2xl mx-auto">
             No matter your creative need, creating and submitting a project is easy and effortless
           </p>
         </motion.div>
@@ -193,24 +201,24 @@ export default function V2CreativeServices({ onNavigate }: V2CreativeServicesPro
 
                     {/* Bottom: Title & Description */}
                     <div className="space-y-4">
-                      <h3 className={`font-['Playfair_Display'] text-4xl lg:text-5xl font-bold italic leading-[1.1] ${service.accentColor} transition-colors duration-300`}>
+                      <h3 className={`text-3xl lg:text-4xl italic leading-[1.1] ${service.accentColor} transition-colors duration-300`} style={{ fontFamily: 'Georgia, serif' }}>
                         {service.title}
                       </h3>
                       
-                      <p className="text-base text-white/80 leading-relaxed font-['Lora'] max-w-sm opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                      <p className="text-sm text-white/80 leading-relaxed max-w-sm opacity-0 group-hover:opacity-100 transition-opacity duration-500">
                         {service.description}
                       </p>
 
                       {/* Arrow indicator */}
-                      <div className="flex items-center gap-2 text-white/60 group-hover:text-[#84CC16] transition-colors">
-                        <span className="text-sm uppercase tracking-[0.2em] font-medium">Learn More</span>
+                      <div className="flex items-center gap-2 text-white/60 group-hover:text-[#00875A] transition-colors">
+                        <span className="text-sm tracking-widest uppercase" style={{ letterSpacing: '0.08em' }}>Learn More</span>
                         <span className="group-hover:translate-x-1 transition-transform">→</span>
                       </div>
                     </div>
                   </div>
 
                   {/* Border on hover */}
-                  <div className="absolute inset-0 border-2 border-transparent group-hover:border-[#84CC16]/30 transition-colors duration-500" />
+                  <div className="absolute inset-0 border-2 border-transparent group-hover:border-[#00875A]/30 transition-colors duration-500" />
                 </motion.div>
               </div>
             ))}
@@ -220,7 +228,8 @@ export default function V2CreativeServices({ onNavigate }: V2CreativeServicesPro
           <div className="flex justify-center items-center gap-4 mt-12">
             <button
               onClick={() => sliderRef.current?.slickPrev()}
-              className="w-12 h-12 flex items-center justify-center border-2 border-white/20 text-white hover:border-[#84CC16] hover:text-[#84CC16] hover:bg-[#84CC16]/10 transition-all duration-300 group"
+              className="w-12 h-12 flex items-center justify-center border text-white hover:border-[#00875A] hover:text-[#00875A] transition-all duration-300 group"
+              style={{ borderColor: 'rgba(255,255,255,0.2)', borderRadius: '4px' }}
               aria-label="Previous slide"
             >
               <ChevronLeft className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" />
@@ -228,18 +237,19 @@ export default function V2CreativeServices({ onNavigate }: V2CreativeServicesPro
 
             {/* Slide Counter */}
             <div className="flex items-center gap-2">
-              <span className="text-2xl font-['Playfair_Display'] font-bold text-[#84CC16]">
+              <span className="text-xl text-white" style={{ fontFamily: 'Georgia, serif', color: '#00875A' }}>
                 {String(currentSlide + 1).padStart(2, '0')}
               </span>
-              <span className="text-white/40 font-['Lora']">/</span>
-              <span className="text-lg font-['Lora'] text-white/60">
+              <span className="text-white/40">/</span>
+              <span className="text-base text-white/60">
                 {String(services.length).padStart(2, '0')}
               </span>
             </div>
 
             <button
               onClick={() => sliderRef.current?.slickNext()}
-              className="w-12 h-12 flex items-center justify-center border-2 border-white/20 text-white hover:border-[#84CC16] hover:text-[#84CC16] hover:bg-[#84CC16]/10 transition-all duration-300 group"
+              className="w-12 h-12 flex items-center justify-center border text-white hover:border-[#00875A] hover:text-[#00875A] transition-all duration-300 group"
+              style={{ borderColor: 'rgba(255,255,255,0.2)', borderRadius: '4px' }}
               aria-label="Next slide"
             >
               <ChevronRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" />
@@ -254,7 +264,7 @@ export default function V2CreativeServices({ onNavigate }: V2CreativeServicesPro
                 onClick={() => sliderRef.current?.slickGoTo(index)}
                 className={`h-1 transition-all duration-500 ${
                   index === currentSlide
-                    ? 'w-12 bg-[#84CC16]'
+                    ? 'w-12 bg-[#00875A]'
                     : 'w-6 bg-white/20 hover:bg-white/40'
                 }`}
                 aria-label={`Go to slide ${index + 1}`}
@@ -273,7 +283,8 @@ export default function V2CreativeServices({ onNavigate }: V2CreativeServicesPro
         >
           <button
             onClick={() => onNavigate?.('booking')}
-            className="inline-block px-10 py-4 bg-[#84CC16] text-[#0F3D3E] font-medium uppercase tracking-[0.15em] text-sm hover:bg-white hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl"
+            className="inline-block px-8 py-4 text-sm text-white uppercase transition-all duration-300 hover:bg-white hover:text-[#1A1A1A]"
+            style={{ backgroundColor: '#00875A', borderRadius: '4px', letterSpacing: '0.08em' }}
           >
             Start Your Project
           </button>

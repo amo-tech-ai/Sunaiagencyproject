@@ -41,7 +41,7 @@ export default function EcommerceInsights() {
 
   return (
     <section ref={ref} className="bg-white py-24 lg:py-32">
-      <div className="max-w-7xl mx-auto px-6 lg:px-8">
+      <div className="max-w-[1120px] mx-auto px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
@@ -49,10 +49,10 @@ export default function EcommerceInsights() {
         >
           {/* Section Header */}
           <div className="mb-12">
-            <h2 className="font-['Playfair_Display'] text-4xl lg:text-5xl text-[#0F3D3E] mb-4">
+            <h2 className="text-4xl lg:text-5xl mb-4" style={{ fontFamily: 'Georgia, serif', color: '#1A1A1A' }}>
               Latest Insights
             </h2>
-            <div className="w-12 h-[3px] bg-[#84CC16]" />
+            <div className="w-12 h-[3px]" style={{ backgroundColor: '#00875A' }} />
           </div>
 
           {/* Insights Grid */}
@@ -69,19 +69,21 @@ export default function EcommerceInsights() {
                   {/* Gradient Image Area */}
                   <div
                     className={`h-48 bg-gradient-to-br ${insight.gradient} group-hover:opacity-90 transition-opacity`}
+                    style={{ borderRadius: '4px' }}
                   />
 
                   {/* Content */}
                   <div className="space-y-3">
                     <div className="flex items-center gap-3">
                       <span
-                        className={`inline-block px-2 py-1 ${insight.tagColor} text-white text-xs tracking-wider uppercase font-['Lora']`}
+                        className={`inline-block px-2 py-1 ${insight.tagColor} text-white text-xs tracking-wider uppercase`}
+                        style={{ borderRadius: '4px' }}
                       >
                         {insight.tag}
                       </span>
-                      <span className="text-xs text-gray-500 font-['Lora']">{insight.date}</span>
+                      <span className="text-xs" style={{ color: '#9CA39B' }}>{insight.date}</span>
                     </div>
-                    <h3 className="font-['Playfair_Display'] text-xl text-[#0F3D3E] group-hover:text-[#84CC16] transition-colors">
+                    <h3 className="text-xl group-hover:text-[#00875A] transition-colors" style={{ fontFamily: 'Georgia, serif', color: '#1A1A1A' }}>
                       {insight.headline}
                     </h3>
                   </div>
@@ -92,7 +94,10 @@ export default function EcommerceInsights() {
 
           {/* CTA Button */}
           <div className="text-center">
-            <button className="inline-flex items-center gap-2 px-6 py-3 border border-[#84CC16] text-[#84CC16] font-['Lora'] hover:bg-[#84CC16] hover:text-white transition-all duration-300">
+            <button
+              className="inline-flex items-center gap-2 px-6 py-3 border hover:bg-[#00875A] hover:text-white transition-all duration-300"
+              style={{ borderColor: '#00875A', color: '#00875A', borderRadius: '4px' }}
+            >
               <span>See more insights</span>
               <ArrowRight className="w-4 h-4" />
             </button>

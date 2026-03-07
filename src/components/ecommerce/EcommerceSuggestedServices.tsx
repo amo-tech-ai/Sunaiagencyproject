@@ -32,8 +32,8 @@ export default function EcommerceSuggestedServices() {
   const isInView = useInView(ref, { once: true, margin: '-100px' });
 
   return (
-    <section ref={ref} className="bg-[#FAF8F6] py-24 lg:py-32">
-      <div className="max-w-7xl mx-auto px-6 lg:px-8">
+    <section ref={ref} className="py-24 lg:py-32" style={{ backgroundColor: '#F5F5F0' }}>
+      <div className="max-w-[1120px] mx-auto px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
@@ -48,14 +48,15 @@ export default function EcommerceSuggestedServices() {
                 initial={{ opacity: 0, y: 40 }}
                 animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
                 transition={{ duration: 0.8, delay: index * 0.1 }}
-                className="group bg-white border border-gray-300 p-6 hover:border-[#84CC16] hover:bg-[#f0fdf4] transition-all duration-300"
+                className="group bg-white border p-6 hover:border-[#00875A] transition-all duration-300"
+                style={{ borderColor: '#E8E8E4', borderRadius: '4px' }}
               >
                 <div className="space-y-4">
-                  <Icon className="w-8 h-8 text-[#84CC16]" />
-                  <h3 className="font-['Playfair_Display'] text-xl text-[#0F3D3E]">
+                  <Icon className="w-8 h-8" style={{ color: '#00875A' }} />
+                  <h3 className="text-xl" style={{ fontFamily: 'Georgia, serif', color: '#1A1A1A' }}>
                     {service.title}
                   </h3>
-                  <p className="font-['Lora'] text-sm leading-relaxed text-gray-600">
+                  <p className="text-sm leading-relaxed" style={{ color: '#6B6B63' }}>
                     {service.description}
                   </p>
                 </div>

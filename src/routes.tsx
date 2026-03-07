@@ -31,6 +31,7 @@ import SalesCRMPage from './pages/SalesCRMPage';
 import SitemapPage from './components/SitemapPage';
 import ChatbotServicePage from './components/services/ChatbotServicePage';
 import WhatsAppAIPage from './pages/WhatsAppAIPage';
+import SupabaseArchitecturePage from './components/SupabaseArchitecturePage';
 
 function NotFound() {
   return (
@@ -94,6 +95,7 @@ export const router = createBrowserRouter([
       { path: 'sitemap', Component: SitemapPage },
       { path: 'services/chatbot', Component: ChatbotServicePage },
       { path: 'whatsapp-ai', Component: WhatsAppAIPage },
+      { path: 'docs/supabase', Component: SupabaseArchitecturePage },
       { path: '*', Component: NotFound },
     ],
   },
