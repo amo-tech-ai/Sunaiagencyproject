@@ -31,7 +31,7 @@ export default function DashboardLayout() {
   }
 
   if (!user) {
-    return <Navigate to={`/login?return=${encodeURIComponent(location.pathname)}`} replace />;
+    return <Navigate to={`/auth/login?return=${encodeURIComponent(location.pathname)}`} replace />;
   }
 
   return (

@@ -17,6 +17,8 @@ import PerformanceChart from './PerformanceChart';
 import TokenUsagePanel from './TokenUsagePanel';
 import CacheStatsPanel from './CacheStatsPanel';
 import RunHistoryTable from './RunHistoryTable';
+import { useRealtimeChannel } from '../../../lib/hooks/useRealtimeChannel';
+import { RealtimeStatus } from '../RealtimeStatus';
 
 const PAGE_SIZE = 20;
 
@@ -37,6 +39,17 @@ export default function AgentsPage() {
   const [cacheLoading, setCacheLoading] = useState(true);
   const [logsLoading, setLogsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Live AI run feed via Realtime broadcast
+  const { status: realtimeStatus } = useRealtimeChannel({
+    channelName: 'ai-runs',
+    event: 'INSERT',
+    onMessage: (newRun) => {
+      setLogs(prev => [newRun as RunLogEntry, ...prev].slice(0, PAGE_SIZE + page * PAGE_SIZE));
+      setLogTotal(prev => prev + 1);
+      fetchStats();
+    },
+  });
 
   // Fetch aggregate stats
   const fetchStats = useCallback(async () => {
@@ -124,14 +137,17 @@ export default function AgentsPage() {
             Real-time data from <span className="font-mono">ai_run_logs</span> + <span className="font-mono">ai_cache</span> tables
           </p>
         </div>
-        <button
-          onClick={handleRefresh}
-          disabled={statsLoading}
-          className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded border border-[#E8E8E4] text-[#1A1A1A] hover:bg-[#F5F5F0] transition-colors min-h-[36px] disabled:opacity-40"
-        >
-          <RefreshCw className={`w-3.5 h-3.5 ${statsLoading ? 'animate-spin' : ''}`} />
-          Refresh
-        </button>
+        <div className="flex items-center gap-3">
+          <RealtimeStatus status={realtimeStatus} showLabel />
+          <button
+            onClick={handleRefresh}
+            disabled={statsLoading}
+            className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded border border-[#E8E8E4] text-[#1A1A1A] hover:bg-[#F5F5F0] transition-colors min-h-[36px] disabled:opacity-40"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${statsLoading ? 'animate-spin' : ''}`} />
+            Refresh
+          </button>
+        </div>
       </div>
 
       {/* Summary stats row */}

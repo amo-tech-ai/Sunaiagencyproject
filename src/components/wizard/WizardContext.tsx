@@ -249,7 +249,7 @@ export function WizardProvider({ children }: { children: ReactNode }) {
   }, []);
 
   // Persist to localStorage on every change (debounced) with save status
-  // Also persist to Supabase cloud storage with auth token
+  // Also persist to Supabase cloud storage
   const resetTimerRef = useRef<ReturnType<typeof setTimeout>>();
   const cloudSaveRef = useRef<ReturnType<typeof setTimeout>>();
 
@@ -302,6 +302,7 @@ export function WizardProvider({ children }: { children: ReactNode }) {
     if (!isDirty) return;
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       e.preventDefault();
+      // Modern browsers show a generic message; returnValue is required for legacy compat
       e.returnValue = '';
     };
     window.addEventListener('beforeunload', handleBeforeUnload);
@@ -362,15 +363,21 @@ export function WizardProvider({ children }: { children: ReactNode }) {
   const goNext = useCallback(() => {
     const errors = getStepErrors(state.currentStep, state);
     if (Object.keys(errors).length > 0) {
+      // Validation failed — flag attemptedAdvance to show errors
       setAttemptedAdvance(true);
+
+      // Scroll to first error field
       const firstErrorKey = Object.keys(errors).find(k => k !== '_global') || '_global';
       if (firstErrorKey !== '_global') {
         const el = document.querySelector(`[data-field="${firstErrorKey}"]`);
-        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
       }
       return;
     }
 
+    // Valid — advance
     setAttemptedAdvance(false);
     setState(s => {
       const next = Math.min(s.currentStep + 1, 5);

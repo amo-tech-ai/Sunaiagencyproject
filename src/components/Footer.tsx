@@ -38,7 +38,6 @@ export default function Footer() {
 
   const resourcesLinks = [
     { path: '/wizard', label: 'Project Wizard' },
-    { path: '/app/dashboard', label: 'Client Dashboard' },
     { path: '/case-studies', label: 'Case Studies' },
     { path: '/style-guide', label: 'Style Guide' },
     { path: '/sitemap', label: 'Sitemap' },

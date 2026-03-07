@@ -29,6 +29,9 @@ async function getFreshAccessToken(): Promise<string | null> {
   }
 }
 
+// Convenience export used by auth pages (LoginPage, SignupPage)
+export const supabase = getSupabaseClient();
+
 // ── API helper — calls Edge Functions ──
 interface ApiOptions {
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
@@ -123,22 +126,8 @@ export interface WizardSaveResponse {
 }
 
 export interface WizardLoadResponse {
-  session: {
-    id: string;
-    org_id?: string | null;
-    user_id?: string | null;
-    current_step: number;
-    status?: string;
-    context_snapshot?: Record<string, unknown> | null;
-    created_at: string;
-    updated_at: string;
-  };
-  answers: {
-    step_number: number;
-    answers: Record<string, unknown>;
-    ai_results: Record<string, unknown> | null;
-    updated_at: string;
-  }[];
+  session: Record<string, unknown>;
+  answers: Record<string, unknown>[];
   progress: { currentStep: number; completedSteps: number[] };
 }
 
@@ -185,27 +174,20 @@ export interface RoadmapResponse {
 
 // ── Wizard API ──
 export const wizardApi = {
-  save: (sessionId: string, fullState: Record<string, unknown>, token?: string) =>
+  save: (sessionId: string, fullState: Record<string, unknown>) =>
     api<WizardSaveResponse>('/wizard/save', {
       method: 'POST',
       body: { sessionId, fullState },
-      token,
     }),
 
-  saveStep: (sessionId: string, step: number, data: unknown, token?: string) =>
+  saveStep: (sessionId: string, step: number, data: unknown) =>
     api<WizardSaveResponse>('/wizard/save', {
       method: 'POST',
       body: { sessionId, step, data },
-      token,
     }),
 
-  load: (sessionId: string, token?: string) =>
-    api<WizardLoadResponse>(`/wizard/${sessionId}`, { token }),
-
-  list: (userId: string, token?: string) =>
-    api<{ sessions: { id: string; current_step: number; status: string; created_at: string; updated_at: string }[] }>(
-      `/wizard/list/${userId}`, { token }
-    ),
+  load: (sessionId: string) =>
+    api<WizardLoadResponse>(`/wizard/${sessionId}`),
 };
 
 // ── AI API ──
@@ -257,33 +239,6 @@ export const aiApi = {
     api<RoadmapResponse>('/generate-roadmap', {
       method: 'POST',
       body: params as Record<string, unknown>,
-    }),
-
-  dashboardInsights: (params: {
-    sessionId: string;
-    orgData: Record<string, unknown>;
-    readinessScore: number;
-    projectState: Record<string, unknown>;
-    recentActivities: unknown[];
-  }, token?: string) =>
-    api<{
-      success: boolean;
-      insights: {
-        insights: Array<{
-          id: string;
-          title: string;
-          description: string;
-          priority: 'high' | 'medium' | 'low';
-          actionLabel?: string;
-          actionRoute?: string;
-        }>;
-        greeting?: string;
-        summary?: string;
-      };
-    }>('/dashboard-insights', {
-      method: 'POST',
-      body: params as Record<string, unknown>,
-      token,
     }),
 };
 
@@ -359,73 +314,20 @@ export const authApi = {
   },
 };
 
-// ── Health check ──
-export const healthCheck = () => api('/health');
-
-// ── Agent Management API (reads from ai_run_logs + ai_cache tables) ──
-export interface RunLogEntry {
-  id: string;
-  session_id: string | null;
-  org_id: string | null;
-  prompt_type: string;
-  model: string;
-  tokens_used: number;
-  duration_ms: number;
-  success: boolean;
-  error_message: string | null;
-  created_at: string;
-}
-
-export interface AggregateStats {
-  totalRuns: number;
-  successRuns: number;
-  failedRuns: number;
-  successRate: number;
-  totalTokens: number;
-  avgDuration: number;
-  activeCacheEntries: number;
-  byType: Record<string, { count: number; tokens: number; avgMs: number; successRate: number }>;
-  model: string;
-}
-
-export interface CacheStats {
-  totalEntries: number;
-  activeEntries: number;
-  expiredEntries: number;
-  totalTokensCached: number;
-  entries: Array<{ input_hash: string; model: string; tokens_used: number; expires_at: string; created_at: string }>;
-}
-
-export const agentApi = {
-  getRunLogs: (params?: { limit?: number; offset?: number; promptType?: string }, token?: string) => {
-    const qs = new URLSearchParams();
-    if (params?.limit) qs.set('limit', String(params.limit));
-    if (params?.offset) qs.set('offset', String(params.offset));
-    if (params?.promptType) qs.set('prompt_type', params.promptType);
-    const query = qs.toString();
-    return api<{ logs: RunLogEntry[]; total: number }>(`/ai/run-logs${query ? `?${query}` : ''}`, { token });
-  },
-
-  getAggregateStats: (token?: string) =>
-    api<AggregateStats>('/ai/aggregate-stats', { token }),
-
-  getCacheStats: (token?: string) =>
-    api<CacheStats>('/ai/cache-stats', { token }),
-};
-
-// ── CRM API (reads from clients + crm_contacts Supabase tables) ──
+// ── CRM Types ──
 export interface Client {
   id: string;
   name: string;
-  industry: string;
-  status: 'active' | 'prospect' | 'churned' | 'onboarding';
-  health_score: number;
-  contact_email: string;
-  contact_name: string;
-  revenue: number;
-  notes: string;
+  industry?: string;
+  status: string;
+  health_score?: number;
+  revenue?: number;
+  contact_name?: string;
+  contact_email?: string;
+  notes?: string;
   created_at: string;
-  updated_at: string;
+  updated_at?: string;
+  org_id?: string;
 }
 
 export interface CRMContact {
@@ -433,12 +335,12 @@ export interface CRMContact {
   client_id: string;
   name: string;
   email: string;
-  role: string;
-  phone: string;
-  is_primary: boolean;
-  created_at: string;
+  phone?: string;
+  role?: string;
+  is_primary?: boolean;
 }
 
+// ── CRM API ──
 export const crmApi = {
   listClients: (token?: string) =>
     api<{ clients: Client[] }>('/crm/clients', { token }),
@@ -453,8 +355,56 @@ export const crmApi = {
     api<{ client: Client }>(`/crm/clients/${id}`, { method: 'PUT', body: data as Record<string, unknown>, token }),
 
   deleteClient: (id: string, token?: string) =>
-    api<{ success: boolean }>(`/crm/clients/${id}`, { method: 'DELETE', token }),
-
-  createContact: (clientId: string, data: Partial<CRMContact>, token?: string) =>
-    api<{ contact: CRMContact }>(`/crm/clients/${clientId}/contacts`, { method: 'POST', body: data as Record<string, unknown>, token }),
+    api(`/crm/clients/${id}`, { method: 'DELETE', token }),
 };
+
+// ── Agent Types ──
+export interface RunLogEntry {
+  id: string;
+  agent_name: string;
+  model: string;
+  prompt_type?: string;
+  input_tokens: number;
+  output_tokens: number;
+  latency_ms: number;
+  success: boolean;
+  error?: string;
+  created_at: string;
+}
+
+export interface AggregateStats {
+  totalRuns: number;
+  successRate: number;
+  totalInputTokens: number;
+  totalOutputTokens: number;
+  avgLatency: number;
+  byAgent: Record<string, { runs: number; successRate: number; avgLatency: number }>;
+}
+
+export interface CacheStats {
+  totalEntries: number;
+  hitRate: number;
+  totalSizeBytes: number;
+  oldestEntry?: string;
+}
+
+// ── Agent API ──
+export const agentApi = {
+  getAggregateStats: (token?: string) =>
+    api<AggregateStats>('/agents/stats', { token }),
+
+  getCacheStats: (token?: string) =>
+    api<CacheStats>('/agents/cache-stats', { token }),
+
+  getRunLogs: (params: { limit?: number; offset?: number; promptType?: string }, token?: string) => {
+    const query = new URLSearchParams();
+    if (params.limit) query.set('limit', String(params.limit));
+    if (params.offset) query.set('offset', String(params.offset));
+    if (params.promptType) query.set('prompt_type', params.promptType);
+    const qs = query.toString();
+    return api<{ logs: RunLogEntry[]; total: number }>(`/agents/logs${qs ? `?${qs}` : ''}`, { token });
+  },
+};
+
+// ── Health check ──
+export const healthCheck = () => api('/health');

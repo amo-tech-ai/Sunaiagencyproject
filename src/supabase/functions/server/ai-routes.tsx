@@ -1,16 +1,15 @@
 // S04-AI — AI analysis Edge Function routes
 // analyze-business, industry-diagnostics, system-recommendations,
 // readiness-score, generate-roadmap
-// Results stored in wizard_answers.ai_results (per-step) instead of KV
 
-import { Hono } from "npm:hono";
-import { adminClient } from "./db.tsx";
+import { Hono } from "jsr:@hono/hono@4";
+import { adminClient, stepToScreenId } from "./db.tsx";
 import { callGemini } from "./gemini.tsx";
 
 const ai = new Hono();
 const PREFIX = "/make-server-283466b6";
 
-/** Save AI result to the wizard_answers table for the given step */
+/** Save AI result to wizard_answers.ai_results for the given step */
 async function saveAIResult(
   sessionId: string,
   stepNumber: number,
@@ -18,23 +17,49 @@ async function saveAIResult(
 ): Promise<void> {
   try {
     const db = adminClient();
-    const { error } = await db.from("wizard_answers").upsert(
+    const screenId = stepToScreenId(stepNumber);
+
+    // Atomic upsert on unique(session_id, screen_id) — avoids race conditions
+    await db.from("wizard_answers").upsert(
       {
         session_id: sessionId,
+        org_id: null,
+        screen_id: screenId,
         step_number: stepNumber,
+        data: {},
         ai_results: result,
         updated_at: new Date().toISOString(),
       },
-      { onConflict: "session_id,step_number" }
+      { onConflict: "session_id,screen_id" }
     );
-    if (error) {
-      console.log(
-        `[AI] Failed to save AI result for session ${sessionId} step ${stepNumber}: ${error.message}`
-      );
-    }
   } catch (e) {
-    console.log(`[AI] saveAIResult exception: ${e}`);
+    console.log(`[AI] saveAIResult error for step ${stepNumber}: ${e}`);
   }
+}
+
+/** Load AI results from wizard_answers for multiple steps */
+async function loadSessionData(sessionId: string): Promise<{
+  session: Record<string, unknown> | null;
+  analysis: unknown;
+  diagnostics: unknown;
+}> {
+  const db = adminClient();
+
+  const { data: answers } = await db
+    .from("wizard_answers")
+    .select("screen_id, data, ai_results")
+    .eq("session_id", sessionId)
+    .in("screen_id", ["step-1", "step-2", "step-3"])
+    .order("screen_id");
+
+  const step1 = answers?.find((a: any) => a.screen_id === "step-1");
+  const step2 = answers?.find((a: any) => a.screen_id === "step-2");
+
+  return {
+    session: step1?.data || null,
+    analysis: step1?.ai_results || null,
+    diagnostics: step2?.ai_results || null,
+  };
 }
 
 // ── POST /analyze-business ──
@@ -75,18 +100,16 @@ ${industry ? `Industry hint: ${industry}` : ""}
 
 Provide a thorough analysis considering the business context, market position, and AI transformation potential.`;
 
-    const result = await callGemini(
-      "analyze-business",
-      systemPrompt,
-      userPrompt,
-      { url, description, industry },
-      sessionId
-    );
+    const result = await callGemini("analyze-business", systemPrompt, userPrompt, {
+      url,
+      description,
+      industry,
+    }, "flash");
 
     // Persist analysis to wizard_answers step 1
     if (sessionId) {
       await saveAIResult(sessionId, 1, {
-        analysis: result,
+        result,
         analyzedAt: new Date().toISOString(),
       });
     }
@@ -149,13 +172,13 @@ Analyze this business in the context of their industry and provide diagnostic in
       systemPrompt,
       userPrompt,
       { industryId, companyProfile },
-      sessionId
+      "flash",
     );
 
     // Persist diagnostics to wizard_answers step 2
     if (sessionId) {
       await saveAIResult(sessionId, 2, {
-        diagnostics: result,
+        result,
         analyzedAt: new Date().toISOString(),
       });
     }
@@ -215,13 +238,13 @@ Rank and recommend the most impactful AI systems for this business, considering 
       systemPrompt,
       userPrompt,
       { wizardAnswers, industry, signals },
-      sessionId
+      "pro",
     );
 
     // Persist recommendations to wizard_answers step 3
     if (sessionId) {
       await saveAIResult(sessionId, 3, {
-        recommendations: result,
+        result,
         generatedAt: new Date().toISOString(),
       });
     }
@@ -248,34 +271,10 @@ ai.post(`${PREFIX}/readiness-score`, async (c) => {
     const body = await c.req.json();
     const { sessionId } = body;
 
-    // Load all prior step answers and AI results from wizard_answers table
+    // Load all session data from wizard_answers table
     let sessionData: Record<string, unknown> = {};
     if (sessionId) {
-      const db = adminClient();
-      const { data: answers, error } = await db
-        .from("wizard_answers")
-        .select("step_number, answers, ai_results")
-        .eq("session_id", sessionId)
-        .in("step_number", [1, 2, 3])
-        .order("step_number");
-
-      if (error) {
-        console.log(`[AI] readiness-score data load error: ${error.message}`);
-      }
-
-      if (answers) {
-        const step1 = answers.find((a: any) => a.step_number === 1);
-        const step2 = answers.find((a: any) => a.step_number === 2);
-        const step3 = answers.find((a: any) => a.step_number === 3);
-        sessionData = {
-          businessContext: step1?.answers || null,
-          analysis: step1?.ai_results || null,
-          industryDiagnostics: step2?.answers || null,
-          diagnosticsAI: step2?.ai_results || null,
-          systemSelections: step3?.answers || null,
-          recommendationsAI: step3?.ai_results || null,
-        };
-      }
+      sessionData = await loadSessionData(sessionId);
     }
 
     const systemPrompt = `You are an AI readiness assessment expert at Sun AI Agency. Calculate an AI readiness score based on all available data about the business.
@@ -307,20 +306,18 @@ Assess this company's AI readiness based on all available information. Be specif
       systemPrompt,
       userPrompt,
       { sessionId, sessionData },
-      sessionId
+      "pro",
     );
 
     // Persist readiness score to wizard_answers step 4
     if (sessionId) {
       await saveAIResult(sessionId, 4, {
-        readiness: result,
+        result,
         scoredAt: new Date().toISOString(),
       });
     }
 
-    console.log(
-      `[AI] readiness-score complete: ${JSON.stringify(result).slice(0, 100)}`
-    );
+    console.log(`[AI] readiness-score complete: ${JSON.stringify(result).slice(0, 100)}`);
 
     return c.json({
       success: true,
@@ -385,20 +382,18 @@ Create a realistic, phased implementation roadmap. Consider dependencies between
       systemPrompt,
       userPrompt,
       { selectedSystems, industry, companySize },
-      sessionId
+      "pro",
     );
 
     // Persist roadmap to wizard_answers step 5
     if (sessionId) {
       await saveAIResult(sessionId, 5, {
-        roadmap: result,
+        result,
         generatedAt: new Date().toISOString(),
       });
     }
 
-    console.log(
-      `[AI] generate-roadmap complete for ${selectedSystems.length} systems`
-    );
+    console.log(`[AI] generate-roadmap complete for ${selectedSystems.length} systems`);
 
     return c.json({
       success: true,
@@ -411,228 +406,6 @@ Create a realistic, phased implementation roadmap. Consider dependencies between
       { error: `Roadmap generation failed: ${error}`, fallback: true },
       500
     );
-  }
-});
-
-// ── POST /dashboard-insights ──
-// Generates AI-powered next-best-action recommendations from project state
-ai.post(`${PREFIX}/dashboard-insights`, async (c) => {
-  try {
-    const body = await c.req.json();
-    const { sessionId, orgData, readinessScore, projectState, recentActivities } =
-      body;
-
-    // Validate auth
-    const authHeader = c.req.header("Authorization");
-    if (!authHeader) {
-      return c.json(
-        { error: "Authorization required for dashboard insights" },
-        401
-      );
-    }
-
-    const systemPrompt = `You are a senior AI strategy consultant at Sun AI Agency. Based on the client's project state, readiness score, and recent activity, generate 2-4 prioritized action recommendations.
-
-Each recommendation should be specific, actionable, and tied to their actual data. Avoid generic advice.
-
-Return this JSON structure:
-{
-  "insights": [
-    {
-      "id": "unique-id",
-      "title": "Short action title (max 60 chars)",
-      "description": "2-3 sentence explanation with specific data points from their profile",
-      "priority": "high|medium|low",
-      "actionLabel": "Button text for the action",
-      "actionRoute": "/app/route-to-navigate"
-    }
-  ],
-  "greeting": "One-sentence contextual greeting referencing their industry or progress",
-  "summary": "2-sentence summary of their current status and top priority"
-}`;
-
-    const userPrompt = `Client Data:
-Organization: ${JSON.stringify(orgData || {})}
-AI Readiness Score: ${readinessScore || "unknown"}
-Project State: ${JSON.stringify(projectState || {})}
-Recent Activities: ${JSON.stringify(recentActivities || [])}
-
-Generate personalized, data-driven recommendations. Reference specific scores, gaps, and milestones from their data.`;
-
-    const result = await callGemini(
-      "dashboard-insights",
-      systemPrompt,
-      userPrompt,
-      { sessionId, orgData, readinessScore },
-      sessionId
-    );
-
-    console.log(`[AI] dashboard-insights complete for session ${sessionId}`);
-
-    return c.json({
-      success: true,
-      insights: result,
-      timestamp: new Date().toISOString(),
-    });
-  } catch (error) {
-    console.log(`[AI] dashboard-insights error: ${error}`);
-    return c.json(
-      { error: `Dashboard insights generation failed: ${error}`, fallback: true },
-      500
-    );
-  }
-});
-
-// ── GET /ai/run-logs — Query ai_run_logs for agent management dashboard ──
-ai.get(`${PREFIX}/ai/run-logs`, async (c) => {
-  try {
-    const authHeader = c.req.header("Authorization");
-    if (!authHeader) {
-      return c.json({ error: "Authorization required for AI run logs" }, 401);
-    }
-
-    const limit = parseInt(c.req.query("limit") || "50");
-    const offset = parseInt(c.req.query("offset") || "0");
-    const promptType = c.req.query("prompt_type") || null;
-
-    const db = adminClient();
-    let query = db
-      .from("ai_run_logs")
-      .select("*", { count: "exact" })
-      .order("created_at", { ascending: false })
-      .range(offset, offset + limit - 1);
-
-    if (promptType) {
-      query = query.eq("prompt_type", promptType);
-    }
-
-    const { data: logs, error, count } = await query;
-
-    if (error) {
-      console.log(`[AI] run-logs query error: ${error.message}`);
-      return c.json({ error: `Failed to fetch run logs: ${error.message}` }, 500);
-    }
-
-    console.log(`[AI] run-logs returned ${logs?.length || 0} of ${count} total`);
-    return c.json({ logs: logs || [], total: count || 0 });
-  } catch (error) {
-    console.log(`[AI] run-logs error: ${error}`);
-    return c.json({ error: `AI run logs query failed: ${error}` }, 500);
-  }
-});
-
-// ── GET /ai/cache-stats — Aggregate cache stats from ai_cache table ──
-ai.get(`${PREFIX}/ai/cache-stats`, async (c) => {
-  try {
-    const authHeader = c.req.header("Authorization");
-    if (!authHeader) {
-      return c.json({ error: "Authorization required for cache stats" }, 401);
-    }
-
-    const db = adminClient();
-
-    // Fetch all cache entries (no count filter — typically small table)
-    const { data: entries, error } = await db
-      .from("ai_cache")
-      .select("input_hash, model, tokens_used, expires_at, created_at")
-      .order("created_at", { ascending: false })
-      .limit(200);
-
-    if (error) {
-      console.log(`[AI] cache-stats query error: ${error.message}`);
-      return c.json({ error: `Failed to fetch cache stats: ${error.message}` }, 500);
-    }
-
-    const now = new Date().toISOString();
-    const active = (entries || []).filter(e => e.expires_at > now);
-    const expired = (entries || []).filter(e => e.expires_at <= now);
-    const totalTokensCached = active.reduce((sum, e) => sum + (e.tokens_used || 0), 0);
-
-    console.log(`[AI] cache-stats: ${active.length} active, ${expired.length} expired`);
-
-    return c.json({
-      totalEntries: (entries || []).length,
-      activeEntries: active.length,
-      expiredEntries: expired.length,
-      totalTokensCached,
-      entries: (entries || []).slice(0, 50),
-    });
-  } catch (error) {
-    console.log(`[AI] cache-stats error: ${error}`);
-    return c.json({ error: `Cache stats query failed: ${error}` }, 500);
-  }
-});
-
-// ── GET /ai/aggregate-stats — Summary stats for agent dashboard header ──
-ai.get(`${PREFIX}/ai/aggregate-stats`, async (c) => {
-  try {
-    const authHeader = c.req.header("Authorization");
-    if (!authHeader) {
-      return c.json({ error: "Authorization required for aggregate stats" }, 401);
-    }
-
-    const db = adminClient();
-
-    // Total runs + success/failure counts
-    const { data: allRuns, error: runsErr } = await db
-      .from("ai_run_logs")
-      .select("prompt_type, tokens_used, duration_ms, success, created_at")
-      .order("created_at", { ascending: false })
-      .limit(500);
-
-    if (runsErr) {
-      console.log(`[AI] aggregate-stats runs error: ${runsErr.message}`);
-      return c.json({ error: `Failed to aggregate stats: ${runsErr.message}` }, 500);
-    }
-
-    const runs = allRuns || [];
-    const totalRuns = runs.length;
-    const successRuns = runs.filter(r => r.success).length;
-    const failedRuns = runs.filter(r => !r.success).length;
-    const totalTokens = runs.reduce((sum, r) => sum + (r.tokens_used || 0), 0);
-    const avgDuration = totalRuns > 0
-      ? Math.round(runs.reduce((sum, r) => sum + (r.duration_ms || 0), 0) / totalRuns)
-      : 0;
-
-    // Runs grouped by prompt_type
-    const byType: Record<string, { count: number; tokens: number; avgMs: number; successRate: number }> = {};
-    for (const r of runs) {
-      const type = r.prompt_type || "unknown";
-      if (!byType[type]) byType[type] = { count: 0, tokens: 0, avgMs: 0, successRate: 0 };
-      byType[type].count++;
-      byType[type].tokens += r.tokens_used || 0;
-      byType[type].avgMs += r.duration_ms || 0;
-      if (r.success) byType[type].successRate++;
-    }
-    for (const type of Object.keys(byType)) {
-      byType[type].avgMs = Math.round(byType[type].avgMs / byType[type].count);
-      byType[type].successRate = Math.round((byType[type].successRate / byType[type].count) * 100);
-    }
-
-    // Cache hit rate (from run logs — cache hits don't generate run logs, so approximate)
-    const { data: cacheEntries } = await db
-      .from("ai_cache")
-      .select("input_hash")
-      .gt("expires_at", new Date().toISOString());
-
-    const activeCacheEntries = cacheEntries?.length || 0;
-
-    console.log(`[AI] aggregate-stats: ${totalRuns} runs, ${totalTokens} tokens`);
-
-    return c.json({
-      totalRuns,
-      successRuns,
-      failedRuns,
-      successRate: totalRuns > 0 ? Math.round((successRuns / totalRuns) * 100) : 0,
-      totalTokens,
-      avgDuration,
-      activeCacheEntries,
-      byType,
-      model: "gemini-2.0-flash",
-    });
-  } catch (error) {
-    console.log(`[AI] aggregate-stats error: ${error}`);
-    return c.json({ error: `Aggregate stats query failed: ${error}` }, 500);
   }
 });
 

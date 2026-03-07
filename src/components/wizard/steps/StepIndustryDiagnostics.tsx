@@ -12,10 +12,11 @@ import {
   type DiagnosticQuestion, type Signal
 } from '../data/wizardData';
 import { motion, AnimatePresence } from 'motion/react';
-import { Check, ChevronDown, HelpCircle } from 'lucide-react';
+import { Check, ChevronDown, HelpCircle, Sparkles } from 'lucide-react';
+import { aiApi } from '../../../lib/supabase';
 
 export function StepIndustryDiagnostics() {
-  const { state, updateStep2, setSignals, attemptedAdvance, currentErrors } = useWizard();
+  const { state, updateStep2, setSignals, attemptedAdvance, currentErrors, sessionId } = useWizard();
   const industryId = state.step1.industry || 'other';
   const industryLabel = industryId.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
 
@@ -25,6 +26,38 @@ export function StepIndustryDiagnostics() {
   ], [industryId]);
 
   const answeredCount = Object.keys(state.step2.answers).length;
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiSignals, setAiSignals] = useState<Signal[]>([]);
+  const aiReady = answeredCount >= 6;
+
+  useEffect(() => {
+    if (!aiReady || aiSignals.length > 0) return; // Only call once
+
+    let cancelled = false;
+    setAiLoading(true);
+
+    aiApi.industryDiagnostics({
+      industryId,
+      companyProfile: {
+        name: state.step1.companyName,
+        url: state.step1.websiteUrl,
+        size: state.step1.companySize,
+        goal: state.step1.goal,
+      },
+      sessionId: sessionId || undefined,
+    }).then(({ data, error }) => {
+      if (cancelled) return;
+      if (data?.signals && !error) {
+        setAiSignals(data.signals);
+      }
+    }).catch((e) => {
+      console.warn('[StepIndustryDiagnostics] AI diagnostics failed, using local signals:', e);
+    }).finally(() => {
+      if (!cancelled) setAiLoading(false);
+    });
+
+    return () => { cancelled = true; };
+  }, [aiReady, industryId, sessionId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Signal detection
   const detectSignals = useCallback(() => {
@@ -44,8 +77,16 @@ export function StepIndustryDiagnostics() {
   }, [state.step2.answers, industryId]);
 
   useEffect(() => {
-    setSignals(detectSignals());
-  }, [detectSignals, setSignals]);
+    const localSignals = detectSignals();
+    // Merge: AI signals first (richer), then local signals not already covered
+    const merged = [...aiSignals];
+    for (const local of localSignals) {
+      if (!merged.find(s => s.id === local.id)) {
+        merged.push(local);
+      }
+    }
+    setSignals(merged);
+  }, [detectSignals, setSignals, aiSignals]);
 
   // Active question for right panel context
   const activeQ = questions.find(q => !state.step2.answers[q.id]) || questions[questions.length - 1];
@@ -69,6 +110,15 @@ export function StepIndustryDiagnostics() {
           </motion.p>
         </AnimatePresence>
       </div>
+
+      {aiLoading && (
+        <div className="flex items-center gap-2 px-3 py-2 rounded" style={{ backgroundColor: '#F0FAF5', borderRadius: '4px' }}>
+          <motion.div animate={{ rotate: 360 }} transition={{ duration: 1.5, repeat: Infinity, ease: 'linear' }}>
+            <Sparkles className="w-3 h-3" style={{ color: '#00875A' }} />
+          </motion.div>
+          <span className="text-xs" style={{ color: '#00875A' }}>AI analyzing your responses...</span>
+        </div>
+      )}
 
       {/* Live signal feed */}
       {state.diagnosticSignals.length > 0 && (

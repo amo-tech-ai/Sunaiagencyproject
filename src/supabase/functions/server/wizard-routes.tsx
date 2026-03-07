@@ -1,11 +1,8 @@
 // S03-WIZARD — Wizard session persistence routes
-// Save/load wizard state to wizard_sessions & wizard_answers tables
-// Uses adminClient for writes (supports both anonymous and authenticated users)
-// Actual DB columns on wizard_sessions: id, current_step, created_at, updated_at
-// (user_id, status, context_snapshot columns were designed but never created)
+// Save/load wizard state to wizard_sessions + wizard_answers tables
 
-import { Hono } from "npm:hono";
-import { adminClient } from "./db.tsx";
+import { Hono } from "jsr:@hono/hono@4";
+import { adminClient, stepToScreenId, screenIdToStep } from "./db.tsx";
 import { getUserFromToken } from "./auth.tsx";
 
 const wizard = new Hono();
@@ -23,8 +20,6 @@ function isValidUUID(s: string): boolean {
 
 // ── GET /wizard/list/:userId — List user's wizard sessions ──
 // IMPORTANT: Must be registered BEFORE /wizard/:sessionId to prevent route collision
-// Note: user_id column doesn't exist in DB, so we can't filter by user.
-// We return all sessions — in practice, session IDs are scoped by the frontend.
 wizard.get(`${PREFIX}/wizard/list/:userId`, async (c) => {
   try {
     const userId = c.req.param("userId");
@@ -65,16 +60,8 @@ wizard.get(`${PREFIX}/wizard/list/:userId`, async (c) => {
 wizard.post(`${PREFIX}/wizard/save`, async (c) => {
   try {
     const authHeader = c.req.header("Authorization");
-
-    // Extract user ID if available, but don't block on auth failure
-    let callerKey: string | null = null;
-    try {
-      const { userId } = await getUserFromToken(authHeader ?? null);
-      callerKey = userId && userId !== "anonymous" ? userId : null;
-    } catch {
-      // Auth extraction failed — proceed as anonymous save
-      callerKey = null;
-    }
+    const { userId } = await getUserFromToken(authHeader);
+    const isAnonymous = !userId || userId === "anonymous";
 
     const body = await c.req.json();
     const { sessionId, step, data, fullState } = body;
@@ -86,65 +73,76 @@ wizard.post(`${PREFIX}/wizard/save`, async (c) => {
       );
     }
 
-    const sid = sessionId && isValidUUID(sessionId) ? sessionId : generateSessionId();
-    // Use adminClient for wizard writes — supports anonymous + expired-token users
-    // Session IDs are unguessable random keys, so this is safe
     const db = adminClient();
+    let sid = sessionId;
 
     if (fullState) {
-      // Full state save → upsert wizard_sessions
-      // Only write columns that exist in the DB: id, current_step, created_at, updated_at
-      const { error } = await db.from("wizard_sessions").upsert({
+      // Save entire wizard state — atomic upsert on PK
+      if (!sid) {
+        sid = generateSessionId();
+      }
+
+      await db.from("wizard_sessions").upsert({
         id: sid,
+        org_id: null,
+        project_id: null,
         current_step: fullState.currentStep || 1,
         updated_at: new Date().toISOString(),
       });
 
-      if (error) {
-        console.log(`[Wizard] Session upsert error: ${error.message}`);
-        return c.json(
-          { error: `Failed to save wizard session: ${error.message}` },
-          500
-        );
-      }
-    }
+      // Save all step data — atomic upsert on unique(session_id, screen_id)
+      if (fullState.answers && typeof fullState.answers === "object") {
+        for (const [stepKey, stepData] of Object.entries(fullState.answers)) {
+          const stepNum = parseInt(stepKey, 10);
+          if (isNaN(stepNum) || stepNum < 1 || stepNum > 5) continue;
+          const screenId = stepToScreenId(stepNum);
 
-    if (step !== undefined && data) {
-      // Per-step save → upsert wizard_answers
-      const { error: ansError } = await db.from("wizard_answers").upsert(
+          await db.from("wizard_answers").upsert(
+            {
+              session_id: sid,
+              org_id: null,
+              screen_id: screenId,
+              step_number: stepNum,
+              data: stepData,
+              updated_at: new Date().toISOString(),
+            },
+            { onConflict: "session_id,screen_id" }
+          );
+        }
+      }
+    } else if (step && data) {
+      // Save individual step data
+      if (!sid) {
+        sid = generateSessionId();
+      }
+
+      const screenId = stepToScreenId(step);
+
+      // Atomic upsert session on PK
+      await db.from("wizard_sessions").upsert({
+        id: sid,
+        org_id: null,
+        project_id: null,
+        current_step: step,
+        updated_at: new Date().toISOString(),
+      });
+
+      // Atomic upsert answer on unique(session_id, screen_id)
+      await db.from("wizard_answers").upsert(
         {
           session_id: sid,
+          org_id: null,
+          screen_id: screenId,
           step_number: step,
-          answers: data,
+          data: data,
           updated_at: new Date().toISOString(),
         },
-        { onConflict: "session_id,step_number" }
+        { onConflict: "session_id,screen_id" }
       );
-
-      if (ansError) {
-        console.log(`[Wizard] Answer upsert error: ${ansError.message}`);
-        return c.json(
-          { error: `Failed to save wizard answer: ${ansError.message}` },
-          500
-        );
-      }
-
-      // Also update session metadata (current_step)
-      const { error: metaError } = await db
-        .from("wizard_sessions")
-        .upsert({
-          id: sid,
-          current_step: step,
-          updated_at: new Date().toISOString(),
-        });
-
-      if (metaError) {
-        console.log(`[Wizard] Session meta update error: ${metaError.message}`);
-      }
     }
 
     console.log(
-      `[Wizard] Saved session ${sid}, step ${step ?? "full"} for user ${callerKey ?? "anonymous"}`
+      `[Wizard] Saved session ${sid}, step ${step || "full"} for user ${isAnonymous ? "anonymous" : userId}`
     );
 
     return c.json({
@@ -170,48 +168,45 @@ wizard.get(`${PREFIX}/wizard/:sessionId`, async (c) => {
       return c.json({ error: "Missing sessionId parameter" }, 400);
     }
 
-    // Use adminClient for reads — session ID is the access key
     const db = adminClient();
 
-    // Load session from wizard_sessions table
-    const { data: session, error: sessError } = await db
+    // Load session
+    const { data: session, error: sessionError } = await db
       .from("wizard_sessions")
       .select("*")
       .eq("id", sessionId)
       .maybeSingle();
 
-    if (sessError) {
-      console.log(`[Wizard] Session load error: ${sessError.message}`);
-      return c.json(
-        { error: `Failed to load session: ${sessError.message}` },
-        500
-      );
-    }
-
-    if (!session) {
+    if (sessionError || !session) {
       return c.json({ error: `Session ${sessionId} not found` }, 404);
     }
 
-    // Load step answers from wizard_answers table
-    const { data: answers, error: ansError } = await db
+    // Load all answers for this session
+    const { data: answers } = await db
       .from("wizard_answers")
-      .select("step_number, answers, ai_results, updated_at")
+      .select("screen_id, step_number, data, ai_results, created_at, updated_at")
       .eq("session_id", sessionId)
-      .order("step_number");
+      .order("screen_id");
 
-    if (ansError) {
-      console.log(`[Wizard] Answers load error: ${ansError.message}`);
-    }
+    // Build completed steps list
+    const completedSteps = (answers || [])
+      .filter((a: any) => a.data && Object.keys(a.data).length > 0)
+      .map((a: any) => screenIdToStep(a.screen_id));
 
     console.log(`[Wizard] Loaded session ${sessionId}`);
 
     return c.json({
       session,
-      answers: answers || [],
+      answers: (answers || []).map((a: any) => ({
+        step: screenIdToStep(a.screen_id),
+        screenId: a.screen_id,
+        data: a.data,
+        aiResults: a.ai_results,
+        updatedAt: a.updated_at,
+      })),
       progress: {
         currentStep: session.current_step || 1,
-        // Derive completedSteps from answers (context_snapshot column doesn't exist in DB)
-        completedSteps: (answers || []).map((a: any) => a.step_number),
+        completedSteps,
       },
     });
   } catch (error) {
