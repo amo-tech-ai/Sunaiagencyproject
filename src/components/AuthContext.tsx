@@ -8,6 +8,7 @@ export interface AuthUser {
   id: string;
   email: string;
   name?: string;
+  avatarUrl?: string;
 }
 
 export interface AuthState {
@@ -20,6 +21,7 @@ export interface AuthState {
 interface AuthContextType extends AuthState {
   signIn: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   signUp: (email: string, password: string, name?: string) => Promise<{ success: boolean; error?: string }>;
+  signInWithGoogle: (returnPath?: string) => Promise<void>;
   signOut: () => Promise<void>;
   clearError: () => void;
 }
@@ -37,6 +39,7 @@ export function useAuth() {
       error: null,
       signIn: async () => ({ success: false, error: 'Auth not available' }),
       signUp: async () => ({ success: false, error: 'Auth not available' }),
+      signInWithGoogle: async () => {},
       signOut: async () => {},
       clearError: () => {},
     } as AuthContextType;
@@ -65,6 +68,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               id: session.user.id,
               email: session.user.email || '',
               name: session.user.user_metadata?.name,
+              avatarUrl: session.user.user_metadata?.avatar_url,
             },
             accessToken: session.access_token,
             loading: false,
@@ -89,6 +93,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             id: session.user.id,
             email: session.user.email || '',
             name: session.user.user_metadata?.name,
+            avatarUrl: session.user.user_metadata?.avatar_url,
           },
           accessToken: session.access_token,
           loading: false,
@@ -144,6 +149,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  const signInWithGoogle = useCallback(async (returnPath?: string) => {
+    setState(s => ({ ...s, loading: true, error: null }));
+    const { error } = await authApi.signInWithGoogle(returnPath);
+    if (error) {
+      setState(s => ({ ...s, loading: false, error }));
+    }
+    // On success: browser redirects to Google — keep loading: true
+    // The page will unmount, so no need to reset loading state
+  }, []);
+
   const signOut = useCallback(async () => {
     setState(s => ({ ...s, loading: true }));
     await authApi.signOut();
@@ -155,7 +170,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ ...state, signIn, signUp, signOut, clearError }}>
+    <AuthContext.Provider value={{ ...state, signIn, signUp, signInWithGoogle, signOut, clearError }}>
       {children}
     </AuthContext.Provider>
   );

@@ -47,9 +47,25 @@ export async function api<T = unknown>(
     const url = `${BASE_URL}${route.startsWith('/') ? route : `/${route}`}`;
     let response = await fetch(url, fetchOptions);
 
-    // If user token caused a 401 (expired JWT), retry with anon key
-    // so the edge function gateway accepts the request
+    // If user token caused a 401 (expired JWT), try refreshing the session first
+    // then fall back to anon key so the edge function gateway accepts the request
     if (response.status === 401 && token && token !== publicAnonKey) {
+      // Attempt to refresh the Supabase session for a fresh token
+      try {
+        const supabase = getSupabaseClient();
+        const { data: refreshData } = await supabase.auth.refreshSession();
+        if (refreshData?.session?.access_token) {
+          const refreshedHeaders = { ...headers, Authorization: `Bearer ${refreshData.session.access_token}` };
+          const refreshedResponse = await fetch(url, { ...fetchOptions, headers: refreshedHeaders });
+          if (refreshedResponse.ok) {
+            const refreshedData = await refreshedResponse.json();
+            return { data: refreshedData as T, error: null };
+          }
+        }
+      } catch {
+        // Refresh failed — fall through to anon key retry
+      }
+
       console.warn(`[API] ${method} ${route}: token expired, retrying with anon key`);
       const retryHeaders = { ...headers, Authorization: `Bearer ${publicAnonKey}` };
       response = await fetch(url, {
@@ -85,11 +101,11 @@ export interface WizardSaveResponse {
 export interface WizardLoadResponse {
   session: {
     id: string;
-    org_id: string | null;
-    user_id: string | null;
+    org_id?: string | null;
+    user_id?: string | null;
     current_step: number;
-    status: string;
-    context_snapshot: Record<string, unknown>;
+    status?: string;
+    context_snapshot?: Record<string, unknown> | null;
     created_at: string;
     updated_at: string;
   };
@@ -265,6 +281,26 @@ export const authApi = {
     return { data: { session: data.session, user: data.user }, error: null };
   },
 
+  signInWithGoogle: async (returnPath?: string) => {
+    const supabase = getSupabaseClient();
+    const callbackUrl = new URL('/auth/callback', window.location.origin);
+    if (returnPath) {
+      callbackUrl.searchParams.set('return', returnPath);
+    }
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: callbackUrl.toString(),
+      },
+    });
+    if (error) {
+      console.error('[Auth] Google OAuth error:', error.message);
+      return { error: error.message };
+    }
+    // Browser will redirect — no return value needed
+    return { error: null };
+  },
+
   signOut: async () => {
     const supabase = getSupabaseClient();
     const { error } = await supabase.auth.signOut();
@@ -281,3 +317,100 @@ export const authApi = {
 
 // ── Health check ──
 export const healthCheck = () => api('/health');
+
+// ── Agent Management API (reads from ai_run_logs + ai_cache tables) ──
+export interface RunLogEntry {
+  id: string;
+  session_id: string | null;
+  org_id: string | null;
+  prompt_type: string;
+  model: string;
+  tokens_used: number;
+  duration_ms: number;
+  success: boolean;
+  error_message: string | null;
+  created_at: string;
+}
+
+export interface AggregateStats {
+  totalRuns: number;
+  successRuns: number;
+  failedRuns: number;
+  successRate: number;
+  totalTokens: number;
+  avgDuration: number;
+  activeCacheEntries: number;
+  byType: Record<string, { count: number; tokens: number; avgMs: number; successRate: number }>;
+  model: string;
+}
+
+export interface CacheStats {
+  totalEntries: number;
+  activeEntries: number;
+  expiredEntries: number;
+  totalTokensCached: number;
+  entries: Array<{ input_hash: string; model: string; tokens_used: number; expires_at: string; created_at: string }>;
+}
+
+export const agentApi = {
+  getRunLogs: (params?: { limit?: number; offset?: number; promptType?: string }, token?: string) => {
+    const qs = new URLSearchParams();
+    if (params?.limit) qs.set('limit', String(params.limit));
+    if (params?.offset) qs.set('offset', String(params.offset));
+    if (params?.promptType) qs.set('prompt_type', params.promptType);
+    const query = qs.toString();
+    return api<{ logs: RunLogEntry[]; total: number }>(`/ai/run-logs${query ? `?${query}` : ''}`, { token });
+  },
+
+  getAggregateStats: (token?: string) =>
+    api<AggregateStats>('/ai/aggregate-stats', { token }),
+
+  getCacheStats: (token?: string) =>
+    api<CacheStats>('/ai/cache-stats', { token }),
+};
+
+// ── CRM API (reads from clients + crm_contacts Supabase tables) ──
+export interface Client {
+  id: string;
+  name: string;
+  industry: string;
+  status: 'active' | 'prospect' | 'churned' | 'onboarding';
+  health_score: number;
+  contact_email: string;
+  contact_name: string;
+  revenue: number;
+  notes: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CRMContact {
+  id: string;
+  client_id: string;
+  name: string;
+  email: string;
+  role: string;
+  phone: string;
+  is_primary: boolean;
+  created_at: string;
+}
+
+export const crmApi = {
+  listClients: (token?: string) =>
+    api<{ clients: Client[] }>('/crm/clients', { token }),
+
+  getClient: (id: string, token?: string) =>
+    api<{ client: Client; contacts: CRMContact[] }>(`/crm/clients/${id}`, { token }),
+
+  createClient: (data: Partial<Client>, token?: string) =>
+    api<{ client: Client }>('/crm/clients', { method: 'POST', body: data as Record<string, unknown>, token }),
+
+  updateClient: (id: string, data: Partial<Client>, token?: string) =>
+    api<{ client: Client }>(`/crm/clients/${id}`, { method: 'PUT', body: data as Record<string, unknown>, token }),
+
+  deleteClient: (id: string, token?: string) =>
+    api<{ success: boolean }>(`/crm/clients/${id}`, { method: 'DELETE', token }),
+
+  createContact: (clientId: string, data: Partial<CRMContact>, token?: string) =>
+    api<{ contact: CRMContact }>(`/crm/clients/${clientId}/contacts`, { method: 'POST', body: data as Record<string, unknown>, token }),
+};

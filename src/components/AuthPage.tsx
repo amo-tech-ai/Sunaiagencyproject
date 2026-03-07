@@ -1,18 +1,21 @@
 // C91-AUTH-PAGE — Login / Signup Page
 // BCG consulting-inspired: warm off-white bg, Georgia headlines, green accents
 // Two-column on desktop (brand + form), single-column on mobile
+// Supports: Google OAuth, email/password, guest access
 
 import { useState, useCallback, useEffect } from 'react';
 import { useAuth } from './AuthContext';
-import { useNavigate, Link } from 'react-router';
+import { useNavigate, Link, useSearchParams } from 'react-router';
 import { Sun, ArrowRight, Eye, EyeOff, Loader2, Check, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 type Mode = 'login' | 'signup';
 
 export default function AuthPage() {
-  const { signIn, signUp, loading, error, clearError, user } = useAuth();
+  const { signIn, signUp, signInWithGoogle, loading, error, clearError, user } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const returnPath = searchParams.get('return') || '/app/dashboard';
   const [mode, setMode] = useState<Mode>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -20,13 +23,14 @@ export default function AuthPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [success, setSuccess] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
+  const [googleRedirecting, setGoogleRedirecting] = useState(false);
 
-  // If already logged in, redirect
+  // If already logged in, redirect to dashboard
   useEffect(() => {
     if (user && !loading) {
-      navigate('/wizard');
+      navigate(returnPath);
     }
-  }, [user, loading, navigate]);
+  }, [user, loading, navigate, returnPath]);
 
   const validate = (): string | null => {
     if (!email.trim()) return 'Email is required';
@@ -57,11 +61,21 @@ export default function AuthPage() {
 
     if (result.success) {
       setSuccess(true);
-      setTimeout(() => navigate('/wizard'), 800);
+      setTimeout(() => navigate(returnPath), 800);
     } else {
       setLocalError(result.error || 'Something went wrong');
     }
-  }, [mode, email, password, name, signIn, signUp, clearError, navigate]);
+  }, [mode, email, password, name, signIn, signUp, clearError, navigate, returnPath]);
+
+  const handleGoogleSignIn = useCallback(async () => {
+    setLocalError(null);
+    clearError();
+    setGoogleRedirecting(true);
+    await signInWithGoogle(returnPath);
+    // If we're still here, there was an error (otherwise browser redirected)
+    // signInWithGoogle sets error in AuthContext if it fails
+    setGoogleRedirecting(false);
+  }, [signInWithGoogle, clearError, returnPath]);
 
   const switchMode = () => {
     setMode(m => m === 'login' ? 'signup' : 'login');
@@ -71,6 +85,7 @@ export default function AuthPage() {
   };
 
   const displayError = localError || error;
+  const isDisabled = loading || success || googleRedirecting;
 
   return (
     <div className="min-h-screen flex" style={{ backgroundColor: '#F5F5F0' }}>
@@ -200,7 +215,53 @@ export default function AuthPage() {
                 </motion.div>
               )}
 
-              {/* Form */}
+              {/* ── Google Sign-In Button ── */}
+              <button
+                type="button"
+                onClick={handleGoogleSignIn}
+                disabled={isDisabled}
+                className="w-full flex items-center justify-center gap-3 py-2.5 text-sm border rounded transition-colors"
+                style={{
+                  borderColor: '#E8E8E4',
+                  borderRadius: '4px',
+                  backgroundColor: '#FFFFFF',
+                  color: '#1A1A1A',
+                  cursor: isDisabled ? 'default' : 'pointer',
+                  opacity: isDisabled && !googleRedirecting ? 0.5 : 1,
+                }}
+                onMouseEnter={e => {
+                  if (!isDisabled) e.currentTarget.style.backgroundColor = '#F5F5F0';
+                }}
+                onMouseLeave={e => {
+                  if (!isDisabled) e.currentTarget.style.backgroundColor = '#FFFFFF';
+                }}
+              >
+                {googleRedirecting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" style={{ color: '#00875A' }} />
+                    Redirecting to Google…
+                  </>
+                ) : (
+                  <>
+                    <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615Z" fill="#4285F4"/>
+                      <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18Z" fill="#34A853"/>
+                      <path d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.997 8.997 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332Z" fill="#FBBC05"/>
+                      <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 6.29C4.672 4.163 6.656 2.58 9 2.58Z" fill="#EA4335"/>
+                    </svg>
+                    Continue with Google
+                  </>
+                )}
+              </button>
+
+              {/* Divider */}
+              <div className="mt-6 mb-6 flex items-center gap-3">
+                <div className="flex-1 border-t" style={{ borderColor: '#E8E8E4' }} />
+                <span className="text-xs" style={{ color: '#9CA39B' }}>or continue with email</span>
+                <div className="flex-1 border-t" style={{ borderColor: '#E8E8E4' }} />
+              </div>
+
+              {/* ── Email Form ── */}
               <form onSubmit={handleSubmit} className="space-y-4">
                 {mode === 'signup' && (
                   <div>
@@ -222,6 +283,7 @@ export default function AuthPage() {
                       onFocus={e => e.target.style.borderColor = '#00875A'}
                       onBlur={e => e.target.style.borderColor = '#E8E8E4'}
                       autoComplete="name"
+                      disabled={isDisabled}
                     />
                   </div>
                 )}
@@ -245,6 +307,7 @@ export default function AuthPage() {
                     onFocus={e => e.target.style.borderColor = '#00875A'}
                     onBlur={e => e.target.style.borderColor = '#E8E8E4'}
                     autoComplete="email"
+                    disabled={isDisabled}
                   />
                 </div>
 
@@ -268,6 +331,7 @@ export default function AuthPage() {
                       onFocus={e => e.target.style.borderColor = '#00875A'}
                       onBlur={e => e.target.style.borderColor = '#E8E8E4'}
                       autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+                      disabled={isDisabled}
                     />
                     <button
                       type="button"
@@ -290,23 +354,23 @@ export default function AuthPage() {
 
                 <button
                   type="submit"
-                  disabled={loading || success}
+                  disabled={isDisabled}
                   className="w-full flex items-center justify-center gap-2 py-2.5 text-sm rounded transition-all"
                   style={{
                     backgroundColor: success ? '#E6F4ED' : loading ? '#9CA39B' : '#1A1A1A',
                     color: success ? '#00875A' : '#FFFFFF',
                     borderRadius: '4px',
-                    opacity: loading ? 0.7 : 1,
-                    cursor: loading || success ? 'default' : 'pointer',
+                    opacity: (loading || googleRedirecting) ? 0.7 : 1,
+                    cursor: isDisabled ? 'default' : 'pointer',
                   }}
                   onMouseEnter={e => {
-                    if (!loading && !success) e.currentTarget.style.backgroundColor = '#00875A';
+                    if (!isDisabled) e.currentTarget.style.backgroundColor = '#00875A';
                   }}
                   onMouseLeave={e => {
-                    if (!loading && !success) e.currentTarget.style.backgroundColor = '#1A1A1A';
+                    if (!isDisabled) e.currentTarget.style.backgroundColor = '#1A1A1A';
                   }}
                 >
-                  {loading ? (
+                  {loading && !googleRedirecting ? (
                     <><Loader2 className="w-4 h-4 animate-spin" /> Processing…</>
                   ) : success ? (
                     <><Check className="w-4 h-4" /> Success</>
@@ -333,7 +397,7 @@ export default function AuthPage() {
                 </p>
               </div>
 
-              {/* Divider */}
+              {/* Guest divider */}
               <div className="mt-8 flex items-center gap-3">
                 <div className="flex-1 border-t" style={{ borderColor: '#E8E8E4' }} />
                 <span className="text-xs" style={{ color: '#9CA39B' }}>or</span>

@@ -33,6 +33,7 @@ import ChatbotServicePage from './components/services/ChatbotServicePage';
 import WhatsAppAIPage from './pages/WhatsAppAIPage';
 import SupabaseArchitecturePage from './components/SupabaseArchitecturePage';
 import AuthPage from './components/AuthPage';
+import AuthCallbackPage from './components/AuthCallbackPage';
 
 // Dashboard imports — Phase 1 (shell) + Phase 2-5 (production pages)
 import DashboardLayout from './components/dashboard/DashboardLayout';
@@ -42,10 +43,12 @@ import ProjectDetail from './components/dashboard/ProjectDetail';
 import RoadmapPage from './components/dashboard/RoadmapPage';
 import SettingsPageComponent from './components/dashboard/SettingsPage';
 import InsightsPage from './components/dashboard/insights/InsightsPage';
+import DashAgentsPage from './components/dashboard/agents/AgentsPage';
+import ClientsListPage from './components/dashboard/clients/ClientsListPage';
+import ClientDetailPage from './components/dashboard/clients/ClientDetailPage';
 import {
-  ClientsPage, CRMPipelinePage,
+  CRMPipelinePage,
   DocumentsPage, FinancialPage as DashFinancialPage, WorkflowsPage,
-  AgentsPage as DashAgentsPage,
 } from './components/dashboard/PlaceholderPage';
 
 function NotFound() {
@@ -80,6 +83,11 @@ export const router = createBrowserRouter([
     path: '/login',
     Component: AuthPage,
   },
+  // OAuth callback — handles redirect from Google via Supabase
+  {
+    path: '/auth/callback',
+    Component: AuthCallbackPage,
+  },
   // Dashboard — authenticated area with sidebar layout
   {
     path: '/app',
@@ -96,13 +104,15 @@ export const router = createBrowserRouter([
       { path: 'settings', Component: SettingsPageComponent },
       // Phase 9: AI Insights — production page
       { path: 'insights', Component: InsightsPage },
-      // Placeholder stubs — Phases 6-13 (except Phase 9)
-      { path: 'clients', Component: ClientsPage },
-      { path: 'clients/:id', Component: ClientsPage },
+      // Phase 6: Client Management CRM — production pages
+      { path: 'clients', Component: ClientsListPage },
+      { path: 'clients/:id', Component: ClientDetailPage },
+      // Placeholder stubs — remaining phases
       { path: 'crm/pipelines', Component: CRMPipelinePage },
       { path: 'documents', Component: DocumentsPage },
       { path: 'financial', Component: DashFinancialPage },
       { path: 'workflows', Component: WorkflowsPage },
+      // Phase 10: AI Agent Management — production page
       { path: 'agents', Component: DashAgentsPage },
     ],
   },

@@ -31,7 +31,8 @@ export default function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const pageTitle = ROUTE_LABELS[location.pathname] || 
-    (location.pathname.startsWith('/app/projects/') ? 'Project Detail' : 'Dashboard');
+    (location.pathname.startsWith('/app/projects/') ? 'Project Detail' :
+     location.pathname.startsWith('/app/clients/') ? 'Client Detail' : 'Dashboard');
   const isDashboardHome = location.pathname === '/app/dashboard';
   const initials = user?.name
     ? user.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
@@ -111,8 +112,12 @@ export default function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
           aria-expanded={dropdownOpen}
           aria-haspopup="true"
         >
-          <div className="w-8 h-8 rounded bg-[#1A1A1A] text-[#F5F5F0] flex items-center justify-center text-xs font-medium">
-            {initials}
+          <div className="w-8 h-8 rounded bg-[#1A1A1A] text-[#F5F5F0] flex items-center justify-center text-xs font-medium overflow-hidden">
+            {user?.avatarUrl ? (
+              <img src={user.avatarUrl} alt="" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+            ) : (
+              initials
+            )}
           </div>
           {/* Show name on desktop only */}
           <span className="text-sm text-[#6B6B63] hidden lg:inline max-w-[120px] truncate">

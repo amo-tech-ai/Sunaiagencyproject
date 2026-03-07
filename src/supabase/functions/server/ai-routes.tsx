@@ -483,4 +483,157 @@ Generate personalized, data-driven recommendations. Reference specific scores, g
   }
 });
 
+// ── GET /ai/run-logs — Query ai_run_logs for agent management dashboard ──
+ai.get(`${PREFIX}/ai/run-logs`, async (c) => {
+  try {
+    const authHeader = c.req.header("Authorization");
+    if (!authHeader) {
+      return c.json({ error: "Authorization required for AI run logs" }, 401);
+    }
+
+    const limit = parseInt(c.req.query("limit") || "50");
+    const offset = parseInt(c.req.query("offset") || "0");
+    const promptType = c.req.query("prompt_type") || null;
+
+    const db = adminClient();
+    let query = db
+      .from("ai_run_logs")
+      .select("*", { count: "exact" })
+      .order("created_at", { ascending: false })
+      .range(offset, offset + limit - 1);
+
+    if (promptType) {
+      query = query.eq("prompt_type", promptType);
+    }
+
+    const { data: logs, error, count } = await query;
+
+    if (error) {
+      console.log(`[AI] run-logs query error: ${error.message}`);
+      return c.json({ error: `Failed to fetch run logs: ${error.message}` }, 500);
+    }
+
+    console.log(`[AI] run-logs returned ${logs?.length || 0} of ${count} total`);
+    return c.json({ logs: logs || [], total: count || 0 });
+  } catch (error) {
+    console.log(`[AI] run-logs error: ${error}`);
+    return c.json({ error: `AI run logs query failed: ${error}` }, 500);
+  }
+});
+
+// ── GET /ai/cache-stats — Aggregate cache stats from ai_cache table ──
+ai.get(`${PREFIX}/ai/cache-stats`, async (c) => {
+  try {
+    const authHeader = c.req.header("Authorization");
+    if (!authHeader) {
+      return c.json({ error: "Authorization required for cache stats" }, 401);
+    }
+
+    const db = adminClient();
+
+    // Fetch all cache entries (no count filter — typically small table)
+    const { data: entries, error } = await db
+      .from("ai_cache")
+      .select("input_hash, model, tokens_used, expires_at, created_at")
+      .order("created_at", { ascending: false })
+      .limit(200);
+
+    if (error) {
+      console.log(`[AI] cache-stats query error: ${error.message}`);
+      return c.json({ error: `Failed to fetch cache stats: ${error.message}` }, 500);
+    }
+
+    const now = new Date().toISOString();
+    const active = (entries || []).filter(e => e.expires_at > now);
+    const expired = (entries || []).filter(e => e.expires_at <= now);
+    const totalTokensCached = active.reduce((sum, e) => sum + (e.tokens_used || 0), 0);
+
+    console.log(`[AI] cache-stats: ${active.length} active, ${expired.length} expired`);
+
+    return c.json({
+      totalEntries: (entries || []).length,
+      activeEntries: active.length,
+      expiredEntries: expired.length,
+      totalTokensCached,
+      entries: (entries || []).slice(0, 50),
+    });
+  } catch (error) {
+    console.log(`[AI] cache-stats error: ${error}`);
+    return c.json({ error: `Cache stats query failed: ${error}` }, 500);
+  }
+});
+
+// ── GET /ai/aggregate-stats — Summary stats for agent dashboard header ──
+ai.get(`${PREFIX}/ai/aggregate-stats`, async (c) => {
+  try {
+    const authHeader = c.req.header("Authorization");
+    if (!authHeader) {
+      return c.json({ error: "Authorization required for aggregate stats" }, 401);
+    }
+
+    const db = adminClient();
+
+    // Total runs + success/failure counts
+    const { data: allRuns, error: runsErr } = await db
+      .from("ai_run_logs")
+      .select("prompt_type, tokens_used, duration_ms, success, created_at")
+      .order("created_at", { ascending: false })
+      .limit(500);
+
+    if (runsErr) {
+      console.log(`[AI] aggregate-stats runs error: ${runsErr.message}`);
+      return c.json({ error: `Failed to aggregate stats: ${runsErr.message}` }, 500);
+    }
+
+    const runs = allRuns || [];
+    const totalRuns = runs.length;
+    const successRuns = runs.filter(r => r.success).length;
+    const failedRuns = runs.filter(r => !r.success).length;
+    const totalTokens = runs.reduce((sum, r) => sum + (r.tokens_used || 0), 0);
+    const avgDuration = totalRuns > 0
+      ? Math.round(runs.reduce((sum, r) => sum + (r.duration_ms || 0), 0) / totalRuns)
+      : 0;
+
+    // Runs grouped by prompt_type
+    const byType: Record<string, { count: number; tokens: number; avgMs: number; successRate: number }> = {};
+    for (const r of runs) {
+      const type = r.prompt_type || "unknown";
+      if (!byType[type]) byType[type] = { count: 0, tokens: 0, avgMs: 0, successRate: 0 };
+      byType[type].count++;
+      byType[type].tokens += r.tokens_used || 0;
+      byType[type].avgMs += r.duration_ms || 0;
+      if (r.success) byType[type].successRate++;
+    }
+    for (const type of Object.keys(byType)) {
+      byType[type].avgMs = Math.round(byType[type].avgMs / byType[type].count);
+      byType[type].successRate = Math.round((byType[type].successRate / byType[type].count) * 100);
+    }
+
+    // Cache hit rate (from run logs — cache hits don't generate run logs, so approximate)
+    const { data: cacheEntries } = await db
+      .from("ai_cache")
+      .select("input_hash")
+      .gt("expires_at", new Date().toISOString());
+
+    const activeCacheEntries = cacheEntries?.length || 0;
+
+    console.log(`[AI] aggregate-stats: ${totalRuns} runs, ${totalTokens} tokens`);
+
+    return c.json({
+      totalRuns,
+      successRuns,
+      failedRuns,
+      successRate: totalRuns > 0 ? Math.round((successRuns / totalRuns) * 100) : 0,
+      totalTokens,
+      avgDuration,
+      activeCacheEntries,
+      byType,
+      model: "gemini-2.0-flash",
+    });
+  } catch (error) {
+    console.log(`[AI] aggregate-stats error: ${error}`);
+    return c.json({ error: `Aggregate stats query failed: ${error}` }, 500);
+  }
+});
+
 export { ai };

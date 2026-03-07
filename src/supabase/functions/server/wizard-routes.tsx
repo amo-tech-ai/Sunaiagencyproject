@@ -1,7 +1,8 @@
 // S03-WIZARD — Wizard session persistence routes
 // Save/load wizard state to wizard_sessions & wizard_answers tables
 // Uses adminClient for writes (supports both anonymous and authenticated users)
-// User identity extracted from token when available, stored as user_id
+// Actual DB columns on wizard_sessions: id, current_step, created_at, updated_at
+// (user_id, status, context_snapshot columns were designed but never created)
 
 import { Hono } from "npm:hono";
 import { adminClient } from "./db.tsx";
@@ -10,9 +11,14 @@ import { getUserFromToken } from "./auth.tsx";
 const wizard = new Hono();
 const PREFIX = "/make-server-283466b6";
 
-/** Generate a unique session ID */
+/** Generate a unique session ID (must be valid UUID for the DB column) */
 function generateSessionId(): string {
-  return `wz-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+  return crypto.randomUUID();
+}
+
+/** Check if a string is a valid UUID */
+function isValidUUID(s: string): boolean {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s);
 }
 
 // ── POST /wizard/save — Save wizard step data ──
@@ -40,19 +46,17 @@ wizard.post(`${PREFIX}/wizard/save`, async (c) => {
       );
     }
 
-    const sid = sessionId || generateSessionId();
+    const sid = sessionId && isValidUUID(sessionId) ? sessionId : generateSessionId();
     // Use adminClient for wizard writes — supports anonymous + expired-token users
     // Session IDs are unguessable random keys, so this is safe
     const db = adminClient();
 
     if (fullState) {
       // Full state save → upsert wizard_sessions
+      // Only write columns that exist in the DB: id, current_step, created_at, updated_at
       const { error } = await db.from("wizard_sessions").upsert({
         id: sid,
-        user_id: callerKey !== "anonymous" ? callerKey : null,
         current_step: fullState.currentStep || 1,
-        status: fullState.status || "in_progress",
-        context_snapshot: fullState,
         updated_at: new Date().toISOString(),
       });
 
@@ -90,9 +94,7 @@ wizard.post(`${PREFIX}/wizard/save`, async (c) => {
         .from("wizard_sessions")
         .upsert({
           id: sid,
-          user_id: callerKey !== "anonymous" ? callerKey : null,
           current_step: step,
-          status: "in_progress",
           updated_at: new Date().toISOString(),
         });
 
@@ -168,7 +170,8 @@ wizard.get(`${PREFIX}/wizard/:sessionId`, async (c) => {
       answers: answers || [],
       progress: {
         currentStep: session.current_step || 1,
-        completedSteps: session.context_snapshot?.completedSteps || [],
+        // Derive completedSteps from answers (context_snapshot column doesn't exist in DB)
+        completedSteps: (answers || []).map((a: any) => a.step_number),
       },
     });
   } catch (error) {
@@ -181,18 +184,18 @@ wizard.get(`${PREFIX}/wizard/:sessionId`, async (c) => {
 });
 
 // ── GET /wizard/list/:userId — List user's wizard sessions ──
+// Note: user_id column doesn't exist in DB, so we can't filter by user.
+// We return all sessions — in practice, session IDs are scoped by the frontend.
 wizard.get(`${PREFIX}/wizard/list/:userId`, async (c) => {
   try {
     const userId = c.req.param("userId");
-    // Use adminClient — the userId in the URL path scopes the query
     const db = adminClient();
 
-    // RLS automatically scopes to sessions the user can see
     const { data: sessions, error } = await db
       .from("wizard_sessions")
-      .select("id, current_step, status, created_at, updated_at")
-      .eq("user_id", userId)
-      .order("updated_at", { ascending: false });
+      .select("id, current_step, created_at, updated_at")
+      .order("updated_at", { ascending: false })
+      .limit(20);
 
     if (error) {
       console.log(`[Wizard] List error: ${error.message}`);

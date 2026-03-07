@@ -2,11 +2,8 @@
 // React Context with localStorage persistence, draft resume toast,
 // per-field validation errors, save status, keyboard nav support
 
-import { createContext, useContext, useState, useCallback, useEffect, useRef, type ReactNode } from 'react';
-import { toast } from 'sonner@2.0.3';
-import type { Signal } from './data/wizardData';
+import { createContext, useContext, useState, useEffect, useCallback, useRef, type ReactNode } from 'react';
 import { wizardApi } from '../../lib/supabase';
-import { useAuth } from '../AuthContext';
 
 /* ────────────────── TYPES ────────────────── */
 
@@ -178,7 +175,6 @@ export function useWizard() {
 /* ────────────────── PROVIDER ────────────────── */
 
 export function WizardProvider({ children }: { children: ReactNode }) {
-  const { accessToken } = useAuth();
   const hasRestoredRef = useRef(false);
   const [restoredFromDraft, setRestoredFromDraft] = useState(false);
   const [attemptedAdvance, setAttemptedAdvance] = useState(false);
@@ -186,7 +182,16 @@ export function WizardProvider({ children }: { children: ReactNode }) {
   const changeCountRef = useRef(0);
   const [isDirty, setIsDirty] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(() => {
-    try { return localStorage.getItem(SESSION_ID_KEY); } catch { return null; }
+    try {
+      const stored = localStorage.getItem(SESSION_ID_KEY);
+      // Discard legacy non-UUID session IDs (e.g. "wz-..." format)
+      if (stored && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(stored)) {
+        return stored;
+      }
+      // Clear stale non-UUID value
+      if (stored) localStorage.removeItem(SESSION_ID_KEY);
+      return null;
+    } catch { return null; }
   });
 
   const [state, setState] = useState<WizardState>(() => {
@@ -265,10 +270,12 @@ export function WizardProvider({ children }: { children: ReactNode }) {
               id: s.id, label: s.label, severity: s.severity, recommendation: s.recommendation,
             })),
           };
+          // Don't pass a user token — the wizard save endpoint uses adminClient
+          // and the Edge Function gateway rejects expired JWTs with 401 before
+          // the request reaches Hono. Using the anon key avoids this entirely.
           const { data, error } = await wizardApi.save(
             sessionId || '',
-            stateForCloud,
-            accessToken || undefined
+            stateForCloud
           );
           if (data?.sessionId && !sessionId) {
             setSessionId(data.sessionId);
@@ -288,7 +295,7 @@ export function WizardProvider({ children }: { children: ReactNode }) {
       resetTimerRef.current = setTimeout(() => setSaveStatus('idle'), 2000);
     }, 500);
     return () => clearTimeout(timer);
-  }, [state, sessionId, accessToken]);
+  }, [state, sessionId]);
 
   // Warn before leaving if there are unsaved changes
   useEffect(() => {

@@ -7,6 +7,7 @@ import { cors } from "npm:hono/cors";
 import { logger } from "npm:hono/logger";
 import { wizard } from "./wizard-routes.tsx";
 import { ai } from "./ai-routes.tsx";
+import { crm } from "./crm-routes.tsx";
 import { createUser } from "./auth.tsx";
 
 const app = new Hono();
@@ -62,6 +63,9 @@ app.route("/", wizard);
 
 // ── Mount AI routes ──
 app.route("/", ai);
+
+// ── Mount CRM routes ──
+app.route("/", crm);
 
 // ── 404 handler ──
 app.notFound((c) => {

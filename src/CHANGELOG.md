@@ -7,6 +7,59 @@
 
 ---
 
+## [0.15.0] — 2026-03-07 — Phase 9 AI Insights + Phase 10 AI Agents + Phase 6 CRM
+
+### Summary
+
+Three full production phases implemented: (1) Phase 9 — AI Insights full page with recharts RadarChart, animated score ring, dimension breakdown with progress bars, detailed insight cards, localStorage snapshot history with before/after comparison, and re-run button; (2) Phase 10 — AI Agent Management with 3 new Edge Function routes querying `ai_run_logs` and `ai_cache` Supabase tables, summary stats dashboard, horizontal bar chart by agent type, token usage breakdown, cache status panel, and paginated/filterable run history table; (3) Phase 6 — Client Management CRM with full CRUD Edge Function routes reading/writing the `clients` and `crm_contacts` Supabase tables (no KV store), client list with search/filter/health badges, client detail page with contacts, and create/edit modal form. All three phases use proper Supabase table queries via `adminClient()` — zero KV store usage.
+
+### Added — Phase 9: AI Insights Full Page (6 components)
+
+- **C96-INSIGHTS-PAGE** `insights/InsightsPage.tsx` — Orchestrator page at `/app/insights` with live AI fetch, re-run, loading/error/empty states
+- **C97-READINESS-RADAR** `insights/ReadinessRadar.tsx` — Recharts RadarChart with 5 readiness dimensions, color-coded legend, tooltip
+- **C98-READINESS-BREAKDOWN** `insights/ReadinessBreakdown.tsx` — Animated progress bars per dimension, strengths/gaps lists with icons
+- **C99-INSIGHT-DETAIL-CARDS** `insights/InsightDetailCards.tsx` — Full-width priority-coded cards with badges and action links
+- **C100-SNAPSHOT-HISTORY** `insights/SnapshotHistory.tsx` — localStorage snapshot storage (max 10), before/after comparison bars, save/delete/compare
+- **C101-INSIGHTS-SUMMARY** `insights/InsightsSummaryHeader.tsx` — Animated SVG score ring, AI greeting, stats row, re-run button
+
+### Added — Phase 10: AI Agent Management (6 components + 3 server routes)
+
+- **S04-AI** `ai-routes.tsx` — Added `GET /ai/run-logs` (paginated + filterable), `GET /ai/cache-stats`, `GET /ai/aggregate-stats` server routes querying `ai_run_logs` and `ai_cache` tables
+- **L01-SUPABASE** `lib/supabase.ts` — Added `agentApi` module with typed `getRunLogs()`, `getAggregateStats()`, `getCacheStats()` methods + `RunLogEntry`, `AggregateStats`, `CacheStats` interfaces
+- **C102-AGENT-SUMMARY** `agents/AgentSummaryHeader.tsx` — 5-stat row: total runs, success rate, total tokens, avg latency, cache entries
+- **C103-PERFORMANCE-CHART** `agents/PerformanceChart.tsx` — Recharts horizontal BarChart of runs by agent type with tooltips
+- **C104-TOKEN-USAGE** `agents/TokenUsagePanel.tsx` — Animated proportional bars by prompt type with color coding
+- **C105-CACHE-STATS** `agents/CacheStatsPanel.tsx` — Active/expired/rate stats, recent cache entry list with hash + status
+- **C106-RUN-HISTORY** `agents/RunHistoryTable.tsx` — Paginated table (md+) / card list (xs), filter by prompt type, status icons
+- **C107-AGENTS-PAGE** `agents/AgentsPage.tsx` — Orchestrator at `/app/agents` with refresh, parallel API calls, motion stagger
+
+### Added — Phase 6: Client Management CRM (5 components + 6 server routes)
+
+- **S06-CRM** `crm-routes.tsx` — Full CRUD: `GET /crm/clients`, `POST /crm/clients`, `GET /crm/clients/:id`, `PUT /crm/clients/:id`, `DELETE /crm/clients/:id`, `POST /crm/clients/:id/contacts` — all using `adminClient()` with `requireAuth()` guard
+- **S00-SERVER** `index.tsx` — Mounted CRM routes via `app.route("/", crm)`
+- **L01-SUPABASE** `lib/supabase.ts` — Added `crmApi` module with `listClients()`, `getClient()`, `createClient()`, `updateClient()`, `deleteClient()`, `createContact()` + `Client`, `CRMContact` interfaces
+- **C108-CLIENT-HEALTH** `clients/ClientHealthBadge.tsx` — Color-coded health score badge (green/amber/red)
+- **C109-CLIENT-STATUS** `clients/ClientStatusBadge.tsx` — Status badge (active/prospect/onboarding/churned)
+- **C110-CLIENT-FORM** `clients/ClientForm.tsx` — Modal create/edit form with validation, all fields, responsive layout
+- **C111-CLIENT-DETAIL** `clients/ClientDetailPage.tsx` — Single client view at `/app/clients/:id` with edit, contacts list
+- **C112-CLIENTS-LIST** `clients/ClientsListPage.tsx` — Main CRM page at `/app/clients` with search, stats row, table (md+) / cards (xs), create modal
+
+### Changed — Routes & Navigation
+
+- **routes.tsx** — Replaced 3 placeholder stubs with production pages: `InsightsPage` (Phase 9), `DashAgentsPage` (Phase 10), `ClientsListPage` + `ClientDetailPage` (Phase 6)
+- **C80-SIDEBAR** `DashboardSidebar.tsx` — Version bump to v0.15.0
+- **C87-ACTIONS** `QuickActionsGrid.tsx` — Updated AI Insights description
+
+### Production Status
+
+- Dashboard components: 34 production + 4 placeholder stubs
+- Edge function routes: 15 (6 wizard/AI + 3 agent stats + 6 CRM CRUD)
+- New Supabase tables required: `clients`, `crm_contacts` (must be created via Supabase UI)
+- Existing tables queried: `ai_run_logs`, `ai_cache` (already populated by Gemini calls)
+- Project completion: ~55% (Phases 1–6, 9–10 done; Phases 7–8, 11–13 pending)
+
+---
+
 ## [0.14.0] — 2026-03-07 — Live AI Insights, Wizard 401 Fix, Progress Tracker
 
 ### Summary
@@ -481,8 +534,10 @@ All AI calls go through the `callGemini()` utility which: checks `ai_cache` tabl
 
 ## Remaining Priorities
 
-1. **Phase 6** — Client Management CRM (requires `clients` + `crm_contacts` Supabase tables, 10 components, CRUD edge function routes)
-2. **Phase 9** — AI Insights full page (radar chart, re-run button, snapshot comparison)
-3. **Phase 10** — AI Agent Management (read from existing `ai_run_logs` + `ai_cache` tables)
-4. Add Supabase Storage integration for document uploads in wizard Step 1
-5. Implement Supabase Realtime for live collaboration on wizard sessions
+1. **Phase 7** — CRM Pipeline Kanban board (deal stages, drag-and-drop, AI deal scoring)
+2. **Phase 8** — Documents & Files (Supabase Storage integration, file upload/download)
+3. **Phase 11** — Workflow Automation (triggers, logic chains, automated actions)
+4. **Phase 12** — Financial Dashboard (revenue tracking, invoices, project profitability)
+5. **Phase 13** — Final polish, testing, production hardening
+6. Add Supabase Storage integration for document uploads in wizard Step 1
+7. Implement Supabase Realtime for live collaboration on wizard sessions
