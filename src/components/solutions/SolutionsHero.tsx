@@ -1,5 +1,5 @@
-import { useEffect, useState, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useRef, useEffect } from 'react';
+import { Link } from 'react-router';
 import { ArrowRight } from 'lucide-react';
 import { motion, useInView } from 'motion/react';
 
@@ -267,7 +267,7 @@ function MetricCard({ value, label, delay }: { value: string; label: string; del
 
 export default function SolutionsHero() {
   return (
-    <section className="relative bg-[#0A211F] overflow-hidden min-h-[90vh] flex items-center">
+    <section className="relative overflow-hidden min-h-[90vh] flex items-center" style={{ backgroundColor: '#1A1A1A' }}>
       {/* ── Background Layers ── */}
 
       {/* Grid texture */}
@@ -336,12 +336,13 @@ export default function SolutionsHero() {
 
             {/* Headline */}
             <motion.h1
-              className="text-[#F1EEEA] tracking-tight mb-7"
+              className="tracking-tight mb-7"
               style={{
-                fontFamily: "'Playfair Display', Georgia, serif",
+                fontFamily: "Georgia, serif",
                 fontSize: 'clamp(2.5rem, 5.5vw, 4rem)',
-                fontWeight: 600,
-                lineHeight: 1.05,
+                fontWeight: 400,
+                lineHeight: 1.08,
+                color: '#F5F5F0',
               }}
               initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
@@ -351,7 +352,7 @@ export default function SolutionsHero() {
               <br />
               Into an{' '}
               <span className="relative inline-block">
-                <span className="text-[#84CC16]" style={{ fontStyle: 'italic' }}>
+                <span style={{ color: '#00875A' }}>
                   AI&nbsp;Operating
                 </span>
                 {/* Underline accent */}
@@ -387,20 +388,13 @@ export default function SolutionsHero() {
               transition={{ duration: 0.6, delay: 0.45 }}
             >
               <Link
-                to="/booking"
-                className="group relative inline-flex items-center gap-2.5 bg-[#84CC16] text-[#0A211F] px-7 py-3.5 rounded-full transition-all duration-300"
+                to="/wizard"
+                className="group inline-flex items-center gap-2.5 px-7 py-3.5 transition-all duration-300"
                 style={{
+                  backgroundColor: '#00875A',
+                  color: '#FFFFFF',
+                  borderRadius: '4px',
                   fontSize: '0.875rem',
-                  fontWeight: 600,
-                  boxShadow: '0 0 0 0 rgba(132,204,22,0)',
-                }}
-                onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLElement).style.boxShadow =
-                    '0 0 40px 8px rgba(132,204,22,0.2), 0 4px 20px -4px rgba(132,204,22,0.3)';
-                }}
-                onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLElement).style.boxShadow =
-                    '0 0 0 0 rgba(132,204,22,0)';
                 }}
               >
                 Start AI Assessment
@@ -408,11 +402,12 @@ export default function SolutionsHero() {
               </Link>
               <Link
                 to="/process"
-                className="inline-flex items-center gap-2 text-[#F1EEEA]/50 hover:text-[#F1EEEA]/80 px-6 py-3.5 rounded-full transition-all duration-300"
+                className="inline-flex items-center gap-2 px-6 py-3.5 transition-all duration-300"
                 style={{
                   fontSize: '0.85rem',
-                  fontWeight: 500,
-                  border: '1px solid rgba(241,238,234,0.1)',
+                  border: '1px solid rgba(245,245,240,0.15)',
+                  color: 'rgba(245,245,240,0.6)',
+                  borderRadius: '4px',
                 }}
               >
                 View How It Works
@@ -467,7 +462,7 @@ export default function SolutionsHero() {
       <div
         className="absolute bottom-0 left-0 right-0 h-32 pointer-events-none"
         style={{
-          background: 'linear-gradient(to bottom, transparent, #0A211F)',
+          background: 'linear-gradient(to bottom, transparent, #1A1A1A)',
         }}
       />
     </section>

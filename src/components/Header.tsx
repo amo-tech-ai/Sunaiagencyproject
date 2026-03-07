@@ -1,6 +1,10 @@
+// C01 — Header / Navigation
+// BCG design system: charcoal text, green accents, Georgia serif logo
+// 4px border radius, no glassmorphism, no rounded-full pills
+
 import { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
+import { Link, useLocation } from 'react-router';
+import { Menu, X, Sun, ArrowRight } from 'lucide-react';
 
 export default function Header() {
   const location = useLocation();
@@ -26,11 +30,11 @@ export default function Header() {
   const navItems = [
     { path: '/', label: 'Home' },
     { path: '/solutions', label: 'Solutions' },
+    { path: '/services', label: 'Services' },
     { path: '/industries', label: 'Industries' },
     { path: '/agents', label: 'AI Agents' },
     { path: '/projects', label: 'Projects' },
     { path: '/about', label: 'About' },
-    { path: '/booking', label: 'Contact' },
   ];
 
   const isActive = (path: string) => {
@@ -40,65 +44,70 @@ export default function Header() {
 
   return (
     <>
-      <header className="bg-[#F1EEEA] sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16 md:h-18">
-            {/* Logo + Hamburger pill (mobile) / Logo (desktop) */}
+      <header
+        className="sticky top-0 z-50 border-b"
+        style={{ backgroundColor: '#FFFFFF', borderColor: '#E8E8E4' }}
+      >
+        <div className="max-w-[1120px] mx-auto px-6">
+          <div className="flex justify-between items-center h-16">
+            {/* Logo */}
             <div className="flex items-center gap-3">
-              {/* Mobile: Pill with hamburger + logo */}
+              {/* Mobile hamburger */}
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="md:hidden flex items-center gap-2.5 bg-white/80 backdrop-blur-sm rounded-full pl-3 pr-4 py-2.5 shadow-sm hover:bg-white transition-colors"
+                className="md:hidden flex items-center justify-center w-9 h-9 rounded transition-colors hover:bg-gray-50"
+                style={{ border: '1px solid #E8E8E4', borderRadius: '4px' }}
                 aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
                 aria-expanded={mobileMenuOpen}
               >
-                <div className="w-6 h-6 flex items-center justify-center">
-                  {mobileMenuOpen ? (
-                    <X className="w-5 h-5 text-[#0A211F]" />
-                  ) : (
-                    <Menu className="w-5 h-5 text-[#0A211F]" />
-                  )}
-                </div>
-                <span className="text-[#0A211F] tracking-tight" style={{ fontSize: '1.05rem', fontWeight: 700 }}>
-                  Sun AI
-                </span>
+                {mobileMenuOpen ? (
+                  <X className="w-4 h-4" style={{ color: '#1A1A1A' }} />
+                ) : (
+                  <Menu className="w-4 h-4" style={{ color: '#1A1A1A' }} />
+                )}
               </button>
 
-              {/* Desktop: Logo */}
               <Link
                 to="/"
-                className="hidden md:block text-[#0A211F] tracking-tight hover:opacity-70 transition-opacity"
-                style={{ fontSize: '1.15rem', fontWeight: 700 }}
+                className="flex items-center gap-2 transition-opacity hover:opacity-70"
+                style={{ color: '#1A1A1A' }}
               >
-                Sun AI Agency
+                <Sun className="w-5 h-5" style={{ color: '#00875A' }} />
+                <span style={{ fontFamily: 'Georgia, serif', fontSize: '1.05rem' }}>
+                  Sun AI Agency
+                </span>
               </Link>
             </div>
 
-            {/* Desktop Navigation - BCG-style pill container */}
-            <nav className="hidden md:flex items-center">
-              <div className="flex items-center bg-white/60 backdrop-blur-sm rounded-full px-1.5 py-1.5 gap-0.5">
-                {navItems.slice(1, -1).map((item) => (
-                  <Link
-                    key={item.path}
-                    to={item.path}
-                    className={`px-4 py-1.5 rounded-full text-sm tracking-wide transition-all ${
-                      isActive(item.path)
-                        ? 'bg-[#0A211F]/8 text-[#0A211F]'
-                        : 'text-[#0A211F]/60 hover:text-[#0A211F] hover:bg-[#0A211F]/4'
-                    }`}
-                    style={{ fontWeight: isActive(item.path) ? 500 : 400 }}
-                  >
-                    {item.label}
-                  </Link>
-                ))}
+            {/* Desktop Navigation */}
+            <nav className="hidden md:flex items-center gap-1">
+              {navItems.slice(1).map((item) => (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className="px-3.5 py-2 text-sm transition-colors"
+                  style={{
+                    color: isActive(item.path) ? '#1A1A1A' : '#6B6B63',
+                    borderBottom: isActive(item.path) ? '2px solid #00875A' : '2px solid transparent',
+                  }}
+                >
+                  {item.label}
+                </Link>
+              ))}
+              <div className="ml-3 flex items-center gap-2">
+                <Link
+                  to="/wizard"
+                  className="flex items-center gap-1.5 px-5 py-2 text-sm transition-colors"
+                  style={{
+                    backgroundColor: '#00875A',
+                    color: '#FFFFFF',
+                    borderRadius: '4px',
+                  }}
+                >
+                  Start Project
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
               </div>
-              <Link
-                to="/booking"
-                className="ml-4 bg-[#0A211F] text-[#F1EEEA] px-6 py-2 rounded-full text-sm tracking-wide hover:bg-[#0A211F]/90 transition-colors"
-                style={{ fontWeight: 500 }}
-              >
-                Contact
-              </Link>
             </nav>
           </div>
         </div>
@@ -106,58 +115,68 @@ export default function Header() {
 
       {/* Mobile Menu Overlay */}
       <div
-        className={`fixed inset-0 z-40 transition-opacity duration-300 md:hidden ${
+        className={`fixed inset-0 z-40 transition-opacity duration-200 md:hidden ${
           mobileMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
         }`}
       >
         {/* Backdrop */}
         <div
-          className="absolute inset-0 bg-[#0A211F]/20 backdrop-blur-sm"
+          className="absolute inset-0"
+          style={{ backgroundColor: 'rgba(26, 26, 26, 0.15)' }}
           onClick={() => setMobileMenuOpen(false)}
         />
 
         {/* Menu Panel */}
         <div
-          className={`absolute top-16 left-0 right-0 bg-[#F1EEEA] shadow-xl transition-transform duration-300 ease-out ${
+          className={`absolute top-16 left-0 right-0 border-b transition-transform duration-200 ease-out ${
             mobileMenuOpen ? 'translate-y-0' : '-translate-y-4'
           }`}
-          style={{ maxHeight: 'calc(100dvh - 4rem)', overflowY: 'auto' }}
+          style={{
+            backgroundColor: '#FFFFFF',
+            borderColor: '#E8E8E4',
+            maxHeight: 'calc(100dvh - 4rem)',
+            overflowY: 'auto',
+          }}
         >
-          <nav className="px-6 py-6">
+          <nav className="px-6 py-5">
             {/* Primary nav links */}
-            <div className="space-y-1">
+            <div className="space-y-0.5">
               {navItems.map((item) => (
                 <Link
                   key={item.path}
                   to={item.path}
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`flex items-center justify-between px-4 py-3.5 rounded-xl transition-all ${
-                    isActive(item.path)
-                      ? 'bg-white/80 text-[#0A211F]'
-                      : 'text-[#0A211F]/70 hover:bg-white/50 hover:text-[#0A211F]'
-                  }`}
+                  className="flex items-center justify-between px-4 py-3 rounded transition-colors"
+                  style={{
+                    backgroundColor: isActive(item.path) ? '#F0FAF5' : 'transparent',
+                    borderRadius: '4px',
+                    borderLeft: isActive(item.path) ? '2px solid #00875A' : '2px solid transparent',
+                  }}
                 >
                   <span
-                    className="tracking-wide"
-                    style={{ fontSize: '1.05rem', fontWeight: isActive(item.path) ? 600 : 400 }}
+                    className="text-sm"
+                    style={{
+                      color: isActive(item.path) ? '#1A1A1A' : '#6B6B63',
+                      fontFamily: isActive(item.path) ? 'Georgia, serif' : 'inherit',
+                    }}
                   >
                     {item.label}
                   </span>
                   {isActive(item.path) && (
-                    <div className="w-1.5 h-1.5 rounded-full bg-[#0A211F]" />
+                    <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: '#00875A' }} />
                   )}
                 </Link>
               ))}
             </div>
 
             {/* Divider */}
-            <div className="my-4 border-t border-[#0A211F]/10" />
+            <div className="my-4 border-t" style={{ borderColor: '#E8E8E4' }} />
 
             {/* Sub-pages */}
-            <div className="space-y-1">
+            <div className="space-y-0.5">
               <p
-                className="px-4 py-2 text-[#0A211F]/40 uppercase tracking-widest"
-                style={{ fontSize: '0.7rem', fontWeight: 600 }}
+                className="px-4 py-2 text-xs uppercase tracking-widest"
+                style={{ color: '#9CA39B', letterSpacing: '0.08em' }}
               >
                 Industries
               </p>
@@ -165,32 +184,50 @@ export default function Header() {
                 { path: '/industries/e-commerce', label: 'E-Commerce' },
                 { path: '/industries/fashion', label: 'Fashion' },
                 { path: '/industries/travel', label: 'Travel' },
+                { path: '/financial', label: 'Financial' },
               ].map((item) => (
                 <Link
                   key={item.path}
                   to={item.path}
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`flex items-center px-4 py-2.5 rounded-xl text-sm transition-all ${
-                    isActive(item.path)
-                      ? 'bg-white/80 text-[#0A211F]'
-                      : 'text-[#0A211F]/50 hover:bg-white/50 hover:text-[#0A211F]'
-                  }`}
-                  style={{ fontWeight: isActive(item.path) ? 500 : 400 }}
+                  className="flex items-center px-4 py-2.5 rounded text-sm transition-colors"
+                  style={{
+                    color: isActive(item.path) ? '#1A1A1A' : '#6B6B63',
+                    backgroundColor: isActive(item.path) ? '#F0FAF5' : 'transparent',
+                    borderRadius: '4px',
+                  }}
                 >
                   {item.label}
                 </Link>
               ))}
             </div>
 
-            {/* CTA Button */}
-            <div className="mt-6 px-4">
+            {/* CTA Buttons */}
+            <div className="mt-6 space-y-2 px-4">
+              <Link
+                to="/wizard"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center justify-center gap-2 w-full py-3 text-sm transition-colors"
+                style={{
+                  backgroundColor: '#00875A',
+                  color: '#FFFFFF',
+                  borderRadius: '4px',
+                }}
+              >
+                Start Project
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
               <Link
                 to="/booking"
                 onClick={() => setMobileMenuOpen(false)}
-                className="block w-full text-center bg-[#0A211F] text-[#F1EEEA] py-3.5 rounded-full tracking-wide hover:bg-[#0A211F]/90 transition-colors"
-                style={{ fontWeight: 500 }}
+                className="flex items-center justify-center w-full py-3 text-sm border transition-colors"
+                style={{
+                  borderColor: '#1A1A1A',
+                  color: '#1A1A1A',
+                  borderRadius: '4px',
+                }}
               >
-                Get in Touch
+                Book a Call
               </Link>
             </div>
           </nav>

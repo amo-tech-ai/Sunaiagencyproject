@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import { ArrowRight, Bot, Brain, Shield, Zap, BarChart3 } from 'lucide-react';
 
 const SOLUTIONS = [

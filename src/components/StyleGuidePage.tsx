@@ -1,9 +1,8 @@
 'use client';
 
-import { motion, useInView } from 'motion/react';
+import { useNavigate } from 'react-router';
 import { useRef } from 'react';
-import { Check, ArrowRight } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Check, ArrowRight, Brain, Zap, Workflow, Bot, Globe, BarChart3 } from 'lucide-react';
 import { pageToPath } from '../lib/navigation';
 import WebDesignServicesGrid from './web-design/WebDesignServicesGrid';
 import WebDesignProcess from './web-design/WebDesignProcess';
@@ -147,115 +146,7 @@ export default function StyleGuidePage() {
     },
   ];
 
-  const homepageComponents = [
-    {
-      name: 'Service Image Card (Hover Expand)',
-      palette: 'Spruced',
-      description: 'Premium service card with image, short description, and hover-to-expand overlay with extended content and CTA',
-      features: [
-        'Default state: Image (220px) + title + short description + "Learn More" link',
-        'Hover state: Smooth slide-up overlay with beige background (#F4F3EE)',
-        'Extended description with staggered animation delays',
-        'Rounded corners (rounded-2xl) with subtle border',
-        'Optional badge overlay on image (e.g., "90+")',
-      ],
-      usage: 'Homepage "Our Services" section — 3-column grid',
-      code: `<div className="group cursor-pointer rounded-2xl overflow-hidden">
-  {/* Default State */}
-  <div className="transition-opacity group-hover:opacity-0">
-    <img className="h-[220px] object-cover" />
-    <div className="p-6">
-      <h3 className="font-['Playfair_Display'] text-xl mb-2">Title</h3>
-      <p className="text-sm text-gray-600 mb-4">Short description</p>
-      <span className="text-sm text-[#2E6F5E]">Learn More →</span>
-    </div>
-  </div>
-  
-  {/* Hover State */}
-  <div className="absolute inset-0 bg-[#F4F3EE] translate-y-full group-hover:translate-y-0">
-    <h3>Title</h3>
-    <p>Extended description</p>
-    <button className="bg-[#1E3D36]">LEARN MORE</button>
-  </div>
-</div>`,
-    },
-    {
-      name: 'Capability Card',
-      palette: 'Spruced',
-      description: 'Minimal card with icon, title, and description for showcasing AI capabilities',
-      features: [
-        'Muted sage background (#DCE5DD)',
-        'Icon container with accent green backdrop (rgba(46,111,94,0.12))',
-        'Rounded corners (rounded-xl)',
-        'Hover lift effect (-translate-y-1)',
-        'Clean typography hierarchy',
-      ],
-      usage: 'Homepage "Our AI Solutions and Capabilities" section — 3-column grid',
-      code: `<div className="rounded-xl p-8 bg-[#DCE5DD] hover:-translate-y-1 transition-all">
-  <div className="w-10 h-10 rounded-lg bg-[rgba(46,111,94,0.12)] flex items-center justify-center mb-5">
-    <Icon className="w-5 h-5 text-[#2E6F5E]" />
-  </div>
-  <h3 className="text-lg font-semibold text-[#1E3D36] mb-3">Title</h3>
-  <p className="text-sm text-gray-600 leading-relaxed">Description</p>
-</div>`,
-    },
-    {
-      name: 'Hero Section (Editorial)',
-      palette: 'Spruced',
-      description: 'Two-column hero with headline, body, CTAs, and image',
-      features: [
-        'Warm beige background (#F4F3EE)',
-        'Large Playfair Display headline (clamp 2.25rem to 3.5rem)',
-        'Deep green text (#1E3D36)',
-        'Two-button CTA pattern (Primary + Outline)',
-        'Image with rounded corners and decorative dot',
-        'Responsive grid (lg:grid-cols-2)',
-      ],
-      usage: 'Homepage hero section — top of page',
-      code: `<section className="bg-[#F4F3EE] pt-28 pb-24">
-  <div className="grid lg:grid-cols-2 gap-16 items-center">
-    <div>
-      <h1 className="font-['Playfair_Display'] text-6xl text-[#1E3D36] mb-6">
-        Build intelligent AI products
-      </h1>
-      <p className="text-lg text-gray-600 mb-10">Description</p>
-      <div className="flex gap-4">
-        <button className="bg-[#1E3D36] text-white px-6 py-3">Primary CTA</button>
-        <button className="border-2 border-[#1E3D36] text-[#1E3D36] px-6 py-3">Secondary</button>
-      </div>
-    </div>
-    <div className="rounded-2xl overflow-hidden">
-      <img className="w-full h-full object-cover" />
-    </div>
-  </div>
-</section>`,
-    },
-    {
-      name: 'Credibility Band',
-      palette: 'Spruced',
-      description: 'Full-width dark banner with centered messaging and key metric',
-      features: [
-        'Deep green background (#1E3D36)',
-        'Eyebrow label with extreme letter-spacing',
-        'Large Playfair Display headline in white',
-        'Bold metric callout (e.g., "94% client satisfaction")',
-        'Centered text alignment',
-        'Generous vertical padding (py-20 to py-24)',
-      ],
-      usage: 'Homepage credibility section — between major content blocks',
-      code: `<section className="bg-[#1E3D36] py-20 text-center">
-  <p className="text-white/40 uppercase tracking-[0.25em] text-xs mb-5">
-    Trusted by teams scaling with AI
-  </p>
-  <h2 className="font-['Playfair_Display'] text-4xl text-white mb-6">
-    Built for teams scaling with AI.
-  </h2>
-  <p className="text-white/50 text-xl">
-    <span className="text-white font-bold">94%</span> client satisfaction
-  </p>
-</section>`,
-    },
-  ];
+  // Homepage component data removed — now rendered as live UI below
 
   return (
     <div className="bg-white">
@@ -568,61 +459,133 @@ export default function StyleGuidePage() {
             ))}
           </div>
 
-          {/* Homepage Components */}
+          {/* Homepage Components — Live UI */}
           <h3 className="font-['Playfair_Display'] text-3xl text-gray-900 mt-16 mb-4">
             Homepage Components
           </h3>
           <p className="font-['Lora'] text-lg text-gray-600 mb-12 max-w-3xl">
-            Specialized components from HomePageV3 with Spruced design palette.
+            Specialized components from HomePageV3 with Spruced design palette — rendered as live, interactive UI.
           </p>
 
-          <div className="space-y-8">
-            {homepageComponents.map((component, index) => (
-              <div
-                key={index}
-                className="border border-gray-200 bg-white hover:border-[#84CC16] transition-colors"
-              >
-                <div className="p-8 border-b border-gray-200 bg-gray-50">
-                  <div className="flex items-start justify-between mb-3">
-                    <h4 className="font-['Playfair_Display'] text-2xl text-gray-900">
-                      {component.name}
-                    </h4>
-                    <span className="text-xs font-['Lora'] font-semibold text-[#2E6F5E] bg-[#DCE5DD] px-3 py-1 rounded-full">
-                      {component.palette}
-                    </span>
+          {/* ── 1. Service Image Card (Hover Expand) ── */}
+          <div className="mb-16">
+            <div className="flex items-start justify-between mb-6">
+              <div>
+                <h4 className="font-['Playfair_Display'] text-2xl text-gray-900 mb-1">Service Image Card (Hover Expand)</h4>
+                <p className="font-['Lora'] text-sm text-gray-500">Usage: Homepage "Our Services" section — 3-column grid</p>
+              </div>
+              <span className="text-xs font-['Lora'] font-semibold text-[#2E6F5E] bg-[#DCE5DD] px-3 py-1 rounded-full">Spruced</span>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {[
+                { title: 'AI Agents & Automation', shortDesc: 'Custom AI agents that automate complex workflows and business processes.', longDesc: 'We design and deploy intelligent agents that handle research, customer support, data analysis, and operations — running 24/7 with human oversight.', image: 'https://images.unsplash.com/photo-1758626099012-2904337e9c60?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtb2Rlcm4lMjBvZmZpY2UlMjBBSSUyMHRlY2hub2xvZ3klMjB3b3Jrc3BhY2V8ZW58MXx8fHwxNzcyODQxMjAwfDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral', badge: null },
+                { title: 'Web Applications', shortDesc: 'Full-stack AI-powered web apps built for scale and performance.', longDesc: 'React, Next.js, and TypeScript applications with integrated AI features — from dashboards to customer-facing platforms.', image: 'https://images.unsplash.com/photo-1739298061740-5ed03045b280?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0ZWFtJTIwY29sbGFib3JhdGlvbiUyMGJ1c2luZXNzJTIwbWVldGluZ3xlbnwxfHx8fDE3NzI3ODQwNjN8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral', badge: '90+' },
+                { title: 'AI Strategy & Consulting', shortDesc: 'Roadmaps, assessments, and governance for enterprise AI adoption.', longDesc: 'We evaluate your AI maturity, define strategic roadmaps, and build governance frameworks that align with your business objectives.', image: 'https://images.unsplash.com/photo-1575388902449-6bca946ad549?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxmdXR1cmlzdGljJTIwZGF0YSUyMGRhc2hib2FyZCUyMHNjcmVlbnxlbnwxfHx8fDE3NzI4NDEyMDB8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral', badge: null },
+              ].map((card, i) => (
+                <div key={i} className="group cursor-pointer rounded-2xl overflow-hidden border border-gray-200 bg-white relative" style={{ minHeight: '380px' }}>
+                  <div className="transition-opacity duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:opacity-0">
+                    <div className="relative">
+                      <img src={card.image} alt={card.title} className="h-[220px] w-full object-cover" />
+                      {card.badge && (<span className="absolute top-4 right-4 bg-[#1E3D36] text-white text-xs font-semibold px-3 py-1 rounded-full">{card.badge}</span>)}
+                    </div>
+                    <div className="p-6">
+                      <h3 className="font-['Playfair_Display'] text-xl text-[#1E3D36] mb-2">{card.title}</h3>
+                      <p className="text-sm text-gray-600 mb-4">{card.shortDesc}</p>
+                      <span className="text-sm text-[#2E6F5E] font-medium inline-flex items-center gap-1">Learn More <ArrowRight className="w-3.5 h-3.5" /></span>
+                    </div>
                   </div>
-                  <p className="font-['Lora'] text-gray-600 mb-4">
-                    {component.description}
-                  </p>
-                  <p className="font-['Lora'] text-sm text-gray-500">
-                    <span className="font-semibold">Usage:</span> {component.usage}
-                  </p>
+                  <div className="absolute inset-0 bg-[#F4F3EE] p-8 flex flex-col justify-between translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]">
+                    <div>
+                      <h3 className="font-['Playfair_Display'] text-xl text-[#1E3D36] mb-4">{card.title}</h3>
+                      <p className="text-sm text-gray-600 leading-relaxed mb-6">{card.longDesc}</p>
+                    </div>
+                    <button className="bg-[#1E3D36] text-white text-xs font-semibold uppercase tracking-wider px-6 py-3 w-full hover:bg-[#2E6F5E] transition-colors">Learn More</button>
+                  </div>
                 </div>
+              ))}
+            </div>
+          </div>
 
-                <div className="p-8">
-                  <h5 className="font-['Lora'] text-sm font-semibold text-gray-900 uppercase tracking-wider mb-3">
-                    Key Features
-                  </h5>
-                  <ul className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-6">
-                    {component.features.map((feature, idx) => (
-                      <li key={idx} className="flex items-start gap-2 font-['Lora'] text-sm text-gray-600">
-                        <Check className="w-4 h-4 text-[#84CC16] flex-shrink-0 mt-0.5" />
-                        <span>{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
+          {/* ── 2. Capability Card ── */}
+          <div className="mb-16">
+            <div className="flex items-start justify-between mb-6">
+              <div>
+                <h4 className="font-['Playfair_Display'] text-2xl text-gray-900 mb-1">Capability Card</h4>
+                <p className="font-['Lora'] text-sm text-gray-500">Usage: Homepage "Our AI Solutions and Capabilities" section — 3-column grid</p>
+              </div>
+              <span className="text-xs font-['Lora'] font-semibold text-[#2E6F5E] bg-[#DCE5DD] px-3 py-1 rounded-full">Spruced</span>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {[
+                { icon: Brain, title: 'Natural Language Processing', desc: 'Advanced text understanding, generation, and analysis for documents, support, and content systems.' },
+                { icon: Bot, title: 'Autonomous Agents', desc: 'AI agents that research, reason, and take action on your behalf — with human-in-the-loop oversight.' },
+                { icon: Workflow, title: 'Workflow Automation', desc: 'End-to-end process automation connecting your CRM, communication tools, and internal databases.' },
+                { icon: BarChart3, title: 'Predictive Analytics', desc: 'Machine learning models that forecast trends, detect anomalies, and optimize decision-making.' },
+                { icon: Globe, title: 'Multi-Channel AI', desc: 'Deploy AI across web, WhatsApp, email, and voice — with consistent context and conversation memory.' },
+                { icon: Zap, title: 'Real-Time Intelligence', desc: 'Live dashboards and AI-powered alerts that surface insights the moment they matter.' },
+              ].map((cap, i) => (
+                <div key={i} className="rounded-xl p-8 bg-[#DCE5DD] hover:-translate-y-1 transition-all duration-300 cursor-default">
+                  <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-5" style={{ background: 'rgba(46,111,94,0.12)' }}>
+                    <cap.icon className="w-5 h-5 text-[#2E6F5E]" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-[#1E3D36] mb-3">{cap.title}</h3>
+                  <p className="text-sm text-gray-600 leading-relaxed">{cap.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
 
-                  <h5 className="font-['Lora'] text-sm font-semibold text-gray-900 uppercase tracking-wider mb-3">
-                    Code Example
-                  </h5>
-                  <pre className="bg-gray-900 p-6 rounded overflow-x-auto">
-                    <code className="font-mono text-xs text-gray-100 whitespace-pre">
-                      {component.code}
-                    </code>
-                  </pre>
+          {/* ── 3. Hero Section (Editorial) ── */}
+          <div className="mb-16">
+            <div className="flex items-start justify-between mb-6">
+              <div>
+                <h4 className="font-['Playfair_Display'] text-2xl text-gray-900 mb-1">Hero Section (Editorial)</h4>
+                <p className="font-['Lora'] text-sm text-gray-500">Usage: Homepage hero section — top of page</p>
+              </div>
+              <span className="text-xs font-['Lora'] font-semibold text-[#2E6F5E] bg-[#DCE5DD] px-3 py-1 rounded-full">Spruced</span>
+            </div>
+            <section className="bg-[#F4F3EE] rounded-2xl overflow-hidden">
+              <div className="max-w-7xl mx-auto px-8 lg:px-12 pt-20 pb-20">
+                <div className="grid lg:grid-cols-2 gap-16 items-center">
+                  <div>
+                    <h1 className="font-['Playfair_Display'] text-[#1E3D36] mb-6" style={{ fontSize: 'clamp(2.25rem, 4vw, 3.5rem)', lineHeight: 1.1, fontWeight: 400 }}>
+                      Build intelligent AI products that scale
+                    </h1>
+                    <p className="text-lg text-gray-600 mb-10 max-w-md leading-relaxed">
+                      We design, build, and deploy AI systems for teams that need speed, reliability, and real-world performance.
+                    </p>
+                    <div className="flex flex-wrap gap-4">
+                      <button className="bg-[#1E3D36] text-white px-7 py-3.5 text-sm font-semibold hover:bg-[#2E6F5E] transition-colors">Book a Strategy Call</button>
+                      <button className="border-2 border-[#1E3D36] text-[#1E3D36] px-7 py-3.5 text-sm font-semibold hover:bg-[#1E3D36] hover:text-white transition-colors">View Our Work</button>
+                    </div>
+                  </div>
+                  <div className="relative">
+                    <img src="https://images.unsplash.com/photo-1739298061740-5ed03045b280?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0ZWFtJTIwY29sbGFib3JhdGlvbiUyMGJ1c2luZXNzJTIwbWVldGluZ3xlbnwxfHx8fDE3NzI3ODQwNjN8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral" alt="Team collaboration" className="w-full rounded-2xl object-cover" style={{ height: '420px' }} />
+                    <div className="absolute -bottom-3 -left-3 w-6 h-6 rounded-full bg-[#2E6F5E]" />
+                  </div>
                 </div>
               </div>
-            ))}
+            </section>
+          </div>
+
+          {/* ── 4. Credibility Band ── */}
+          <div className="mb-8">
+            <div className="flex items-start justify-between mb-6">
+              <div>
+                <h4 className="font-['Playfair_Display'] text-2xl text-gray-900 mb-1">Credibility Band</h4>
+                <p className="font-['Lora'] text-sm text-gray-500">Usage: Homepage credibility section — between major content blocks</p>
+              </div>
+              <span className="text-xs font-['Lora'] font-semibold text-[#2E6F5E] bg-[#DCE5DD] px-3 py-1 rounded-full">Spruced</span>
+            </div>
+            <section className="bg-[#1E3D36] py-20 lg:py-24 rounded-2xl overflow-hidden text-center px-8">
+              <p className="text-white/40 uppercase tracking-[0.25em] text-xs mb-5 font-['Lora']">Trusted by teams scaling with AI</p>
+              <h2 className="font-['Playfair_Display'] text-white mb-6" style={{ fontSize: 'clamp(1.5rem, 3vw, 2.5rem)', fontWeight: 400, lineHeight: 1.2 }}>
+                Built for teams scaling with AI.
+              </h2>
+              <p className="text-white/50 text-xl font-['Lora']">
+                <span className="text-white font-bold">94%</span> client satisfaction &nbsp;·&nbsp; <span className="text-white font-bold">3.2x</span> average ROI &nbsp;·&nbsp; <span className="text-white font-bold">68%</span> time saved
+              </p>
+            </section>
           </div>
         </div>
       </section>

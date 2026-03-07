@@ -1,4 +1,7 @@
-import { createBrowserRouter, Link } from 'react-router-dom';
+import WizardPage from './components/wizard/WizardPage';
+import ProcessingPage from './components/wizard/ProcessingPage';
+import ProposalPage from './components/wizard/ProposalPage';
+import { createBrowserRouter, Link } from 'react-router';
 import Layout from './components/Layout';
 import HomePageV2 from './components/HomePageV2';
 import HomePage from './components/HomePage';
@@ -25,6 +28,9 @@ import MVPv2Page from './pages/MVPv2Page';
 import AIAgentsPage from './pages/AIAgentsPage';
 import WebAppsPage from './pages/WebAppsPage';
 import SalesCRMPage from './pages/SalesCRMPage';
+import SitemapPage from './components/SitemapPage';
+import ChatbotServicePage from './components/services/ChatbotServicePage';
+import WhatsAppAIPage from './pages/WhatsAppAIPage';
 
 function NotFound() {
   return (
@@ -44,6 +50,15 @@ function NotFound() {
 }
 
 export const router = createBrowserRouter([
+  // Wizard routes — standalone layout (no site header/footer)
+  {
+    path: '/wizard',
+    Component: WizardPage,
+    children: [
+      { path: 'processing', Component: ProcessingPage },
+      { path: 'proposal', Component: ProposalPage },
+    ],
+  },
   {
     path: '/',
     Component: Layout,
@@ -76,6 +91,9 @@ export const router = createBrowserRouter([
       { path: 'sales-crm', Component: SalesCRMPage },
       { path: 'services/crm', Component: SalesCRMPage },
       { path: 'services/sales-crm', Component: SalesCRMPage },
+      { path: 'sitemap', Component: SitemapPage },
+      { path: 'services/chatbot', Component: ChatbotServicePage },
+      { path: 'whatsapp-ai', Component: WhatsAppAIPage },
       { path: '*', Component: NotFound },
     ],
   },

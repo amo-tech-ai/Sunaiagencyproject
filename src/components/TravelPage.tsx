@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { pageToPath } from '../lib/navigation';
 import TravelHero from './travel/TravelHero';
 import TravelIntro from './travel/TravelIntro';

@@ -1,6 +1,6 @@
-import { XCircle, CheckCircle, Zap, Database, TrendingUp, Shield, ArrowRight } from 'lucide-react';
+import { motion, useScroll, useTransform } from 'motion/react';
 import { useEffect, useRef, useState } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { XCircle, CheckCircle, Zap, Database, TrendingUp, Shield, ArrowRight } from 'lucide-react';
 
 export default function ProblemSolution() {
   const [isVisible, setIsVisible] = useState(false);

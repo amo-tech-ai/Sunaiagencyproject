@@ -355,7 +355,7 @@ export function ServicesTechStack() {
         }}
       />
 
-      <div className="max-w-[1200px] mx-auto px-6 lg:px-8 relative z-10">
+      <div className="max-w-[1120px] mx-auto px-6 lg:px-8 relative z-10">
         {/* ── Section Header ── */}
         <div className="mb-20 max-w-2xl">
           <motion.p

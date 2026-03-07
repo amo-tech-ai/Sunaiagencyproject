@@ -1,16 +1,8 @@
 import { 
-  Clock, 
-  Brain, 
-  Database, 
-  Users, 
-  MessageSquare, 
-  Workflow, 
-  BarChart,
-  Target,
-  Sparkles,
-  TrendingUp 
+  Clock, Brain, Database, Users, MessageSquare,
+  Workflow, BarChart, Target, Sparkles, TrendingUp 
 } from 'lucide-react';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'motion/react';
 import { useRef } from 'react';
 
 export default function CapabilitiesGrid() {

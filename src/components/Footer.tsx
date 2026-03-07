@@ -1,4 +1,8 @@
-import { Link } from 'react-router-dom';
+// C02 — Footer
+// BCG design system: warm off-white bg, charcoal text, green accents, Georgia serif
+
+import { Link } from 'react-router';
+import { Sun } from 'lucide-react';
 
 export default function Footer() {
   const companyLinks = [
@@ -9,46 +13,46 @@ export default function Footer() {
   ];
 
   const servicesLinks = [
-    { path: '/services', label: 'Services' },
-    { path: '/solutions', label: 'Solutions' },
-    { path: '/chatbots', label: 'AI Chatbots' },
+    { path: '/services', label: 'All Services' },
+    { path: '/services/chatbot', label: 'AI Chatbots' },
+    { path: '/whatsapp-ai', label: 'WhatsApp AI' },
     { path: '/web-design', label: 'Web Design' },
-    { path: '/mvp-builder', label: 'MVP Builder' },
-    { path: '/mvp-v2', label: 'MVP Builder V2' },
-    { path: '/industries', label: 'Industries' },
-    { path: '/case-studies', label: 'Case Studies' },
+    { path: '/web-apps', label: 'Web Apps' },
+    { path: '/mvp-v2', label: 'MVP Builder' },
+    { path: '/sales-crm', label: 'Sales CRM' },
   ];
 
   const agentsLinks = [
     { path: '/agents', label: 'AI Agents Overview' },
-    { path: '/agents#agent-types', label: 'Agent Types' },
-    { path: '/agents#system-diagram', label: 'How Agents Work' },
-  ];
-
-  const homeLinks = [
-    { path: '/home-v1', label: 'Home V1' },
-    { path: '/', label: 'Home V2 (Luxury)' },
-    { path: '/home-v3', label: 'Home V3 (Spruced)' },
+    { path: '/services/ai-agents', label: 'AI Agents (Services)' },
+    { path: '/solutions', label: 'Solutions' },
   ];
 
   const industriesLinks = [
+    { path: '/industries', label: 'All Industries' },
     { path: '/industries/e-commerce', label: 'E-Commerce' },
     { path: '/industries/fashion', label: 'Fashion' },
     { path: '/industries/travel', label: 'Travel & Tourism' },
-    { path: '/financial', label: 'Financial' },
+    { path: '/financial', label: 'Financial Services' },
   ];
 
   const resourcesLinks = [
+    { path: '/wizard', label: 'Project Wizard' },
+    { path: '/case-studies', label: 'Case Studies' },
     { path: '/style-guide', label: 'Style Guide' },
+    { path: '/sitemap', label: 'Sitemap' },
   ];
 
   const renderLinks = (links: { path: string; label: string }[]) => (
-    <div className="space-y-3">
+    <div className="space-y-2.5">
       {links.map((link) => (
         <Link
           key={link.path + link.label}
           to={link.path}
-          className="block text-sm text-[#0A211F]/50 hover:text-[#0A211F] transition-colors text-left"
+          className="block text-sm transition-colors"
+          style={{ color: '#6B6B63' }}
+          onMouseEnter={e => { e.currentTarget.style.color = '#1A1A1A'; }}
+          onMouseLeave={e => { e.currentTarget.style.color = '#6B6B63'; }}
         >
           {link.label}
         </Link>
@@ -57,63 +61,76 @@ export default function Footer() {
   );
 
   return (
-    <footer className="border-t border-[#0A211F]/10 bg-[#F1EEEA] text-[#0A211F]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-12">
+    <footer className="border-t" style={{ borderColor: '#E8E8E4', backgroundColor: '#FFFFFF' }}>
+      <div className="max-w-[1120px] mx-auto px-6 py-16">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
           {/* Brand */}
-          <div className="md:col-span-4">
-            <p className="text-xl tracking-tight mb-4">Sun AI Agency</p>
-            <p className="text-sm text-[#0A211F]/50 leading-relaxed">
-              Premium AI services for businesses. We build real systems that solve real problems.
+          <div className="lg:col-span-3">
+            <Link to="/" className="flex items-center gap-2 mb-4">
+              <Sun className="w-5 h-5" style={{ color: '#00875A' }} />
+              <span style={{ fontFamily: 'Georgia, serif', color: '#1A1A1A', fontSize: '1.05rem' }}>
+                Sun AI Agency
+              </span>
+            </Link>
+            <p className="text-sm leading-relaxed" style={{ color: '#6B6B63' }}>
+              AI systems that solve real business problems. Strategy, architecture, and production — delivered in 8 weeks.
             </p>
+            <div className="mt-4 h-0.5 w-12" style={{ backgroundColor: '#00875A' }} />
           </div>
 
           {/* Navigation Columns */}
-          <div className="md:col-span-8">
-            <div className="grid grid-cols-2 md:grid-cols-6 gap-8">
-              {/* Company Column */}
+          <div className="lg:col-span-9">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-8">
+              {/* Company */}
               <div>
-                <h3 className="text-sm font-medium text-[#0A211F] mb-4 uppercase tracking-wider">
+                <h3
+                  className="text-xs uppercase tracking-widest mb-4"
+                  style={{ color: '#00875A', letterSpacing: '0.08em' }}
+                >
                   Company
                 </h3>
                 {renderLinks(companyLinks)}
               </div>
 
-              {/* Services Column */}
+              {/* Services */}
               <div>
-                <h3 className="text-sm font-medium text-[#0A211F] mb-4 uppercase tracking-wider">
+                <h3
+                  className="text-xs uppercase tracking-widest mb-4"
+                  style={{ color: '#00875A', letterSpacing: '0.08em' }}
+                >
                   Services
                 </h3>
                 {renderLinks(servicesLinks)}
               </div>
 
-              {/* Industries Column */}
+              {/* Industries */}
               <div>
-                <h3 className="text-sm font-medium text-[#0A211F] mb-4 uppercase tracking-wider">
+                <h3
+                  className="text-xs uppercase tracking-widest mb-4"
+                  style={{ color: '#00875A', letterSpacing: '0.08em' }}
+                >
                   Industries
                 </h3>
                 {renderLinks(industriesLinks)}
               </div>
 
-              {/* Agents Column */}
+              {/* AI Agents */}
               <div>
-                <h3 className="text-sm font-medium text-[#0A211F] mb-4 uppercase tracking-wider">
+                <h3
+                  className="text-xs uppercase tracking-widest mb-4"
+                  style={{ color: '#00875A', letterSpacing: '0.08em' }}
+                >
                   AI Agents
                 </h3>
                 {renderLinks(agentsLinks)}
               </div>
 
-              {/* Home Column */}
+              {/* Resources */}
               <div>
-                <h3 className="text-sm font-medium text-[#0A211F] mb-4 uppercase tracking-wider">
-                  Home
-                </h3>
-                {renderLinks(homeLinks)}
-              </div>
-
-              {/* Resources Column */}
-              <div>
-                <h3 className="text-sm font-medium text-[#0A211F] mb-4 uppercase tracking-wider">
+                <h3
+                  className="text-xs uppercase tracking-widest mb-4"
+                  style={{ color: '#00875A', letterSpacing: '0.08em' }}
+                >
                   Resources
                 </h3>
                 {renderLinks(resourcesLinks)}
@@ -122,15 +139,18 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="mt-16 pt-8 border-t border-[#0A211F]/10 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-sm text-[#0A211F]/40">
+        <div
+          className="mt-12 pt-8 border-t flex flex-col sm:flex-row justify-between items-center gap-4"
+          style={{ borderColor: '#E8E8E4' }}
+        >
+          <p className="text-sm" style={{ color: '#9CA39B' }}>
             &copy; 2026 Sun AI Agency. All rights reserved.
           </p>
           <div className="flex gap-6">
-            <button className="text-sm text-[#0A211F]/40 hover:text-[#0A211F] transition-colors">
+            <button className="text-sm transition-colors" style={{ color: '#9CA39B' }}>
               Privacy
             </button>
-            <button className="text-sm text-[#0A211F]/40 hover:text-[#0A211F] transition-colors">
+            <button className="text-sm transition-colors" style={{ color: '#9CA39B' }}>
               Terms
             </button>
           </div>

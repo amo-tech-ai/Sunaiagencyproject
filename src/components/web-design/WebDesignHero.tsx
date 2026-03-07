@@ -1,6 +1,4 @@
-import { motion } from 'motion/react';
-import { ArrowRight } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import backgroundImg from 'figma:asset/fa251af8ed15b4eeb792fb384c36b25796354e5c.png';
 
 export default function WebDesignHero() {

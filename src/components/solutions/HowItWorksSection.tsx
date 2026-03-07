@@ -1,3 +1,6 @@
+// C25 — How It Works Section (Solutions Page)
+// BCG design system: charcoal dark variant, green accents, Georgia serif
+
 import { motion, useInView } from 'motion/react';
 import { useRef } from 'react';
 import { Search, Cpu, Rocket, BarChart3 } from 'lucide-react';
@@ -18,7 +21,7 @@ const STEPS = [
   {
     num: '03',
     title: 'Build & Deploy',
-    desc: 'Production-grade systems launched in 4–6 weeks with full testing, monitoring, and team onboarding.',
+    desc: 'Production-grade systems launched in 4-6 weeks with full testing, monitoring, and team onboarding.',
     Icon: Rocket,
   },
   {
@@ -34,100 +37,81 @@ export default function HowItWorksSection() {
   const inView = useInView(ref, { once: true, amount: 0.2 });
 
   return (
-    <section ref={ref} className="relative bg-[#0A211F] py-24 sm:py-32 overflow-hidden">
-      {/* Subtle top border */}
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[rgba(241,238,234,0.06)] to-transparent" />
-
-      <div className="max-w-[1280px] mx-auto px-6">
+    <section ref={ref} className="border-t" style={{ backgroundColor: '#1A1A1A', borderColor: '#E8E8E4' }}>
+      <div className="max-w-[1120px] mx-auto px-6 py-20 md:py-28">
         {/* Header */}
         <motion.div
-          className="text-center mb-16 sm:mb-20"
+          className="text-center mb-14"
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6 }}
         >
           <p
-            className="text-[#84CC16]/60 uppercase tracking-[0.25em] mb-4"
-            style={{ fontSize: '0.65rem', fontWeight: 600 }}
+            className="text-xs tracking-widest uppercase mb-3"
+            style={{ color: '#00875A', letterSpacing: '0.08em' }}
           >
             Our Process
           </p>
           <h2
-            className="text-[#F1EEEA] tracking-tight"
+            className="text-2xl md:text-3xl"
             style={{
-              fontFamily: "'Playfair Display', Georgia, serif",
-              fontSize: 'clamp(1.75rem, 4vw, 2.75rem)',
-              fontWeight: 600,
-              lineHeight: 1.12,
+              fontFamily: 'Georgia, serif',
+              fontWeight: 400,
+              color: '#F5F5F0',
+              lineHeight: 1.15,
             }}
           >
-            How it <span style={{ fontStyle: 'italic' }}>works</span>
+            How it works
           </h2>
+          <div className="mt-4 mx-auto h-0.5 w-12" style={{ backgroundColor: '#00875A' }} />
         </motion.div>
 
-        {/* Step cards with connectors */}
+        {/* Step cards */}
         <div className="relative">
           {/* Horizontal connector line (desktop) */}
           <div
-            className="hidden lg:block absolute top-[52px] left-[12%] right-[12%] h-px"
-            style={{
-              background:
-                'linear-gradient(90deg, transparent, rgba(132,204,22,0.15) 15%, rgba(132,204,22,0.15) 85%, transparent)',
-            }}
+            className="hidden lg:block absolute top-[48px] left-[10%] right-[10%] h-px"
+            style={{ backgroundColor: 'rgba(245, 245, 240, 0.08)' }}
           />
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {STEPS.map((step, i) => (
               <motion.div
                 key={step.num}
-                className="relative rounded-2xl p-7 group"
+                className="relative rounded p-6"
                 style={{
-                  background: 'rgba(241,238,234,0.025)',
-                  border: '1px solid rgba(241,238,234,0.06)',
-                  transition: 'border-color 0.3s, background 0.3s',
+                  backgroundColor: 'rgba(245, 245, 240, 0.03)',
+                  border: '1px solid rgba(245, 245, 240, 0.08)',
+                  borderRadius: '4px',
                 }}
-                initial={{ opacity: 0, y: 28 }}
+                initial={{ opacity: 0, y: 24 }}
                 animate={inView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.6, delay: 0.15 + i * 0.12 }}
-                onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLElement).style.borderColor = 'rgba(132,204,22,0.18)';
-                  (e.currentTarget as HTMLElement).style.background = 'rgba(132,204,22,0.03)';
-                }}
-                onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLElement).style.borderColor = 'rgba(241,238,234,0.06)';
-                  (e.currentTarget as HTMLElement).style.background = 'rgba(241,238,234,0.025)';
-                }}
+                transition={{ duration: 0.6, delay: 0.15 + i * 0.1 }}
               >
-                {/* Icon circle */}
+                {/* Icon */}
                 <div
-                  className="w-[44px] h-[44px] rounded-xl flex items-center justify-center mb-5"
-                  style={{
-                    background: 'rgba(132,204,22,0.08)',
-                    border: '1px solid rgba(132,204,22,0.12)',
-                  }}
+                  className="w-11 h-11 rounded flex items-center justify-center mb-4"
+                  style={{ backgroundColor: 'rgba(0, 135, 90, 0.12)', borderRadius: '4px' }}
                 >
-                  <step.Icon className="w-5 h-5 text-[#84CC16]/70" />
+                  <step.Icon className="w-5 h-5" style={{ color: '#00875A' }} />
                 </div>
 
                 {/* Step number */}
                 <span
-                  className="text-[#84CC16]/30 block mb-2"
-                  style={{ fontSize: '0.65rem', fontWeight: 700, letterSpacing: '0.1em' }}
+                  className="text-xs tracking-widest uppercase block mb-2"
+                  style={{ color: 'rgba(0, 135, 90, 0.6)', letterSpacing: '0.08em' }}
                 >
-                  STEP {step.num}
+                  Step {step.num}
                 </span>
 
                 <h3
-                  className="text-[#F1EEEA]/90 mb-2.5"
-                  style={{ fontSize: '1.05rem', fontWeight: 600, lineHeight: 1.3 }}
+                  className="text-base mb-2"
+                  style={{ fontFamily: 'Georgia, serif', color: '#F5F5F0' }}
                 >
                   {step.title}
                 </h3>
 
-                <p
-                  className="text-[#F1EEEA]/35"
-                  style={{ fontSize: '0.825rem', lineHeight: 1.6 }}
-                >
+                <p className="text-sm" style={{ color: 'rgba(245, 245, 240, 0.45)', lineHeight: 1.6 }}>
                   {step.desc}
                 </p>
               </motion.div>

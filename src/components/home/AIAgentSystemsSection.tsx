@@ -1,5 +1,5 @@
+import { Link } from 'react-router';
 import { motion } from 'motion/react';
-import { Link } from 'react-router-dom';
 import {
   ArrowRight,
   Users,
@@ -14,20 +14,13 @@ import {
 import { ImageWithFallback } from '../figma/ImageWithFallback';
 
 /* ═══════════════════════════════════════════════════════════════
-   C13 — AI Agent Systems — Cinematic Enterprise Showcase
+   C13 — AI Agent Systems — Enterprise Dashboard Showcase
    ═══════════════════════════════════════════════════════════════
    
+   BCG design system dark variant: charcoal #1A1A1A background,
+   BCG green #00875A accents, Georgia serif headlines.
    Enterprise AI platform interface visualizing autonomous AI
-   agents managing business workflows. Dark cinematic background
-   with emerald + blue holographic glow.
-   
-   Visual modules:
-   - Lead Qualification Dashboard
-   - Customer Onboarding Workflow
-   - Automation Pipeline
-   - Analytics Graphs
-   
-   Style: premium SaaS marketing illustration (OpenAI / Stripe)
+   agents managing business workflows.
    
    ═══════════════════════════════════════════════════════════════ */
 
@@ -181,16 +174,16 @@ export default function AIAgentSystemsSection() {
             transition={{ delay: 0.1, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
             className="mb-5"
             style={{
-              fontFamily: "'Playfair Display', Georgia, serif",
+              fontFamily: "Georgia, serif",
               fontSize: 'clamp(2rem, 4.5vw, 3.25rem)',
-              fontWeight: 600,
-              lineHeight: 1.12,
-              color: '#FFFFFF',
-              letterSpacing: '-0.02em',
+              fontWeight: 400,
+              lineHeight: 1.15,
+              color: '#F5F5F0',
+              letterSpacing: '-0.01em',
             }}
           >
             Autonomous AI agents{' '}
-            <span style={{ color: '#7EF473', fontStyle: 'italic' }}>managing</span>
+            <span style={{ color: '#00875A' }}>managing</span>
             <br className="hidden sm:block" /> your business workflows
           </motion.h2>
 
@@ -201,8 +194,7 @@ export default function AIAgentSystemsSection() {
             transition={{ delay: 0.2, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
             className="max-w-xl mx-auto mb-10"
             style={{
-              color: 'rgba(255, 255, 255, 0.45)',
-              fontFamily: 'Inter, system-ui, sans-serif',
+              color: 'rgba(245, 245, 240, 0.55)',
               fontSize: '1.05rem',
               lineHeight: 1.7,
             }}
@@ -620,14 +612,12 @@ export default function AIAgentSystemsSection() {
         >
           <Link
             to="/agents"
-            className="group inline-flex items-center gap-2.5 px-8 py-3.5 rounded-full transition-all duration-300"
+            className="group inline-flex items-center gap-2.5 px-8 py-3.5 transition-all duration-300"
             style={{
-              background: 'rgba(126, 244, 115, 0.1)',
-              border: '1px solid rgba(126, 244, 115, 0.2)',
-              color: '#7EF473',
+              backgroundColor: '#00875A',
+              color: '#FFFFFF',
+              borderRadius: '4px',
               fontSize: '0.875rem',
-              fontWeight: 600,
-              fontFamily: 'Inter, system-ui, sans-serif',
             }}
           >
             Explore AI Agent Systems

@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sun AI — Technology Stack</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+
+:root {
+  /* Background */
+  --bg:           #0F1612;
+  --bg-2:         #141E18;
+  --bg-3:         #192417;
+
+  /* Cards */
+  --card:         #FAFAF8;
+  --card-hover:   #FFFFFF;
+
+  /* Text */
+  --ink:          #18170F;
+  --ink-2:        #2E2D25;
+  --muted:        #726F66;
+  --faint:        #A8A59C;
+
+  /* Emerald accent */
+  --em:           #1A5C3E;
+  --em-2:         #237850;
+  --em-3:         #2FA06A;
+  --em-bg:        #EBF3EE;
+  --em-glow:      rgba(26,92,62,0.15);
+
+  /* Rules */
+  --rule:         #E4E1DA;
+  --rule-card:    #EDEBE5;
+
+  /* Shadows */
+  --sh-sm: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.05);
+  --sh-md: 0 4px 16px rgba(0,0,0,0.10), 0 2px 6px rgba(0,0,0,0.06);
+  --sh-lg: 0 8px 32px rgba(0,0,0,0.14), 0 3px 10px rgba(0,0,0,0.08);
+
+  --ease: cubic-bezier(0.16,1,0.3,1);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  font-family: 'Jost', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  color: var(--ink);
+}
+
+/* ── BG TEXTURE ── */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.025) 1px, transparent 0);
+  background-size: 36px 36px;
+  pointer-events: none; z-index: 0;
+}
+
+/* Emerald ambient glow top */
+body::after {
+  content: '';
+  position: fixed; top: 0; left: 0; right: 0; height: 320px;
+  background: radial-gradient(ellipse 70% 100% at 50% 0%, rgba(26,92,62,0.18) 0%, transparent 100%);
+  pointer-events: none; z-index: 0;
+}
+
+/* ── PAGE WRAPPER ── */
+.page {
+  position: relative; z-index: 1;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 88px 48px 100px;
+}
+
+/* ── SECTION HEADER ── */
+.s-header {
+  text-align: center;
+  margin-bottom: 72px;
+  animation: fadeDown 0.7s var(--ease) both;
+}
+
+@keyframes fadeDown {
+  from { opacity: 0; transform: translateY(-14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.eyebrow {
+  display: inline-flex; align-items: center; gap: 12px;
+  margin-bottom: 24px;
+}
+.eyebrow-line { width: 32px; height: 1.5px; background: var(--em-3); }
+.eyebrow-text {
+  font-size: 10.5px; font-weight: 600;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--em-3);
+}
+
+.s-header h1 {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: clamp(36px, 4vw, 56px);
+  font-weight: 300; line-height: 1.08;
+  letter-spacing: -0.022em;
+  color: rgba(255,255,255,0.92);
+  margin-bottom: 16px;
+}
+.s-header h1 em { font-style: italic; color: var(--em-3); }
+
+.s-header p {
+  font-size: 15px; font-weight: 300; line-height: 1.7;
+  color: rgba(255,255,255,0.42);
+  max-width: 520px; margin: 0 auto;
+}
+
+/* ── CATEGORY BLOCK ── */
+.category {
+  margin-bottom: 56px;
+  animation: fadeUp 0.6s var(--ease) both;
+}
+.category:nth-child(1) { animation-delay: 0.05s; }
+.category:nth-child(2) { animation-delay: 0.12s; }
+.category:nth-child(3) { animation-delay: 0.19s; }
+.category:nth-child(4) { animation-delay: 0.26s; }
+.category:nth-child(5) { animation-delay: 0.33s; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Category header */
+.cat-header {
+  display: flex; align-items: center; gap: 14px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+
+.cat-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 13px; font-weight: 300;
+  color: rgba(255,255,255,0.2);
+  letter-spacing: 0.05em;
+  width: 24px; flex-shrink: 0;
+}
+
+.cat-title {
+  font-family: 'Jost', sans-serif;
+  font-size: 12px; font-weight: 600;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: rgba(255,255,255,0.55);
+}
+
+.cat-rule { flex: 1; height: 1px; background: rgba(255,255,255,0.06); }
+
+.cat-count {
+  font-size: 11px; font-weight: 300;
+  color: rgba(255,255,255,0.2);
+  letter-spacing: 0.06em;
+}
+
+/* Cards grid */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+
+/* ── TECH CARD ── */
+.card {
+  background: var(--card);
+  border-radius: 12px;
+  padding: 26px 24px 24px;
+  box-shadow: var(--sh-sm);
+  border: 1px solid rgba(255,255,255,0.06);
+  display: flex; flex-direction: column; gap: 0;
+  position: relative; overflow: hidden;
+  transition: transform 0.3s var(--ease), box-shadow 0.3s var(--ease), background 0.25s;
+  cursor: default;
+}
+
+/* Left accent bar — hidden by default */
+.card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; bottom: 0;
+  width: 3px;
+  background: linear-gradient(to bottom, var(--em-3), var(--em));
+  border-radius: 12px 0 0 12px;
+  opacity: 0;
+  transform: scaleY(0.4);
+  transition: opacity 0.3s var(--ease), transform 0.3s var(--ease);
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--sh-lg);
+  background: var(--card-hover);
+}
+
+.card:hover::before {
+  opacity: 1;
+  transform: scaleY(1);
+}
+
+/* Icon container */
+.card-icon {
+  width: 38px; height: 38px;
+  border-radius: 9px;
+  background: #F0EDE6;
+  border: 1px solid var(--rule-card);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 16px;
+  transition: background 0.25s, border-color 0.25s;
+  flex-shrink: 0;
+}
+
+.card:hover .card-icon {
+  background: var(--em-bg);
+  border-color: rgba(26,92,62,0.25);
+}
+
+.card-icon svg {
+  width: 17px; height: 17px;
+  stroke: var(--muted);
+  fill: none; stroke-width: 1.5;
+  stroke-linecap: round; stroke-linejoin: round;
+  transition: stroke 0.25s;
+}
+
+.card:hover .card-icon svg { stroke: var(--em); }
+
+/* Card text */
+.card-name {
+  font-size: 13.5px; font-weight: 600;
+  color: var(--ink); letter-spacing: 0.01em;
+  margin-bottom: 9px; line-height: 1.25;
+}
+
+/* Category-specific accent overrides on hover */
+.cat-teal .card:hover .card-icon { background: #E6F4F4; border-color: rgba(13,110,110,0.2); }
+.cat-teal .card:hover .card-icon svg { stroke: #0D7A78; }
+.cat-teal .card::before { background: linear-gradient(to bottom, #0ABFBC, #0D7A78); }
+
+.cat-blue .card:hover .card-icon { background: #EBF0FA; border-color: rgba(27,79,191,0.2); }
+.cat-blue .card:hover .card-icon svg { stroke: #1B4FBF; }
+.cat-blue .card::before { background: linear-gradient(to bottom, #5B8EFF, #1B4FBF); }
+
+.cat-warm .card:hover .card-icon { background: #F5F0E8; border-color: rgba(180,120,40,0.2); }
+.cat-warm .card:hover .card-icon svg { stroke: #9A6B20; }
+.cat-warm .card::before { background: linear-gradient(to bottom, #D4A03A, #9A6B20); }
+
+/* Card use-line (bold outcome) */
+.card-use {
+  font-size: 13px; font-weight: 500;
+  color: var(--ink-2);
+  line-height: 1.35;
+  letter-spacing: 0.005em;
+  margin-bottom: 8px;
+}
+
+.card-desc {
+  font-size: 12px; font-weight: 300;
+  color: var(--faint);
+  line-height: 1.60;
+  letter-spacing: 0.01em;
+  border-top: 1px solid var(--rule-card);
+  padding-top: 8px;
+  margin-top: 2px;
+}
+
+/* ── BOTTOM STATS BAND ── */
+.stats-band {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.06);
+  margin-top: 16px;
+  animation: fadeUp 0.6s var(--ease) 0.45s both;
+}
+
+.stat-cell {
+  background: rgba(255,255,255,0.03);
+  padding: 24px 28px;
+  display: flex; flex-direction: column; gap: 4px;
+  transition: background 0.2s;
+}
+.stat-cell:hover { background: rgba(255,255,255,0.06); }
+
+.stat-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 34px; font-weight: 400;
+  color: rgba(255,255,255,0.85);
+  line-height: 1; letter-spacing: -0.02em;
+}
+.stat-num span { color: var(--em-3); }
+
+.stat-label {
+  font-size: 11.5px; font-weight: 300;
+  color: rgba(255,255,255,0.3);
+  line-height: 1.4; letter-spacing: 0.01em;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  .cards-grid { grid-template-columns: repeat(2, 1fr); }
+  .stats-band { grid-template-columns: repeat(2, 1fr); }
+  .page { padding: 60px 28px 80px; }
+}
+
+@media (max-width: 560px) {
+  .cards-grid { grid-template-columns: 1fr; }
+  .stats-band { grid-template-columns: 1fr 1fr; }
+  .page { padding: 48px 20px 64px; }
+  .s-header h1 { font-size: 32px; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ── HEADER ── -->
+  <div class="s-header">
+    <div class="eyebrow">
+      <div class="eyebrow-line"></div>
+      <span class="eyebrow-text">Sun AI Agency · Technology Stack</span>
+      <div class="eyebrow-line"></div>
+    </div>
+    <h1>Built on the right tools.<br><em>Deployed with precision.</em></h1>
+    <p>Every technology is chosen for a specific reason — performance, scalability, and fit for AI-native products. No vendor lock-in. No generic toolchains.</p>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       CAT 1 — AI & AGENT INTELLIGENCE
+  ══════════════════════════════════════ -->
+  <div class="category">
+    <div class="cat-header">
+      <span class="cat-num">01</span>
+      <span class="cat-title">AI & Agent Intelligence</span>
+      <div class="cat-rule"></div>
+      <span class="cat-count">5 technologies</span>
+    </div>
+    <div class="cards-grid">
+
+      <div class="card">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.93 4.93l2.12 2.12M16.95 16.95l2.12 2.12M4.93 19.07l2.12-2.12M16.95 7.05l2.12-2.12"/></svg>
+        </div>
+        <div class="card-name">OpenAI ChatGPT</div>
+        <div class="card-use">Powers intelligent chatbots, AI copilots, and customer support assistants.</div>
+        <div class="card-desc">Multimodal AI that handles text, images, and code in one interface — deployed where speed and broad capability coverage are the priority.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 9h6M9 12h6M9 15h4"/></svg>
+        </div>
+        <div class="card-name">Assistants API</div>
+        <div class="card-use">Builds autonomous AI agents that perform tasks, retrieve data, and automate workflows.</div>
+        <div class="card-desc">OpenAI's stateful agent framework with persistent memory and tool calling — no manual state management required.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <div class="card-name">Anthropic Claude</div>
+        <div class="card-use">Used to build advanced AI applications, coding assistants, and long-document analysis tools.</div>
+        <div class="card-desc">Constitutional AI built for reliable reasoning and structured outputs — deployed where nuance and safe agent behavior are non-negotiable.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+        </div>
+        <div class="card-name">LlamaIndex</div>
+        <div class="card-use">Connects AI systems to company documents, databases, and internal knowledge.</div>
+        <div class="card-desc">RAG framework that makes AI answer from your real business data — not generic training — using retrieval-augmented generation pipelines.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        </div>
+        <div class="card-name">Google Gemini</div>
+        <div class="card-use">Enables multimodal AI applications for search, research, coding, and data analysis.</div>
+        <div class="card-desc">1M-token context with native function calling and search grounding — primary intelligence engine for the Sun AI diagnostic wizard and agent platform.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       CAT 2 — DATA & VECTOR INFRASTRUCTURE
+  ══════════════════════════════════════ -->
+  <div class="category cat-teal">
+    <div class="cat-header">
+      <span class="cat-num">02</span>
+      <span class="cat-title">Data & Vector Infrastructure</span>
+      <div class="cat-rule"></div>
+      <span class="cat-count">3 technologies</span>
+    </div>
+    <div class="cards-grid">
+
+      <div class="card">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.66 4.03 3 9 3s9-1.34 9-3V5"/><path d="M3 12c0 1.66 4.03 3 9 3s9-1.34 9-3"/></svg>
+        </div>
+        <div class="card-name">Supabase + pgvector</div>
+        <div class="card-use">Stores company data and enables AI systems to search and understand knowledge bases.</div>
+        <div class="card-desc">Postgres backend with vector similarity search, real-time APIs, and Row Level Security — the core data layer for every Sun AI product deployment.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+        </div>
+        <div class="card-name">Redis</div>
+        <div class="card-use">Accelerates AI applications with ultra-fast caching and real-time data access.</div>
+        <div class="card-desc">In-memory data store for managing task queues and keeping real-time agent workflows fast under production load.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>
+        </div>
+        <div class="card-name">Cloudinary</div>
+        <div class="card-use">Manages and optimizes images and videos used in AI-powered applications.</div>
+        <div class="card-desc">Media CDN with auto-transformation and format optimization — essential for media-intensive e-commerce, fashion, and content platform deployments.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       CAT 3 — AUTOMATION & INTEGRATION
+  ══════════════════════════════════════ -->
+  <div class="category">
+    <div class="cat-header">
+      <span class="cat-num">03</span>
+      <span class="cat-title">Automation & Integration</span>
+      <div class="cat-rule"></div>
+      <span class="cat-count">4 technologies</span>
+    </div>
+    <div class="cards-grid">
+
+      <div class="card">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        </div>
+        <div class="card-name">n8n</div>
+        <div class="card-use">Automates business workflows by connecting AI agents with apps and APIs.</div>
+        <div class="card-desc">Self-hosted engine with 400+ native integrations — links AI agents to CRMs, WhatsApp, and databases with full data sovereignty and no per-task pricing.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <div class="card-name">WhatsApp Business API</div>
+        <div class="card-use">Enables AI assistants to communicate with customers directly on WhatsApp.</div>
+        <div class="card-desc">Official Meta API for production-scale AI — agent replies, broadcast campaigns, order tracking, and CRM sync on the world's most-used messaging channel.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.18 2 2 0 0 1 3.6 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.59a16 16 0 0 0 6 6l.95-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        </div>
+        <div class="card-name">Twilio</div>
+        <div class="card-use">Integrates AI with SMS, voice calls, and messaging platforms.</div>
+        <div class="card-desc">Programmable communication APIs for multi-channel AI reach — used when SMS, voice, and email integrations are required beyond WhatsApp.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        </div>
+        <div class="card-name">Tiptap</div>
+        <div class="card-use">Builds AI-powered editors for writing, content generation, and collaboration.</div>
+        <div class="card-desc">Headless editor framework for AI-powered proposal generators, content tools, and collaborative writing interfaces embedded in client dashboards.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       CAT 4 — FRONTEND & APPLICATION
+  ══════════════════════════════════════ -->
+  <div class="category cat-blue">
+    <div class="cat-header">
+      <span class="cat-num">04</span>
+      <span class="cat-title">Frontend & Application</span>
+      <div class="cat-rule"></div>
+      <span class="cat-count">5 technologies</span>
+    </div>
+    <div class="cards-grid">
+
+      <div class="card">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        </div>
+        <div class="card-name">React</div>
+        <div class="card-use">Builds interactive dashboards and AI-powered web applications.</div>
+        <div class="card-desc">Component-based framework powering Sun AI's diagnostic wizard, client portals, and agent dashboards — fast rendering, composable architecture.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        </div>
+        <div class="card-name">Next.js</div>
+        <div class="card-use">Creates fast, scalable websites and AI platforms.</div>
+        <div class="card-desc">Full-stack React framework with server rendering, API routes, and Edge functions — the production standard for public-facing Sun AI products.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24"><path d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+        </div>
+        <div class="card-name">TypeScript</div>
+        <div class="card-use">Improves reliability when building complex AI software systems.</div>
+        <div class="card-desc">Typed superset of JavaScript that enforces data contracts and catches errors before runtime — essential for maintainable AI codebases at scale.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+        </div>
+        <div class="card-name">Tailwind CSS</div>
+        <div class="card-use">Designs modern, responsive user interfaces quickly.</div>
+        <div class="card-desc">Utility-first CSS framework with design tokens — every Sun AI interface ships with a consistent visual language built for rapid iteration.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        </div>
+        <div class="card-name">Vite</div>
+        <div class="card-use">Speeds up development and improves web application performance.</div>
+        <div class="card-desc">Next-generation build tooling with sub-second hot reload and optimized production bundles — default development environment for all Sun AI React applications.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       CAT 5 — DEPLOYMENT & INFRASTRUCTURE
+  ══════════════════════════════════════ -->
+  <div class="category cat-warm">
+    <div class="cat-header">
+      <span class="cat-num">05</span>
+      <span class="cat-title">Deployment & Infrastructure</span>
+      <div class="cat-rule"></div>
+      <span class="cat-count">3 technologies</span>
+    </div>
+    <div class="cards-grid">
+
+      <div class="card">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        </div>
+        <div class="card-name">Vercel</div>
+        <div class="card-use">Deploys websites and AI applications globally with fast performance.</div>
+        <div class="card-desc">Edge-optimized cloud platform with zero-config CI/CD, instant rollbacks, and built-in performance monitoring for React and Next.js applications.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>
+        </div>
+        <div class="card-name">Docker</div>
+        <div class="card-use">Ensures AI systems run reliably across development and production environments.</div>
+        <div class="card-desc">Container runtime that packages AI software identically across every environment — zero drift, predictable deployments, consistent behavior at every stage.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+        </div>
+        <div class="card-name">GitHub</div>
+        <div class="card-use">Manages code, collaboration, and software updates for AI applications.</div>
+        <div class="card-desc">Version control platform for managing codebases, reviewing changes, and maintaining full audit trails across every Sun AI product build.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── STATS BAND ── -->
+  <div class="stats-band">
+    <div class="stat-cell">
+      <div class="stat-num">20<span>+</span></div>
+      <div class="stat-label">Production-tested technologies in active deployment</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-num">48<span>+</span></div>
+      <div class="stat-label">Specialized AI agent types deployable from this stack</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-num">4–6<span>wk</span></div>
+      <div class="stat-label">Median time to full production deployment</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-num">100<span>%</span></div>
+      <div class="stat-label">Client codebase ownership — no vendor lock-in</div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

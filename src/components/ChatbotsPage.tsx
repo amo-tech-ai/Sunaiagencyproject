@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { pageToPath } from '../lib/navigation';
 import ChatbotsHero from './chatbots/ChatbotsHero';
 import ProblemSolution from './chatbots/ProblemSolution';

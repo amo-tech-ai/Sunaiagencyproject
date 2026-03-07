@@ -1,55 +1,188 @@
 # SITEMAP — SUN AI AGENCY WEBSITE
 
-**Version:** 11  
-**Last Updated:** 2026-01-08  
-**Status:** Sitemap defined, pages in development  
-**Design System:** Calm Luxury Editorial (V11)
+**Version:** 12  
+**Last Updated:** 2026-03-07  
+**Status:** All routes implemented with React Router  
+**Design System:** BCG Consulting-Inspired (Calm Luxury Editorial)  
+**Base URL:** `https://sunaiagency.com`
 
 ---
 
-## SITE ARCHITECTURE
+## COMPLETE ROUTE TREE (ACTIVE)
+
+All routes below are live and implemented in `/routes.tsx` using `react-router`.
 
 ```
-sunai.com/
+sunaiagency.com
 │
-├── / (Home V11)
-├── /home-v2 (Home V2 - Luxury Editorial)
+├── / ─────────────────────────── Home (V3 – BCG Luxury)         [HomePageV3]
 │
-├── SOLUTIONS/
-│   ├── /solutions (All Services Overview)
-│   ├── /solutions/ai-web-design
-│   ├── /solutions/app-development
-│   ├── /solutions/ai-agents
-│   ├── /solutions/chatbots
-│   ├── /solutions/sales-crm
-│   └── /solutions/mvp-builder
+├── HOME VARIANTS
+│   ├── /home-v1 ──────────────── Home V1 (Original)             [HomePage]
+│   └── /home-v4 ──────────────── Home V4 (Luxury Editorial)     [HomePageV2]
 │
-├── INDUSTRIES/
-│   ├── /industries/saas
-│   ├── /industries/ecommerce
-│   ├── /industries/real-estate
-│   ├── /industries/b2b-services
-│   ├── /industries/automotive
-│   └── /industries/tourism
+├── SERVICES
+│   ├── /services ─────────────── Services Overview & Tech Stack  [ServicesPage]
+│   ├── /solutions ────────────── AI-Powered Business Solutions   [SolutionsPage]
+│   ├── /web-design ───────────── AI Web Design Services          [WebDesignPage]
+│   ├── /web-apps ─────────────── Custom Web App Development      [WebAppsPage]
+│   ├── /mvp-builder ──────────── Rapid MVP Builder               [MVPBuilderPage]
+│   └── /mvp-v2 ───────────────── MVP Builder V2 (Enhanced)      [MVPv2Page]
 │
-├── COMPANY/
-│   ├── /about
-│   ├── /projects (Case Studies V11)
-│   ├── /case-studies (Legacy)
-│   ├── /process (Process V1)
-│   ├── /process-v12 (Process V12 - Calm Luxury)
-│   ├── /booking
-│   └── /support
+├── AI & AGENTS
+│   ├── /agents ───────────────── AI Agents Overview              [AgentsPage]
+│   ├── /ai-agents ────────────── AI Agents (alias)               [AIAgentsPage]
+│   ├── /services/ai-agents ───── AI Agents Service Page          [AIAgentsPage]
+│   ├── /chatbots ─────────────── AI Chatbot Solutions            [ChatbotsPage]
+│   ├── /sales-crm ────────────── Sales CRM Automation            [SalesCRMPage]
+│   ├── /services/crm ─────────── Sales CRM (alias)              [SalesCRMPage]
+│   └── /services/sales-crm ──── Sales CRM (alias)               [SalesCRMPage]
 │
-└── APP (Existing)/
-    ├── /wizard (Project Brief Wizard)
-    ├── /processing (AI Analysis)
-    ├── /proposal (Proposal Ready)
-    ├── /login
-    ├── /dashboard (Client Portal)
-    ├── /app/leads (CRM)
-    ├── /app/intelligence (Sales Intelligence OS)
-    └── /whatsapp (WhatsApp Automation)
+├── INDUSTRIES
+│   ├── /industries ───────────── Industries Overview             [IndustriesPage]
+│   ├── /industries/e-commerce ── E-Commerce AI Solutions         [EcommercePage]
+│   ├── /industries/fashion ───── Fashion & Retail AI             [FashionPage]
+│   ├── /industries/travel ────── Travel & Tourism AI             [TravelPage]
+│   └── /financial ────────────── Financial Services AI           [FinancialPage]
+│
+├── COMPANY
+│   ├── /about ────────────────── About Us                        [AboutPage]
+│   ├── /process ──────────────── Delivery Process (V12)          [ProcessPageV12]
+│   ├── /projects ─────────────── Featured Project Showcases      [ProjectsPage]
+│   ├── /case-studies ─────────── Client Case Studies             [CaseStudiesPage]
+│   └── /booking ──────────────── Book a Consultation             [BookingPage]
+│
+├── RESOURCES
+│   ├── /style-guide ──────────── BCG Design System Reference     [StyleGuidePage]
+│   ├── /sections ─────────────── Component Sections Showcase     [SectionsPage]
+│   └── /sitemap ──────────────── Visual Sitemap                  [SitemapPage]
+│
+└── /* ────────────────────────── 404 Not Found                   [NotFound]
+```
+
+**Total:** 28 unique routes (excluding 404)  
+**Aliases:** 3 routes are aliases (ai-agents, services/crm, services/sales-crm)  
+**Unique pages:** 25
+
+---
+
+## VISUAL RELATIONSHIP MAP
+
+```
+                            ┌──────────────────┐
+                            │                  │
+                            │    HOME (V3)     │◄──── Primary Entry
+                            │        /         │
+                            │                  │
+                            └───────┬──────────┘
+                                    │
+              ┌─────────────────────┼─────────────────────┐
+              │                     │                     │
+              ▼                     ▼                     ▼
+   ┌──────────────────┐  ┌──────────────────┐  ┌──────────────────┐
+   │    SERVICES       │  │    INDUSTRIES     │  │    COMPANY       │
+   │    /services      │  │    /industries    │  │    /about        │
+   └───────┬──────────┘  └───────┬──────────┘  └───────┬──────────┘
+           │                     │                     │
+     ┌─────┼─────┐         ┌────┼────┐          ┌─────┼─────┐
+     │     │     │         │    │    │          │     │     │
+     ▼     ▼     ▼         ▼    ▼    ▼          ▼     ▼     ▼
+   ┌────┐┌────┐┌────┐  ┌────┐┌───┐┌────┐   ┌─────┐┌────┐┌─────┐
+   │Web ││Web ││MVP │  │E-  ││Fa-││Tra-│   │Pro- ││Pro-││Book-│
+   │Des.││Apps││Bld.│  │Com.││sh.││vel │   │cess ││j.  ││ing  │
+   └────┘└────┘└────┘  └────┘└───┘└────┘   └─────┘└────┘└─────┘
+                                    │
+     ┌──────────────────┐           │
+     │  AI & AGENTS     │           │
+     │                  │           │
+     ├── /agents        │     ┌─────┘
+     ├── /chatbots      │     │
+     ├── /sales-crm     │     ▼
+     └── /ai-agents     │  ┌──────────────────┐
+                        │  │   /financial      │
+                        │  └──────────────────┘
+                        │
+              ┌─────────┘
+              ▼
+   ┌──────────────────┐
+   │    RESOURCES      │
+   ├── /style-guide    │
+   ├── /sections       │
+   ├── /sitemap        │
+   └── /case-studies   │
+   └──────────────────┘
+```
+
+---
+
+## ROUTE-TO-COMPONENT MAPPING TABLE
+
+| # | Route | Component File | Category | Design System |
+|---|-------|---------------|----------|---------------|
+| 1 | `/` | `HomePageV3.tsx` | Home | BCG ✅ |
+| 2 | `/home-v1` | `HomePage.tsx` | Home | V1 Legacy |
+| 3 | `/home-v4` | `HomePageV2.tsx` | Home | V2 Luxury |
+| 4 | `/services` | `services/ServicesPage.tsx` | Services | BCG ✅ |
+| 5 | `/solutions` | `SolutionsPage.tsx` | Services | V1 |
+| 6 | `/web-design` | `pages/WebDesignPage.tsx` | Services | V1 |
+| 7 | `/web-apps` | `pages/WebAppsPage.tsx` | Services | V1 |
+| 8 | `/mvp-builder` | `pages/MVPBuilderPage.tsx` | Services | V1 |
+| 9 | `/mvp-v2` | `pages/MVPv2Page.tsx` | Services | V1 |
+| 10 | `/agents` | `AgentsPage.tsx` | AI & Agents | V1 |
+| 11 | `/ai-agents` | `pages/AIAgentsPage.tsx` | AI & Agents | V1 |
+| 12 | `/services/ai-agents` | `pages/AIAgentsPage.tsx` | AI & Agents | V1 |
+| 13 | `/chatbots` | `ChatbotsPage.tsx` | AI & Agents | V1 |
+| 14 | `/sales-crm` | `pages/SalesCRMPage.tsx` | AI & Agents | V1 |
+| 15 | `/services/crm` | `pages/SalesCRMPage.tsx` | AI & Agents | V1 (alias) |
+| 16 | `/services/sales-crm` | `pages/SalesCRMPage.tsx` | AI & Agents | V1 (alias) |
+| 17 | `/industries` | `IndustriesPage.tsx` | Industries | V1 |
+| 18 | `/industries/e-commerce` | `EcommercePage.tsx` | Industries | V1 |
+| 19 | `/industries/fashion` | `FashionPage.tsx` | Industries | V1 |
+| 20 | `/industries/travel` | `TravelPage.tsx` | Industries | V1 |
+| 21 | `/financial` | `FinancialPage.tsx` | Industries | V1 |
+| 22 | `/about` | `AboutPage.tsx` | Company | V1 |
+| 23 | `/process` | `process/v12/ProcessPageV12.tsx` | Company | V11 |
+| 24 | `/projects` | `ProjectsPage.tsx` | Company | V11 |
+| 25 | `/case-studies` | `CaseStudiesPage.tsx` | Company | V1 |
+| 26 | `/booking` | `BookingPage.tsx` | Company | V1 |
+| 27 | `/style-guide` | `StyleGuidePage.tsx` | Resources | BCG ✅ |
+| 28 | `/sections` | `SectionsPage.tsx` | Resources | V1 |
+| 29 | `/sitemap` | `SitemapPage.tsx` | Resources | BCG ✅ |
+
+---
+
+## FULL URL LIST
+
+```
+https://sunaiagency.com/
+https://sunaiagency.com/home-v1
+https://sunaiagency.com/home-v4
+https://sunaiagency.com/services
+https://sunaiagency.com/solutions
+https://sunaiagency.com/web-design
+https://sunaiagency.com/web-apps
+https://sunaiagency.com/mvp-builder
+https://sunaiagency.com/mvp-v2
+https://sunaiagency.com/agents
+https://sunaiagency.com/ai-agents
+https://sunaiagency.com/services/ai-agents
+https://sunaiagency.com/chatbots
+https://sunaiagency.com/sales-crm
+https://sunaiagency.com/services/crm
+https://sunaiagency.com/services/sales-crm
+https://sunaiagency.com/industries
+https://sunaiagency.com/industries/e-commerce
+https://sunaiagency.com/industries/fashion
+https://sunaiagency.com/industries/travel
+https://sunaiagency.com/financial
+https://sunaiagency.com/about
+https://sunaiagency.com/process
+https://sunaiagency.com/projects
+https://sunaiagency.com/case-studies
+https://sunaiagency.com/booking
+https://sunaiagency.com/style-guide
+https://sunaiagency.com/sections
+https://sunaiagency.com/sitemap
 ```
 
 ---
@@ -60,16 +193,35 @@ sunai.com/
 
 | Route | Component | Design System | Status |
 |-------|-----------|---------------|--------|
-| `/` | HomePage | V11 Calm Luxury | ✅ Complete |
-| `/home-v2` | HomePageV2 | V2 Luxury Editorial | ✅ Complete |
+| `/` | HomePageV3 | BCG ✅ | ✅ Complete |
+| `/home-v1` | HomePage | V1 Legacy | ✅ Complete |
+| `/home-v4` | HomePageV2 | V2 Luxury | ✅ Complete |
+| `/services` | ServicesPage | BCG ✅ | ✅ Complete |
 | `/solutions` | SolutionsPage | V1 | ✅ Complete |
+| `/web-design` | WebDesignPage | V1 | ✅ Complete |
+| `/web-apps` | WebAppsPage | V1 | ✅ Complete |
+| `/mvp-builder` | MVPBuilderPage | V1 | ✅ Complete |
+| `/mvp-v2` | MVPv2Page | V1 | ✅ Complete |
+| `/agents` | AgentsPage | V1 | ✅ Complete |
+| `/ai-agents` | AIAgentsPage | V1 | ✅ Complete |
+| `/services/ai-agents` | AIAgentsPage | V1 | ✅ Complete |
+| `/chatbots` | ChatbotsPage | V1 | ✅ Complete |
+| `/sales-crm` | SalesCRMPage | V1 | ✅ Complete |
+| `/services/crm` | SalesCRMPage | V1 (alias) | ✅ Complete |
+| `/services/sales-crm` | SalesCRMPage | V1 (alias) | ✅ Complete |
 | `/industries` | IndustriesPage | V1 | ✅ Complete |
+| `/industries/e-commerce` | EcommercePage | V1 | ✅ Complete |
+| `/industries/fashion` | FashionPage | V1 | ✅ Complete |
+| `/industries/travel` | TravelPage | V1 | ✅ Complete |
+| `/financial` | FinancialPage | V1 | ✅ Complete |
 | `/about` | AboutPage | V1 | ✅ Complete |
-| `/process` | ProcessPage | V1 | ✅ Complete |
-| `/process-v12` | ProcessPageV12 | V11 Calm Luxury | ✅ Complete |
-| `/projects` | ProjectsPage | V11 Calm Luxury | ✅ Complete |
+| `/process` | ProcessPageV12 | V11 | ✅ Complete |
+| `/projects` | ProjectsPage | V11 | ✅ Complete |
 | `/case-studies` | CaseStudiesPage | V1 | ✅ Complete |
 | `/booking` | BookingPage | V1 | ✅ Complete |
+| `/style-guide` | StyleGuidePage | BCG ✅ | ✅ Complete |
+| `/sections` | SectionsPage | V1 | ✅ Complete |
+| `/sitemap` | SitemapPage | BCG ✅ | ✅ Complete |
 
 ### 🚧 IN DEVELOPMENT
 
@@ -726,8 +878,8 @@ Currently implemented for projects page:
 | Date | Version | Changes | Author |
 |------|---------|---------|--------|
 | 2026-01-08 | 1.0 | Initial sitemap creation | System |
-| TBD | 1.1 | Add individual solution pages | TBD |
-| TBD | 1.2 | Add individual industry pages | TBD |
+| 2026-03-07 | 1.2 | Add individual solution pages | System |
+| 2026-03-07 | 1.3 | Add individual industry pages | System |
 
 ---
 

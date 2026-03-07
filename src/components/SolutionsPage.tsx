@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import { ArrowRight } from 'lucide-react';
 import SolutionsHero from './solutions/SolutionsHero';
 import HowItWorksSection from './solutions/HowItWorksSection';
@@ -29,49 +29,48 @@ export default function SolutionsPage() {
       <TechStackShowcase />
 
       {/* 7 — Bottom CTA */}
-      <section className="bg-[#0A211F] py-24 sm:py-32 relative overflow-hidden">
-        {/* Glow */}
-        <div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] pointer-events-none"
-          style={{
-            background: 'radial-gradient(circle, rgba(132,204,22,0.04) 0%, transparent 60%)',
-          }}
-        />
-
-        <div className="relative z-10 max-w-[1280px] mx-auto px-6 text-center">
+      <section className="border-t" style={{ backgroundColor: '#1A1A1A', borderColor: '#E8E8E4' }}>
+        <div className="max-w-[1120px] mx-auto px-6 py-20 md:py-28 text-center">
           <p
-            className="text-[#84CC16]/50 uppercase tracking-[0.25em] mb-4"
-            style={{ fontSize: '0.65rem', fontWeight: 600 }}
+            className="text-xs tracking-widest uppercase mb-4"
+            style={{ color: '#00875A', letterSpacing: '0.08em' }}
           >
             Get Started
           </p>
           <h2
-            className="text-[#F1EEEA] tracking-tight mb-5"
+            className="text-2xl md:text-3xl mb-4"
             style={{
-              fontFamily: "'Playfair Display', Georgia, serif",
-              fontSize: 'clamp(1.5rem, 3.5vw, 2.5rem)',
-              fontWeight: 600,
-              lineHeight: 1.15,
+              fontFamily: 'Georgia, serif',
+              fontWeight: 400,
+              color: '#F5F5F0',
+              lineHeight: 1.2,
             }}
           >
-            Ready to build with{' '}
-            <span style={{ fontStyle: 'italic' }}>AI</span>?
+            Ready to build with AI?
           </h2>
           <p
-            className="text-[#F1EEEA]/35 mb-10 max-w-md mx-auto"
-            style={{ fontSize: '1rem', lineHeight: 1.6 }}
+            className="text-sm mb-8 max-w-md mx-auto"
+            style={{ color: 'rgba(245, 245, 240, 0.55)', lineHeight: 1.6 }}
           >
-            Tell us about your project and we'll scope a solution within 48
-            hours.
+            Tell us about your project and we'll scope a solution within 48 hours.
           </p>
-          <Link
-            to="/booking"
-            className="group inline-flex items-center gap-2.5 bg-[#84CC16] text-[#0A211F] px-8 py-4 rounded-full transition-all duration-300 hover:shadow-[0_0_40px_8px_rgba(132,204,22,0.2)]"
-            style={{ fontSize: '0.9rem', fontWeight: 600 }}
-          >
-            Book a Consultation
-            <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-0.5" />
-          </Link>
+          <div className="flex flex-wrap justify-center gap-3">
+            <Link
+              to="/wizard"
+              className="inline-flex items-center gap-2 px-8 py-3 text-sm transition-colors"
+              style={{ backgroundColor: '#00875A', color: '#FFFFFF', borderRadius: '4px' }}
+            >
+              Start Your Project
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+            <Link
+              to="/booking"
+              className="inline-flex items-center gap-2 px-8 py-3 text-sm border transition-colors"
+              style={{ borderColor: 'rgba(245, 245, 240, 0.2)', color: '#F5F5F0', borderRadius: '4px' }}
+            >
+              Book a Consultation
+            </Link>
+          </div>
         </div>
       </section>
     </div>

@@ -1,6 +1,5 @@
-import { motion } from 'motion/react';
+import { useNavigate } from 'react-router';
 import { ArrowRight } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 
 export default function MVPHero() {
   const navigate = useNavigate();

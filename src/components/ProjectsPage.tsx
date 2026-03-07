@@ -1,5 +1,4 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { pageToPath } from '../lib/navigation';
 import { PROJECTS } from '../lib/data/projectsData';
 import ProjectsHero from './projects/ProjectsHero';
