@@ -24,21 +24,23 @@ export default function SectionsPage() {
       </section>
 
       {/* Index Navigation */}
-      <section className="bg-[#F1EEEA] py-12 border-b border-[#D4D4D4]">
-        <div className="max-w-7xl mx-auto px-6 lg:px-12">
-          <h2 className="font-['Playfair_Display'] text-2xl font-bold text-[#212427] mb-6">
+      <section className="border-b" style={{ backgroundColor: '#F5F5F0', borderColor: '#E8E8E4' }}>
+        <div className="max-w-[1120px] mx-auto px-6 py-12">
+          <h2 className="text-2xl mb-6" style={{ fontFamily: 'Georgia, serif', color: '#1A1A1A' }}>
             Section Index
           </h2>
           <div className="space-y-3">
             <a 
               href="#exhibit-2" 
-              className="block font-['Lora'] text-base text-[#212427] hover:text-[#84CC16] transition-colors"
+              className="block text-base transition-colors hover:text-[#00875A]"
+              style={{ color: '#1A1A1A' }}
             >
               1. EXHIBIT 2 — The Future-Built Playbook for Climbing the AI Maturity Curve
             </a>
             <a 
               href="#investment-levels" 
-              className="block font-['Lora'] text-base text-[#212427] hover:text-[#84CC16] transition-colors"
+              className="block text-base transition-colors hover:text-[#00875A]"
+              style={{ color: '#1A1A1A' }}
             >
               2. INVESTMENT LEVELS — Flexible engagement models
             </a>

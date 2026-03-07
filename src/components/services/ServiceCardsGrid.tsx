@@ -61,23 +61,23 @@ const SERVICES = [
 // All cards use light variant on teal background
 export default function ServiceCardsGrid() {
   return (
-    <section className="bg-[#0F3D3E] py-24 sm:py-32">
-      <div className="max-w-[1200px] mx-auto px-6">
+    <section style={{ backgroundColor: '#1A1A1A' }} className="py-24 sm:py-32">
+      <div className="max-w-[1120px] mx-auto px-6">
         {/* Section header */}
         <div className="max-w-2xl mb-16 sm:mb-20">
           <p
-            className="text-[#F1EEEA]/70 uppercase tracking-widest mb-4"
-            style={{ fontSize: '0.75rem', fontWeight: 600 }}
+            className="uppercase tracking-widest mb-4"
+            style={{ fontSize: '0.75rem', color: '#00875A', letterSpacing: '0.08em' }}
           >
             Our Services
           </p>
           <h2
-            className="text-[#F1EEEA] tracking-tight mb-5"
-            style={{ fontSize: 'clamp(1.75rem, 4vw, 2.75rem)', fontWeight: 600, lineHeight: 1.15 }}
+            className="tracking-tight mb-5"
+            style={{ fontFamily: 'Georgia, serif', fontSize: 'clamp(1.75rem, 4vw, 2.75rem)', fontWeight: 400, lineHeight: 1.15, color: '#F5F5F0' }}
           >
             AI solutions engineered for enterprise impact
           </h2>
-          <p className="text-[#F1EEEA]/50 leading-relaxed" style={{ fontSize: '1.05rem' }}>
+          <p style={{ color: 'rgba(245,245,240,0.5)', fontSize: '1.05rem', lineHeight: 1.6 }}>
             From autonomous agents to full-stack AI products — we design, build, and deploy
             systems that drive measurable business outcomes.
           </p>

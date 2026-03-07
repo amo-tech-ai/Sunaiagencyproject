@@ -1,4 +1,5 @@
-'use client';
+// C-T04 — Travel Approach
+// BCG design system: white bg, charcoal text, Georgia serif, green accent bar
 
 import { motion, useInView } from 'motion/react';
 import { useRef } from 'react';
@@ -8,21 +9,21 @@ export default function TravelApproach() {
   const isInView = useInView(ref, { once: true, margin: '-100px' });
 
   return (
-    <section ref={ref} className="bg-white py-24 lg:py-32">
-      <div className="max-w-7xl mx-auto px-6 lg:px-8">
+    <section ref={ref} className="border-t" style={{ backgroundColor: '#FFFFFF', borderColor: '#E8E8E4' }}>
+      <div className="max-w-[1120px] mx-auto px-6 py-20 lg:py-28">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
           transition={{ duration: 0.8 }}
         >
           <div className="mb-6">
-            <div className="w-16 h-1 bg-[#7EF473] mb-8"></div>
-            <h2 className="font-['Playfair_Display'] text-4xl lg:text-5xl text-[#212427] mb-8">
+            <div className="w-16 h-0.5 mb-8" style={{ backgroundColor: '#00875A' }} />
+            <h2 className="text-3xl lg:text-4xl mb-8" style={{ fontFamily: 'Georgia, serif', color: '#1A1A1A' }}>
               Our Approach to Travel AI
             </h2>
           </div>
 
-          <div className="max-w-4xl space-y-6 font-['Lora'] text-lg text-[#696969] leading-relaxed">
+          <div className="max-w-3xl text-base lg:text-lg leading-relaxed space-y-6" style={{ color: '#6B6B63' }}>
             <p>
               Travel is uniquely complex. A single booking involves multiple systems — airlines, hotels, ground transport, activities, insurance, payments — across geographies, currencies, and regulatory environments. AI must work across all of these simultaneously while handling real-time disruptions.
             </p>

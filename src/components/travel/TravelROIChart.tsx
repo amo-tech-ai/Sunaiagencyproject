@@ -1,4 +1,5 @@
-'use client';
+// C-T07 — Travel ROI Chart
+// BCG design system: off-white bg, green bars, Georgia serif, 4px radius
 
 import { motion, useInView } from 'motion/react';
 import { useRef } from 'react';
@@ -17,46 +18,35 @@ export default function TravelROIChart() {
   const isInView = useInView(ref, { once: true, margin: '-100px' });
 
   return (
-    <section ref={ref} className="bg-[#F1EEEA] py-24 lg:py-32">
-      <div className="max-w-7xl mx-auto px-6 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
-          transition={{ duration: 0.8 }}
-        >
-          <div className="bg-white border border-[#D4D4D4] p-8 lg:p-12">
-            <div className="mb-2">
-              <span className="font-['Lora'] text-xs text-[#696969] uppercase tracking-wider">
-                EXHIBIT 9
-              </span>
-            </div>
-            <h3 className="font-['Playfair_Display'] text-2xl lg:text-3xl text-[#212427] mb-12">
+    <section ref={ref} className="border-t" style={{ backgroundColor: '#F5F5F0', borderColor: '#E8E8E4' }}>
+      <div className="max-w-[1120px] mx-auto px-6 py-20 lg:py-28">
+        <motion.div initial={{ opacity: 0, y: 40 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.8 }}>
+          <div className="border p-8 lg:p-10" style={{ backgroundColor: '#FFFFFF', borderColor: '#E8E8E4', borderRadius: '4px' }}>
+            <p className="text-xs tracking-widest uppercase mb-2" style={{ color: '#00875A', letterSpacing: '0.08em' }}>Exhibit 9</p>
+            <h3 className="text-2xl lg:text-3xl mb-10" style={{ fontFamily: 'Georgia, serif', color: '#1A1A1A' }}>
               Travel AI ROI by Application Area
             </h3>
 
-            <div className="space-y-8">
+            <div className="space-y-6">
               {chartData.map((item, index) => (
                 <motion.div
                   key={index}
                   initial={{ opacity: 0, x: -40 }}
-                  animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -40 }}
+                  animate={isInView ? { opacity: 1, x: 0 } : {}}
                   transition={{ duration: 0.8, delay: index * 0.1 }}
                 >
-                  <div className="flex items-center gap-4 mb-2">
-                    <span className="font-['Lora'] text-sm text-[#212427] w-40">
-                      {item.label}
-                    </span>
-                    <div className="flex-1 bg-[#F2F2F2] h-8 relative">
+                  <div className="flex items-center gap-4">
+                    <span className="text-sm w-40" style={{ color: '#1A1A1A' }}>{item.label}</span>
+                    <div className="flex-1 h-7 relative border" style={{ backgroundColor: '#F5F5F0', borderColor: '#E8E8E4', borderRadius: '2px' }}>
                       <motion.div
                         initial={{ width: 0 }}
                         animate={isInView ? { width: `${item.value}%` } : { width: 0 }}
                         transition={{ duration: 1, delay: index * 0.1 + 0.5 }}
-                        className="bg-[#7EF473] h-full"
+                        className="h-full"
+                        style={{ backgroundColor: '#00875A', borderRadius: '2px' }}
                       />
                     </div>
-                    <span className="font-['Lora'] text-sm text-[#212427] w-40 text-right">
-                      {item.metric}
-                    </span>
+                    <span className="text-sm w-40 text-right" style={{ color: '#1A1A1A' }}>{item.metric}</span>
                   </div>
                 </motion.div>
               ))}

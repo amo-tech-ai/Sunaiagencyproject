@@ -65,7 +65,7 @@ export default function V2CapabilityFramework({ onNavigate }: V2CapabilityFramew
   ];
 
   return (
-    <section className="relative bg-[#0F3D3E] py-24 lg:py-32 overflow-hidden">
+    <section className="relative py-24 lg:py-32 overflow-hidden" style={{ backgroundColor: '#1A1A1A' }}>
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-5">
         <div className="absolute inset-0" style={{
@@ -83,10 +83,10 @@ export default function V2CapabilityFramework({ onNavigate }: V2CapabilityFramew
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
         >
-          <h2 className="font-['Playfair_Display'] text-4xl lg:text-6xl font-bold text-white leading-tight">
-            How Sun AI <span className="text-[#F1EEEA]/70">Delivers Value</span>
+          <h2 className="text-4xl lg:text-5xl text-white leading-tight" style={{ fontFamily: 'Georgia, serif' }}>
+            How Sun AI <span style={{ color: 'rgba(245,245,240,0.7)' }}>Delivers Value</span>
           </h2>
-          <p className="text-lg lg:text-xl text-white/70 font-['Lora'] max-w-3xl mt-6">
+          <p className="text-lg lg:text-xl text-white/70 max-w-3xl mt-6">
             A unified capability framework that transforms operations with production-grade AI systems
           </p>
         </motion.div>
@@ -105,8 +105,8 @@ export default function V2CapabilityFramework({ onNavigate }: V2CapabilityFramew
             transition={{ duration: 0.7, delay: 0.2 }}
           >
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-1 h-12 bg-[#F1EEEA]" />
-              <h3 className="text-xl lg:text-2xl font-bold text-[#F1EEEA] uppercase tracking-wide">
+              <div className="w-1 h-12 bg-[#F5F5F0]" />
+              <h3 className="text-xl lg:text-2xl text-[#F5F5F0] uppercase tracking-wide" style={{ fontFamily: 'Georgia, serif' }}>
                 AI-Enabled Planning
               </h3>
             </div>
@@ -116,8 +116,8 @@ export default function V2CapabilityFramework({ onNavigate }: V2CapabilityFramew
                   key={index}
                   className="flex items-start gap-3 text-white/80 hover:text-white transition-colors"
                 >
-                  <div className="w-1.5 h-1.5 bg-[#F1EEEA]/60 mt-2 flex-shrink-0" style={{ borderRadius: '1px' }} />
-                  <span className="text-base lg:text-lg font-['Lora'] leading-relaxed">
+                  <div className="w-1.5 h-1.5 bg-[#F5F5F0]/60 mt-2 flex-shrink-0" style={{ borderRadius: '1px' }} />
+                  <span className="text-base lg:text-lg leading-relaxed">
                     {capability}
                   </span>
                 </div>
@@ -143,10 +143,10 @@ export default function V2CapabilityFramework({ onNavigate }: V2CapabilityFramew
                 {segments.map((segment, index) => {
                   const isActive = activeSegment === segment.id;
                   const colors = [
-                    { base: '#F1EEEA', hover: '#FFFFFF' }, // Strategy - Cream
-                    { base: '#C8C2BA', hover: '#F1EEEA' }, // Execution - Muted cream
-                    { base: '#9E9890', hover: '#C8C2BA' }, // Intelligence - Warm grey
-                  ];
+                    { base: '#F5F5F0', hover: '#FFFFFF' }, // Strategy
+                    { base: '#C8C2BA', hover: '#F5F5F0' }, // Execution
+                    { base: '#9E9890', hover: '#C8C2BA' }, // Intelligence
+                   ];
                   const color = colors[index];
                   
                   return (
@@ -167,11 +167,11 @@ export default function V2CapabilityFramework({ onNavigate }: V2CapabilityFramew
                         y={250 + Math.sin((segment.angle + 60) * Math.PI / 180) * 150}
                         textAnchor="middle"
                         dominantBaseline="middle"
-                        fill="#0F3D3E"
+                        fill="#1A1A1A"
                         fontSize="20"
                         fontWeight="700"
                         className="pointer-events-none uppercase tracking-wider"
-                        style={{ fontFamily: 'Playfair Display' }}
+                        style={{ fontFamily: 'Georgia, serif' }}
                       >
                         {segment.label}
                       </text>
@@ -184,8 +184,8 @@ export default function V2CapabilityFramework({ onNavigate }: V2CapabilityFramew
                   cx="250"
                   cy="250"
                   r="110"
-                  fill="#F1EEEA"
-                  stroke="#0F3D3E"
+                  fill="#F5F5F0"
+                  stroke="#1A1A1A"
                   strokeWidth="3"
                 />
 
@@ -194,11 +194,11 @@ export default function V2CapabilityFramework({ onNavigate }: V2CapabilityFramew
                   x="250"
                   y="235"
                   textAnchor="middle"
-                  fill="#0F3D3E"
+                  fill="#1A1A1A"
                   fontSize="18"
                   fontWeight="700"
                   className="uppercase tracking-wider"
-                  style={{ fontFamily: 'Playfair Display' }}
+                  style={{ fontFamily: 'Georgia, serif' }}
                 >
                   STARTUP
                 </text>
@@ -206,11 +206,11 @@ export default function V2CapabilityFramework({ onNavigate }: V2CapabilityFramew
                   x="250"
                   y="257"
                   textAnchor="middle"
-                  fill="#0F3D3E"
+                  fill="#1A1A1A"
                   fontSize="18"
                   fontWeight="700"
                   className="uppercase tracking-wider"
-                  style={{ fontFamily: 'Playfair Display' }}
+                  style={{ fontFamily: 'Georgia, serif' }}
                 >
                   DELIVERY
                 </text>
@@ -218,11 +218,11 @@ export default function V2CapabilityFramework({ onNavigate }: V2CapabilityFramew
                   x="250"
                   y="279"
                   textAnchor="middle"
-                  fill="#0F3D3E"
+                  fill="#1A1A1A"
                   fontSize="18"
                   fontWeight="700"
                   className="uppercase tracking-wider"
-                  style={{ fontFamily: 'Playfair Display' }}
+                  style={{ fontFamily: 'Georgia, serif' }}
                 >
                   ENGINE
                 </text>
@@ -232,10 +232,9 @@ export default function V2CapabilityFramework({ onNavigate }: V2CapabilityFramew
                   x="250"
                   y="305"
                   textAnchor="middle"
-                  fill="#0F3D3E"
+                  fill="#1A1A1A"
                   fontSize="11"
                    opacity="0.6"
-                  style={{ fontFamily: 'Lora' }}
                 >
                    Strategy • Execution • Intelligence
                 </text>
@@ -249,15 +248,15 @@ export default function V2CapabilityFramework({ onNavigate }: V2CapabilityFramew
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
                   transition={{ duration: 0.3 }}
-                  style={{ borderRadius: '8px' }}
+                  style={{ borderRadius: '4px' }}
                 >
-                  <h4 className="font-['Playfair_Display'] text-xl font-bold text-[#0F3D3E] mb-4 uppercase tracking-wide">
+                  <h4 className="text-xl mb-4 uppercase tracking-wide" style={{ fontFamily: 'Georgia, serif', color: '#1A1A1A' }}>
                     {segments.find(s => s.id === activeSegment)?.label}
                   </h4>
                   <ul className="space-y-2">
                     {segments.find(s => s.id === activeSegment)?.capabilities.map((cap, i) => (
-                      <li key={i} className="flex items-start gap-2 text-sm text-[#0F3D3E]/80 font-['Lora']">
-                        <span className="text-[#0F3D3E] mt-1">•</span>
+                      <li key={i} className="flex items-start gap-2 text-sm" style={{ color: 'rgba(26,26,26,0.7)' }}>
+                        <span className="mt-1" style={{ color: '#00875A' }}>&#8226;</span>
                         <span>{cap}</span>
                       </li>
                     ))}
@@ -278,8 +277,8 @@ export default function V2CapabilityFramework({ onNavigate }: V2CapabilityFramew
             transition={{ duration: 0.7, delay: 0.2 }}
           >
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-1 h-12 bg-[#F1EEEA]" />
-              <h3 className="text-xl lg:text-2xl font-bold text-[#F1EEEA] uppercase tracking-wide">
+              <div className="w-1 h-12 bg-[#F5F5F0]" />
+              <h3 className="text-xl lg:text-2xl text-[#F5F5F0] uppercase tracking-wide" style={{ fontFamily: 'Georgia, serif' }}>
                 AI-Enabled Operations
               </h3>
             </div>
@@ -289,8 +288,8 @@ export default function V2CapabilityFramework({ onNavigate }: V2CapabilityFramew
                   key={index}
                   className="flex items-start gap-3 text-white/80 hover:text-white transition-colors"
                 >
-                  <div className="w-1.5 h-1.5 bg-[#F1EEEA]/60 mt-2 flex-shrink-0" style={{ borderRadius: '1px' }} />
-                  <span className="text-base lg:text-lg font-['Lora'] leading-relaxed">
+                  <div className="w-1.5 h-1.5 bg-[#F5F5F0]/60 mt-2 flex-shrink-0" style={{ borderRadius: '1px' }} />
+                  <span className="text-base lg:text-lg leading-relaxed">
                     {capability}
                   </span>
                 </div>
@@ -307,7 +306,7 @@ export default function V2CapabilityFramework({ onNavigate }: V2CapabilityFramew
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.6 }}
         >
-          <p className="text-xs text-white/50 font-['Lora'] uppercase tracking-wider">
+          <p className="text-xs text-white/50 uppercase tracking-wider">
             Source: Sun AI Capability Framework
           </p>
         </motion.div>

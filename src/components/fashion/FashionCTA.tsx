@@ -1,4 +1,5 @@
-'use client';
+// C-F12 — Fashion CTA Section
+// BCG design system dark variant: charcoal bg, white text, Georgia serif, green CTA, 4px radius
 
 import { ArrowRight } from 'lucide-react';
 import { motion, useInView } from 'motion/react';
@@ -13,22 +14,22 @@ export default function FashionCTA({ onCTAClick }: FashionCTAProps) {
   const isInView = useInView(ref, { once: true, margin: '-100px' });
 
   return (
-    <section ref={ref} className="bg-[#0E3E1B] text-white py-24 lg:py-32">
-      <div className="max-w-5xl mx-auto px-6 lg:px-8 text-center">
+    <section ref={ref} className="border-t" style={{ backgroundColor: '#1A1A1A', borderColor: '#E8E8E4' }}>
+      <div className="max-w-[900px] mx-auto px-6 py-20 lg:py-28 text-center">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
           transition={{ duration: 0.8 }}
-          className="space-y-8"
+          className="space-y-7"
         >
           {/* Headline */}
-          <h2 className="font-['Playfair_Display'] text-4xl lg:text-5xl leading-tight">
+          <h2 className="text-3xl lg:text-4xl" style={{ fontFamily: 'Georgia, serif', color: '#F5F5F0', lineHeight: 1.15 }}>
             Ready to bring AI into your fashion business?
           </h2>
 
           {/* Body */}
-          <p className="font-['Lora'] text-xl leading-relaxed text-white/90 max-w-3xl mx-auto">
-            Get a personalized fashion AI readiness assessment — including virtual try-on, 
+          <p className="text-lg leading-relaxed max-w-2xl mx-auto" style={{ color: 'rgba(245, 245, 240, 0.6)' }}>
+            Get a personalized fashion AI readiness assessment — including virtual try-on,
             trend forecasting, and styling opportunities specific to your brand.
           </p>
 
@@ -38,9 +39,10 @@ export default function FashionCTA({ onCTAClick }: FashionCTAProps) {
             animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
             transition={{ duration: 0.8, delay: 0.2 }}
             onClick={onCTAClick}
-            className="group inline-flex items-center gap-3 px-8 py-4 bg-[#0A211F] text-white font-['Lora'] hover:bg-[#0d2926] transition-all duration-300"
+            className="group inline-flex items-center gap-3 px-8 py-4 transition-colors"
+            style={{ backgroundColor: '#00875A', color: '#FFFFFF', borderRadius: '4px' }}
           >
-            <span className="font-medium">Book Your Fashion AI Assessment</span>
+            <span>Book Your Fashion AI Assessment</span>
             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </motion.button>
         </motion.div>

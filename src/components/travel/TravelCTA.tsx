@@ -1,4 +1,5 @@
-'use client';
+// C-T09 — Travel CTA Section
+// BCG design system dark variant: charcoal bg, white text, Georgia serif, green CTA, 4px radius
 
 import { motion, useInView } from 'motion/react';
 import { useRef } from 'react';
@@ -13,22 +14,24 @@ export default function TravelCTA({ onNavigate }: TravelCTAProps) {
   const isInView = useInView(ref, { once: true, margin: '-100px' });
 
   return (
-    <section ref={ref} className="bg-[#0E3E1B] text-white py-24 lg:py-32">
-      <div className="max-w-4xl mx-auto px-6 lg:px-8 text-center">
+    <section ref={ref} className="border-t" style={{ backgroundColor: '#1A1A1A', borderColor: '#E8E8E4' }}>
+      <div className="max-w-[900px] mx-auto px-6 py-20 lg:py-28 text-center">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
-          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8 }}
+          className="space-y-7"
         >
-          <h2 className="font-['Playfair_Display'] text-4xl lg:text-5xl mb-6">
+          <h2 className="text-3xl lg:text-4xl" style={{ fontFamily: 'Georgia, serif', color: '#F5F5F0', lineHeight: 1.15 }}>
             Ready to make your travel business AI-powered?
           </h2>
-          <p className="font-['Lora'] text-xl text-white/80 mb-12">
+          <p className="text-lg leading-relaxed" style={{ color: 'rgba(245, 245, 240, 0.6)' }}>
             Get a personalized travel AI readiness assessment covering dynamic pricing, AI agents, personalization, and AEO strategy.
           </p>
           <button
             onClick={() => onNavigate?.('booking')}
-            className="group inline-flex items-center gap-3 bg-[#7EF473] text-[#212427] px-8 py-4 font-['Lora'] text-base hover:bg-[#6de362] transition-colors"
+            className="group inline-flex items-center gap-3 px-8 py-4 transition-colors"
+            style={{ backgroundColor: '#00875A', color: '#FFFFFF', borderRadius: '4px' }}
           >
             Book Your Travel AI Assessment
             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
