@@ -15,6 +15,7 @@ import { workflows } from "./workflow-routes.tsx";
 import { financial } from "./financial-routes.tsx";
 import { createUser } from "./auth.tsx";
 import { ensureAISchema } from "./ensure-schema.tsx";
+import { callGemini } from "./gemini.tsx";
 
 const app = new Hono();
 const PREFIX = "/make-server-283466b6";
@@ -79,6 +80,75 @@ app.use(`${PREFIX}/ai/*`, async (c, next) => {
   await next();
 });
 app.route("/", ai);
+
+// ── POST /dashboard-insights — Registered directly on main app ──
+// (Avoids Hono sub-router mounting issues that caused 404s)
+app.post(`${PREFIX}/dashboard-insights`, async (c) => {
+  try {
+    const body = await c.req.json();
+    const { sessionId, orgData, readinessScore, projectState, recentActivities } =
+      body;
+
+    // Validate auth
+    const authHeader = c.req.header("Authorization");
+    if (!authHeader) {
+      return c.json(
+        { error: "Authorization required for dashboard insights" },
+        401
+      );
+    }
+
+    const systemPrompt = `You are a senior AI strategy consultant at Sun AI Agency. Based on the client's project state, readiness score, and recent activity, generate 2-4 prioritized action recommendations.
+
+Each recommendation should be specific, actionable, and tied to their actual data. Avoid generic advice.
+
+Return this JSON structure:
+{
+  "insights": [
+    {
+      "id": "unique-id",
+      "title": "Short action title (max 60 chars)",
+      "description": "2-3 sentence explanation with specific data points from their profile",
+      "priority": "high|medium|low",
+      "actionLabel": "Button text for the action",
+      "actionRoute": "/app/route-to-navigate"
+    }
+  ],
+  "greeting": "One-sentence contextual greeting referencing their industry or progress",
+  "summary": "2-sentence summary of their current status and top priority"
+}`;
+
+    const userPrompt = `Client Data:
+Organization: ${JSON.stringify(orgData || {})}
+AI Readiness Score: ${readinessScore || "unknown"}
+Project State: ${JSON.stringify(projectState || {})}
+Recent Activities: ${JSON.stringify(recentActivities || [])}
+
+Generate personalized, data-driven recommendations. Reference specific scores, gaps, and milestones from their data.`;
+
+    const result = await callGemini(
+      "dashboard-insights",
+      systemPrompt,
+      userPrompt,
+      { sessionId, orgData, readinessScore },
+      sessionId
+    );
+
+    console.log(`[AI] dashboard-insights complete for session ${sessionId}`);
+
+    return c.json({
+      success: true,
+      insights: result,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.log(`[AI] dashboard-insights error: ${error}`);
+    return c.json(
+      { error: `Dashboard insights generation failed: ${error}`, fallback: true },
+      500
+    );
+  }
+});
 
 // ── Mount CRM routes ──
 app.route("/", crm);

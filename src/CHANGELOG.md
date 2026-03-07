@@ -7,6 +7,38 @@
 
 ---
 
+## [0.22.1] — 2026-03-07 — CRM Auth Hardening + Fresh Token Pattern
+
+### Summary
+
+Fixed CRM authentication errors where `getUserFromToken` in `/supabase/functions/server/auth.tsx` had a fragile anonymous key comparison that broke under certain token conditions. The fix adds JWT-payload decode checking for `"role": "anon"` instead of direct string comparison against `publicAnonKey`. Switched all CRM routes from `requireAuth()` middleware to the more flexible `getUserFromToken()` pattern, which allows both authenticated and anonymous access where appropriate. Updated `CRMPipelinePage.tsx` to use the `useAuth()` hook with the `'use-fresh-token'` pattern for authenticated API calls instead of hardcoded `publicAnonKey`. Both workflow and financial backend routes already use KV-based storage with this same pattern.
+
+### Fixed — CRM Auth (`getUserFromToken` JWT Decode)
+
+- **S00-AUTH** `auth.tsx` — `getUserFromToken()` previously compared the raw `Authorization` header value against `publicAnonKey` to detect anonymous requests. This broke when the header format varied (e.g., `Bearer <token>` vs raw key). Fixed by decoding the JWT payload and checking for `"role": "anon"` claim, which is the canonical way to identify Supabase anonymous tokens. Falls back gracefully if JWT decode fails.
+
+### Changed — CRM Route Auth Pattern
+
+- **S06-CRM** `crm-routes.tsx` — Switched all CRM CRUD routes from `requireAuth()` middleware (which returned 401 for anonymous tokens) to `getUserFromToken()` (which returns `null` for anonymous, allowing routes to handle both cases). This matches the pattern used by workflow and financial routes.
+- **C-CRM-PIPELINE** `crm/CRMPipelinePage.tsx` — Replaced hardcoded `publicAnonKey` in API Authorization headers with `useAuth()` hook's `accessToken` using the `'use-fresh-token'` pattern. This ensures authenticated users send their actual session token (enabling RLS and user-scoped data) while still working for anonymous browsing.
+
+### Files Modified
+
+```
+/supabase/functions/server/auth.tsx — JWT decode check for anon role
+/supabase/functions/server/crm-routes.tsx — requireAuth() → getUserFromToken()
+/components/dashboard/crm/CRMPipelinePage.tsx — useAuth() + fresh token pattern
+```
+
+### Production Status
+
+- Dashboard components: 43 production + 0 placeholder stubs (ALL PHASES COMPLETE)
+- Edge function routes: 49 (6 wizard/AI + 3 agent stats + 6 CRM CRUD + 9 pipeline + 7 documents + 8 workflows + 10 financial)
+- Supabase Storage: 1 private bucket (make-283466b6-documents)
+- Project completion: ~85% (All 13 dashboard phases complete; remaining work is enhancements + infrastructure)
+
+---
+
 ## [0.22.0] — 2026-03-07 — Phase 11: Workflow Automation + Phase 13: Financial Dashboard
 
 ### Summary
