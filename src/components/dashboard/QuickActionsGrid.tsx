@@ -15,7 +15,7 @@ const ACTIONS = [
   {
     to: '/app/insights',
     label: 'AI Insights',
-    description: 'Review your analysis and recommendations',
+    description: 'Radar chart, readiness scores, and AI recommendations',
     icon: Lightbulb,
   },
   {

@@ -41,8 +41,9 @@ import ProjectsList from './components/dashboard/ProjectsList';
 import ProjectDetail from './components/dashboard/ProjectDetail';
 import RoadmapPage from './components/dashboard/RoadmapPage';
 import SettingsPageComponent from './components/dashboard/SettingsPage';
+import InsightsPage from './components/dashboard/insights/InsightsPage';
 import {
-  ClientsPage, CRMPipelinePage, AIInsightsPage,
+  ClientsPage, CRMPipelinePage,
   DocumentsPage, FinancialPage as DashFinancialPage, WorkflowsPage,
   AgentsPage as DashAgentsPage,
 } from './components/dashboard/PlaceholderPage';
@@ -93,11 +94,12 @@ export const router = createBrowserRouter([
       { path: 'roadmap', Component: RoadmapPage },
       // Phase 5: Settings — production page
       { path: 'settings', Component: SettingsPageComponent },
-      // Placeholder stubs — Phases 6-13
+      // Phase 9: AI Insights — production page
+      { path: 'insights', Component: InsightsPage },
+      // Placeholder stubs — Phases 6-13 (except Phase 9)
       { path: 'clients', Component: ClientsPage },
       { path: 'clients/:id', Component: ClientsPage },
       { path: 'crm/pipelines', Component: CRMPipelinePage },
-      { path: 'insights', Component: AIInsightsPage },
       { path: 'documents', Component: DocumentsPage },
       { path: 'financial', Component: DashFinancialPage },
       { path: 'workflows', Component: WorkflowsPage },
