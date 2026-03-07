@@ -10,6 +10,7 @@ import { WizardLayout } from '../WizardLayout';
 import { motion, AnimatePresence } from 'motion/react';
 import { Check, AlertCircle, Upload, X, FileText, Globe, Search, Sparkles, Building2, Users, Cpu, Lightbulb, ArrowRight, AlertTriangle } from 'lucide-react';
 import { useState, useRef, useCallback, useEffect } from 'react';
+import { aiApi, type AnalysisResponse } from '../../../lib/supabase';
 
 /* ────────────────── Website Analysis Types ────────────────── */
 
@@ -48,6 +49,44 @@ function simulateAnalysis(url: string): Promise<AnalysisResult> {
       });
     }, 3800);
   });
+}
+
+/** Try real Gemini analysis first, fall back to mock simulation */
+async function analyzeBusinessUrl(url: string, description?: string, industry?: string): Promise<AnalysisResult> {
+  // Error trigger for demo/testing
+  if (url.includes('fail')) {
+    throw new Error('Analysis unavailable');
+  }
+
+  try {
+    const { data, error } = await aiApi.analyzeBusiness({
+      url,
+      description: description || '',
+      industry: industry || '',
+    });
+
+    if (data?.analysis) {
+      // Map Gemini response to local AnalysisResult shape
+      const a = data.analysis;
+      return {
+        companySummary: a.companySummary || '',
+        detectedIndustry: a.detectedIndustry || 'Technology / SaaS',
+        productsServices: a.productsServices || [],
+        teamSizeEstimate: a.teamSizeEstimate || '',
+        technologySignals: a.technologySignals || [],
+        aiOpportunities: a.aiOpportunities || [],
+      };
+    }
+
+    if (error) {
+      console.warn('[StepBusinessContext] Gemini analysis failed, using fallback:', error);
+    }
+  } catch (e) {
+    console.warn('[StepBusinessContext] Gemini API error, using fallback:', e);
+  }
+
+  // Fallback to mock simulation
+  return simulateAnalysis(url);
 }
 
 function isValidUrl(url: string): boolean {
@@ -354,7 +393,7 @@ export function StepBusinessContext() {
     setAnalysisStatus('analyzing');
     setAnalysisResult(null);
 
-    simulateAnalysis(url)
+    analyzeBusinessUrl(url, s.companyName, s.industry)
       .then((result) => {
         if (!analysisAbortRef.current) {
           setAnalysisResult(result);
@@ -366,7 +405,7 @@ export function StepBusinessContext() {
           setAnalysisStatus('error');
         }
       });
-  }, [s.websiteUrl, analysisStatus]);
+  }, [s.websiteUrl, analysisStatus, s.companyName, s.industry]);
 
   // Reset analysis when URL is cleared
   useEffect(() => {

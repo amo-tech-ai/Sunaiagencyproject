@@ -5,6 +5,7 @@
 import { createContext, useContext, useState, useCallback, useEffect, useRef, type ReactNode } from 'react';
 import { toast } from 'sonner@2.0.3';
 import type { Signal } from './data/wizardData';
+import { wizardApi } from '../../lib/supabase';
 
 /* ────────────────── TYPES ────────────────── */
 
@@ -62,6 +63,7 @@ const INITIAL_STATE: WizardState = {
 };
 
 const STORAGE_KEY = 'sun-ai-wizard-state';
+const SESSION_ID_KEY = 'sun-ai-wizard-session-id';
 
 /* ────────────────── VALIDATION ────────────────── */
 
@@ -136,6 +138,8 @@ interface WizardContextType {
   saveStatus: SaveStatus;
   /** True when user has made any changes since load or last save checkpoint */
   isDirty: boolean;
+  /** Supabase session ID for cloud persistence */
+  sessionId: string | null;
 }
 
 const WizardContext = createContext<WizardContextType | null>(null);
@@ -161,6 +165,7 @@ const DEFAULT_CONTEXT: WizardContextType = {
   currentErrors: {},
   saveStatus: 'idle',
   isDirty: false,
+  sessionId: null,
 };
 
 export function useWizard() {
@@ -178,6 +183,9 @@ export function WizardProvider({ children }: { children: ReactNode }) {
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
   const changeCountRef = useRef(0);
   const [isDirty, setIsDirty] = useState(false);
+  const [sessionId, setSessionId] = useState<string | null>(() => {
+    try { return localStorage.getItem(SESSION_ID_KEY); } catch { return null; }
+  });
 
   const [state, setState] = useState<WizardState>(() => {
     try {
@@ -221,6 +229,7 @@ export function WizardProvider({ children }: { children: ReactNode }) {
           label: 'Start Fresh',
           onClick: () => {
             localStorage.removeItem(STORAGE_KEY);
+            localStorage.removeItem(SESSION_ID_KEY);
             setState(INITIAL_STATE);
             setAttemptedAdvance(false);
             toast.success('Started a new project brief.');
@@ -233,20 +242,50 @@ export function WizardProvider({ children }: { children: ReactNode }) {
   }, []);
 
   // Persist to localStorage on every change (debounced) with save status
+  // Also persist to Supabase cloud storage
   const resetTimerRef = useRef<ReturnType<typeof setTimeout>>();
+  const cloudSaveRef = useRef<ReturnType<typeof setTimeout>>();
 
   useEffect(() => {
     setSaveStatus('saving');
     const timer = setTimeout(() => {
+      // Local save — immediate
       localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...state, _timestamp: Date.now() }));
+
+      // Cloud save — debounced longer to reduce API calls
+      if (cloudSaveRef.current) clearTimeout(cloudSaveRef.current);
+      cloudSaveRef.current = setTimeout(async () => {
+        try {
+          const stateForCloud = {
+            ...state,
+            _timestamp: Date.now(),
+            diagnosticSignals: state.diagnosticSignals.map(s => ({
+              id: s.id, label: s.label, severity: s.severity, recommendation: s.recommendation,
+            })),
+          };
+          const { data, error } = await wizardApi.save(
+            sessionId || '',
+            stateForCloud
+          );
+          if (data?.sessionId && !sessionId) {
+            setSessionId(data.sessionId);
+            localStorage.setItem(SESSION_ID_KEY, data.sessionId);
+          }
+          if (error) {
+            console.warn('[Wizard] Cloud save failed (using local):', error);
+          }
+        } catch (e) {
+          console.warn('[Wizard] Cloud save error (using local):', e);
+        }
+      }, 2000);
+
       setSaveStatus('saved');
-      setIsDirty(false); // Reset dirty flag after successful save
-      // Reset to idle after showing "saved" for 2 seconds
+      setIsDirty(false);
       if (resetTimerRef.current) clearTimeout(resetTimerRef.current);
       resetTimerRef.current = setTimeout(() => setSaveStatus('idle'), 2000);
     }, 500);
     return () => clearTimeout(timer);
-  }, [state]);
+  }, [state, sessionId]);
 
   // Warn before leaving if there are unsaved changes
   useEffect(() => {
@@ -347,10 +386,12 @@ export function WizardProvider({ children }: { children: ReactNode }) {
 
   const resetWizard = useCallback(() => {
     localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(SESSION_ID_KEY);
     setState(INITIAL_STATE);
     setAttemptedAdvance(false);
     changeCountRef.current = 0;
     setIsDirty(false);
+    setSessionId(null);
   }, []);
 
   const prefill = useCallback((params: { service?: string; industry?: string }) => {
@@ -366,7 +407,7 @@ export function WizardProvider({ children }: { children: ReactNode }) {
       state, setStep, completeStep, updateStep1, updateStep2, updateStep3,
       updateStep4, setSignals, setFocusedField, goNext, goBack, resetWizard,
       canProceed, prefill, attemptedAdvance, currentErrors, saveStatus,
-      isDirty,
+      isDirty, sessionId,
     }}>
       {children}
     </WizardContext.Provider>

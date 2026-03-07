@@ -7,7 +7,7 @@
 import { useMemo, useState } from 'react';
 import { useWizard } from '../WizardContext';
 import { WizardLayout } from '../WizardLayout';
-import { AI_SYSTEMS, type AISystem } from '../data/wizardData';
+import { AI_SYSTEMS, getIndustryPrioritizedSystems, type AISystem } from '../data/wizardData';
 import { motion, AnimatePresence } from 'motion/react';
 import { Check, ChevronDown, ExternalLink } from 'lucide-react';
 import { Link } from 'react-router';
@@ -25,15 +25,22 @@ export function StepSystemRecommendations() {
   const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
   const [showAll, setShowAll] = useState(false);
 
-  // Default recommended ranking: signal-matching ones first
+  // Default recommended ranking: industry-prioritized first, then signal-boosted
   const recommendedOrder = useMemo(() => {
+    const industryId = state.step1.industry || '';
+    const industryPrioritized = getIndustryPrioritizedSystems(industryId);
     const signalIds = state.diagnosticSignals.map(s => s.id);
-    return [...AI_SYSTEMS].sort((a, b) => {
+    // Boost signal-matching systems within each priority tier
+    return [...industryPrioritized].sort((a, b) => {
+      const aIdx = industryPrioritized.indexOf(a);
+      const bIdx = industryPrioritized.indexOf(b);
       const aMatch = a.triggerSignals.filter(s => signalIds.includes(s)).length;
       const bMatch = b.triggerSignals.filter(s => signalIds.includes(s)).length;
-      return bMatch - aMatch;
+      // If signal match difference is significant (2+), boost by signal; otherwise keep industry order
+      if (Math.abs(aMatch - bMatch) >= 2) return bMatch - aMatch;
+      return aIdx - bIdx;
     });
-  }, [state.diagnosticSignals]);
+  }, [state.diagnosticSignals, state.step1.industry]);
 
   // Sort based on current mode
   const sortedSystems = useMemo(() => {

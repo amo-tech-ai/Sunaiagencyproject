@@ -1,11 +1,19 @@
+// S00-SERVER — Main Hono server entry point
+// Mounts all route modules: health, wizard, AI, auth
+
 import { Hono } from "npm:hono";
 import { cors } from "npm:hono/cors";
 import { logger } from "npm:hono/logger";
 import * as kv from "./kv_store.tsx";
+import { wizard } from "./wizard-routes.tsx";
+import { ai } from "./ai-routes.tsx";
+import { createUser } from "./auth.tsx";
+
 const app = new Hono();
+const PREFIX = "/make-server-283466b6";
 
 // Enable logger
-app.use('*', logger(console.log));
+app.use("*", logger(console.log));
 
 // Enable CORS for all routes and methods
 app.use(
@@ -16,12 +24,55 @@ app.use(
     allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     exposeHeaders: ["Content-Length"],
     maxAge: 600,
-  }),
+  })
 );
 
-// Health check endpoint
-app.get("/make-server-283466b6/health", (c) => {
-  return c.json({ status: "ok" });
+// ── Health check ──
+app.get(`${PREFIX}/health`, (c) => {
+  return c.json({ status: "ok", timestamp: new Date().toISOString() });
+});
+
+// ── Signup ──
+app.post(`${PREFIX}/signup`, async (c) => {
+  try {
+    const body = await c.req.json();
+    const { email, password, name } = body;
+
+    if (!email || !password) {
+      return c.json({ error: "Email and password are required for signup" }, 400);
+    }
+
+    const { user, error } = await createUser({ email, password, name });
+
+    if (error) {
+      console.log(`[Auth] Signup error: ${error}`);
+      return c.json({ error }, 400);
+    }
+
+    console.log(`[Auth] User created: ${email}`);
+    return c.json({ success: true, user: { id: user.id, email: user.email } });
+  } catch (error) {
+    console.log(`[Auth] Signup exception: ${error}`);
+    return c.json({ error: `Signup failed: ${error}` }, 500);
+  }
+});
+
+// ── Mount wizard routes ──
+app.route("/", wizard);
+
+// ── Mount AI routes ──
+app.route("/", ai);
+
+// ── 404 handler ──
+app.notFound((c) => {
+  console.log(`[Server] 404: ${c.req.method} ${c.req.url}`);
+  return c.json({ error: `Route not found: ${c.req.url}` }, 404);
+});
+
+// ── Global error handler ──
+app.onError((err, c) => {
+  console.log(`[Server] Unhandled error: ${err.message}`);
+  return c.json({ error: `Internal server error: ${err.message}` }, 500);
 });
 
 Deno.serve(app.fetch);
