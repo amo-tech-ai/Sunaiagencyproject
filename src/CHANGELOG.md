@@ -7,6 +7,83 @@
 
 ---
 
+## [0.16.0] — 2026-03-07 — Google OAuth + Auth Flow Hardening
+
+### Summary
+
+Full Google OAuth implementation with production-grade error handling. Added `signInWithGoogle()` across the auth stack (`lib/supabase.ts` → `AuthContext` → `AuthPage`), created a dedicated `AuthCallbackPage` at `/auth/callback` that handles the Supabase OAuth redirect with race-condition-proof session detection, and hardened the entire auth flow with 6 bug fixes: fixed loading state leak during Google redirect, added Google avatar/name extraction to `AuthUser`, corrected post-login redirect from `/wizard` to `/app/dashboard`, resolved `AuthCallbackPage` race condition between `getSession()` and `onAuthStateChange`, added spinner feedback on the Google button during redirect, and wired the `?return=` query parameter through the full OAuth round-trip so users land back on their originally-requested dashboard page. Google login is code-complete but **not yet active** — requires manual Google Cloud Console + Supabase Dashboard configuration.
+
+### Added — Google OAuth Components
+
+- **C92-AUTH-CALLBACK** `/components/AuthCallbackPage.tsx` — OAuth redirect handler at `/auth/callback`. Uses `onAuthStateChange` as primary session detection (not `getSession()`) to avoid race condition with URL hash parsing. Includes `handledRef` guard against double-navigation, 8-second safety timeout, proper cleanup of all timeouts and subscriptions on unmount, reads `?return=` param from URL to redirect to originally-requested page
+- **routes.tsx** — Registered `/auth/callback` route with `AuthCallbackPage`
+- **`/docs/supabase/06-google-auth-plan.md`** — Comprehensive implementation plan (v2.0.0) with Mermaid diagrams covering OAuth PKCE flow, session lifecycle state machine, complete user journey flowchart, token refresh sequence, security architecture, Google Cloud Console setup checklist, and 8 manual test scenarios
+
+### Changed — Auth Flow (6 Bug Fixes)
+
+- **L01-SUPABASE** `lib/supabase.ts` — Added `authApi.signInWithGoogle(returnPath?)` method using `supabase.auth.signInWithOAuth({ provider: 'google' })` with dynamic `redirectTo` URL that encodes the optional `returnPath` as a `?return=` query parameter on `/auth/callback`
+- **C90-AUTH** `AuthContext.tsx` — (1) `signInWithGoogle()` no longer resets `loading: false` on success — browser is about to redirect to Google, so keeping loading state prevents UI flash; (2) Added `avatarUrl` to `AuthUser` interface, extracted from `session.user.user_metadata.avatar_url` (populated by Google OAuth); (3) `signInWithGoogle()` now accepts optional `returnPath` parameter and passes it through to `authApi`; (4) Interface updated: `signInWithGoogle: (returnPath?: string) => Promise<void>`
+- **C91-AUTH-PAGE** `AuthPage.tsx` — (1) Post-login redirect changed from `/wizard` to `/app/dashboard` (both `useEffect` auto-redirect and `handleSubmit` success redirect); (2) Now reads `?return=` query parameter from URL (set by `DashboardLayout` auth guard) and uses it as redirect target; (3) Google button now shows `<Loader2>` spinner with "Redirecting to Google…" text during redirect; (4) Added `googleRedirecting` local state to distinguish Google loading from email loading; (5) All form inputs disabled during any auth operation via `isDisabled` flag; (6) Passes `returnPath` to `signInWithGoogle()` for round-trip preservation
+- **C81-HEADER** `DashboardHeader.tsx` — User avatar now displays Google profile photo via `user.avatarUrl` when available (with `referrerPolicy="no-referrer"` for Google CDN images), falls back to initials. Added "Client Detail" label for `/app/clients/:id` paths.
+
+### Auth Flow — Complete Data Path
+
+```
+User visits /app/dashboard (unauthenticated)
+  → DashboardLayout auth guard → Navigate to /login?return=%2Fapp%2Fdashboard
+  → AuthPage reads ?return= param
+  → User clicks "Continue with Google"
+  → signInWithGoogle(returnPath="/app/dashboard")
+  → authApi.signInWithGoogle() builds redirectTo: /auth/callback?return=%2Fapp%2Fdashboard
+  → supabase.auth.signInWithOAuth({ provider: 'google', redirectTo })
+  → Browser redirects to Google consent screen
+  → User approves → Google sends code to Supabase
+  → Supabase exchanges code, creates/updates auth.users row
+  → Supabase redirects to /auth/callback?return=%2Fapp%2Fdashboard#access_token=...
+  → AuthCallbackPage mounts, reads ?return= param
+  → onAuthStateChange fires SIGNED_IN with new session
+  → AuthContext updates user state (name, email, avatarUrl from Google)
+  → navigateOnce("/app/dashboard") via handledRef guard
+  → DashboardHeader shows Google avatar photo + display name
+```
+
+### Activation Checklist (Manual Steps Required)
+
+| Step | Action | Status |
+|------|--------|--------|
+| 1 | Create OAuth 2.0 Web Client in [Google Cloud Console](https://console.cloud.google.com) | Pending |
+| 2 | Add scopes: `openid`, `email`, `profile` | Pending |
+| 3 | Set authorized redirect URI to `https://<PROJECT_ID>.supabase.co/auth/v1/callback` | Pending |
+| 4 | Enable Google provider in Supabase Dashboard > Authentication > Providers | Pending |
+| 5 | Paste Client ID + Client Secret into Supabase Google provider config | Pending |
+| 6 | Add app callback URLs to Supabase Dashboard > Authentication > URL Configuration | Pending |
+
+### Files Created
+
+```
+/components/AuthCallbackPage.tsx
+/docs/supabase/06-google-auth-plan.md
+```
+
+### Files Modified
+
+```
+/lib/supabase.ts — Added authApi.signInWithGoogle() with returnPath support
+/components/AuthContext.tsx — Added signInWithGoogle(), avatarUrl, loading state fix
+/components/AuthPage.tsx — Google button, return param, redirect fix, loading states
+/components/dashboard/DashboardHeader.tsx — Google avatar display, client detail label
+/routes.tsx — Added /auth/callback route
+```
+
+### Production Status
+
+- Dashboard components: 34 production + 4 placeholder stubs
+- Edge function routes: 15 (unchanged — Google OAuth handled by Supabase Auth service)
+- Auth methods: 4 (email sign-in, email sign-up, Google OAuth, guest/anonymous)
+- Project completion: ~57% (Phases 1–6, 9–10 done; Google Auth code-complete; Phases 7–8, 11–13 pending)
+
+---
+
 ## [0.15.0] — 2026-03-07 — Phase 9 AI Insights + Phase 10 AI Agents + Phase 6 CRM
 
 ### Summary
