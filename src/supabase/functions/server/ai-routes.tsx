@@ -1,13 +1,41 @@
 // S04-AI — AI analysis Edge Function routes
 // analyze-business, industry-diagnostics, system-recommendations,
 // readiness-score, generate-roadmap
+// Results stored in wizard_answers.ai_results (per-step) instead of KV
 
 import { Hono } from "npm:hono";
-import * as kv from "./kv_store.tsx";
+import { adminClient } from "./db.tsx";
 import { callGemini } from "./gemini.tsx";
 
 const ai = new Hono();
 const PREFIX = "/make-server-283466b6";
+
+/** Save AI result to the wizard_answers table for the given step */
+async function saveAIResult(
+  sessionId: string,
+  stepNumber: number,
+  result: unknown
+): Promise<void> {
+  try {
+    const db = adminClient();
+    const { error } = await db.from("wizard_answers").upsert(
+      {
+        session_id: sessionId,
+        step_number: stepNumber,
+        ai_results: result,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "session_id,step_number" }
+    );
+    if (error) {
+      console.log(
+        `[AI] Failed to save AI result for session ${sessionId} step ${stepNumber}: ${error.message}`
+      );
+    }
+  } catch (e) {
+    console.log(`[AI] saveAIResult exception: ${e}`);
+  }
+}
 
 // ── POST /analyze-business ──
 ai.post(`${PREFIX}/analyze-business`, async (c) => {
@@ -47,16 +75,18 @@ ${industry ? `Industry hint: ${industry}` : ""}
 
 Provide a thorough analysis considering the business context, market position, and AI transformation potential.`;
 
-    const result = await callGemini("analyze-business", systemPrompt, userPrompt, {
-      url,
-      description,
-      industry,
-    });
+    const result = await callGemini(
+      "analyze-business",
+      systemPrompt,
+      userPrompt,
+      { url, description, industry },
+      sessionId
+    );
 
-    // Persist analysis to session if provided
+    // Persist analysis to wizard_answers step 1
     if (sessionId) {
-      await kv.set(`wizard:analysis:${sessionId}`, {
-        result,
+      await saveAIResult(sessionId, 1, {
+        analysis: result,
         analyzedAt: new Date().toISOString(),
       });
     }
@@ -118,12 +148,14 @@ Analyze this business in the context of their industry and provide diagnostic in
       "industry-diagnostics",
       systemPrompt,
       userPrompt,
-      { industryId, companyProfile }
+      { industryId, companyProfile },
+      sessionId
     );
 
+    // Persist diagnostics to wizard_answers step 2
     if (sessionId) {
-      await kv.set(`wizard:diagnostics:${sessionId}`, {
-        result,
+      await saveAIResult(sessionId, 2, {
+        diagnostics: result,
         analyzedAt: new Date().toISOString(),
       });
     }
@@ -182,12 +214,14 @@ Rank and recommend the most impactful AI systems for this business, considering 
       "system-recommendations",
       systemPrompt,
       userPrompt,
-      { wizardAnswers, industry, signals }
+      { wizardAnswers, industry, signals },
+      sessionId
     );
 
+    // Persist recommendations to wizard_answers step 3
     if (sessionId) {
-      await kv.set(`wizard:recommendations:${sessionId}`, {
-        result,
+      await saveAIResult(sessionId, 3, {
+        recommendations: result,
         generatedAt: new Date().toISOString(),
       });
     }
@@ -214,15 +248,34 @@ ai.post(`${PREFIX}/readiness-score`, async (c) => {
     const body = await c.req.json();
     const { sessionId } = body;
 
-    // Load all session data
-    let sessionData: any = {};
+    // Load all prior step answers and AI results from wizard_answers table
+    let sessionData: Record<string, unknown> = {};
     if (sessionId) {
-      const [session, analysis, diagnostics] = await kv.mget([
-        `wizard:session:${sessionId}`,
-        `wizard:analysis:${sessionId}`,
-        `wizard:diagnostics:${sessionId}`,
-      ]);
-      sessionData = { session, analysis, diagnostics };
+      const db = adminClient();
+      const { data: answers, error } = await db
+        .from("wizard_answers")
+        .select("step_number, answers, ai_results")
+        .eq("session_id", sessionId)
+        .in("step_number", [1, 2, 3])
+        .order("step_number");
+
+      if (error) {
+        console.log(`[AI] readiness-score data load error: ${error.message}`);
+      }
+
+      if (answers) {
+        const step1 = answers.find((a: any) => a.step_number === 1);
+        const step2 = answers.find((a: any) => a.step_number === 2);
+        const step3 = answers.find((a: any) => a.step_number === 3);
+        sessionData = {
+          businessContext: step1?.answers || null,
+          analysis: step1?.ai_results || null,
+          industryDiagnostics: step2?.answers || null,
+          diagnosticsAI: step2?.ai_results || null,
+          systemSelections: step3?.answers || null,
+          recommendationsAI: step3?.ai_results || null,
+        };
+      }
     }
 
     const systemPrompt = `You are an AI readiness assessment expert at Sun AI Agency. Calculate an AI readiness score based on all available data about the business.
@@ -253,17 +306,21 @@ Assess this company's AI readiness based on all available information. Be specif
       "readiness-score",
       systemPrompt,
       userPrompt,
-      { sessionId, sessionData }
+      { sessionId, sessionData },
+      sessionId
     );
 
+    // Persist readiness score to wizard_answers step 4
     if (sessionId) {
-      await kv.set(`wizard:readiness:${sessionId}`, {
-        result,
+      await saveAIResult(sessionId, 4, {
+        readiness: result,
         scoredAt: new Date().toISOString(),
       });
     }
 
-    console.log(`[AI] readiness-score complete: ${JSON.stringify(result).slice(0, 100)}`);
+    console.log(
+      `[AI] readiness-score complete: ${JSON.stringify(result).slice(0, 100)}`
+    );
 
     return c.json({
       success: true,
@@ -327,17 +384,21 @@ Create a realistic, phased implementation roadmap. Consider dependencies between
       "generate-roadmap",
       systemPrompt,
       userPrompt,
-      { selectedSystems, industry, companySize }
+      { selectedSystems, industry, companySize },
+      sessionId
     );
 
+    // Persist roadmap to wizard_answers step 5
     if (sessionId) {
-      await kv.set(`wizard:roadmap:${sessionId}`, {
-        result,
+      await saveAIResult(sessionId, 5, {
+        roadmap: result,
         generatedAt: new Date().toISOString(),
       });
     }
 
-    console.log(`[AI] generate-roadmap complete for ${selectedSystems.length} systems`);
+    console.log(
+      `[AI] generate-roadmap complete for ${selectedSystems.length} systems`
+    );
 
     return c.json({
       success: true,
@@ -348,6 +409,75 @@ Create a realistic, phased implementation roadmap. Consider dependencies between
     console.log(`[AI] generate-roadmap error: ${error}`);
     return c.json(
       { error: `Roadmap generation failed: ${error}`, fallback: true },
+      500
+    );
+  }
+});
+
+// ── POST /dashboard-insights ──
+// Generates AI-powered next-best-action recommendations from project state
+ai.post(`${PREFIX}/dashboard-insights`, async (c) => {
+  try {
+    const body = await c.req.json();
+    const { sessionId, orgData, readinessScore, projectState, recentActivities } =
+      body;
+
+    // Validate auth
+    const authHeader = c.req.header("Authorization");
+    if (!authHeader) {
+      return c.json(
+        { error: "Authorization required for dashboard insights" },
+        401
+      );
+    }
+
+    const systemPrompt = `You are a senior AI strategy consultant at Sun AI Agency. Based on the client's project state, readiness score, and recent activity, generate 2-4 prioritized action recommendations.
+
+Each recommendation should be specific, actionable, and tied to their actual data. Avoid generic advice.
+
+Return this JSON structure:
+{
+  "insights": [
+    {
+      "id": "unique-id",
+      "title": "Short action title (max 60 chars)",
+      "description": "2-3 sentence explanation with specific data points from their profile",
+      "priority": "high|medium|low",
+      "actionLabel": "Button text for the action",
+      "actionRoute": "/app/route-to-navigate"
+    }
+  ],
+  "greeting": "One-sentence contextual greeting referencing their industry or progress",
+  "summary": "2-sentence summary of their current status and top priority"
+}`;
+
+    const userPrompt = `Client Data:
+Organization: ${JSON.stringify(orgData || {})}
+AI Readiness Score: ${readinessScore || "unknown"}
+Project State: ${JSON.stringify(projectState || {})}
+Recent Activities: ${JSON.stringify(recentActivities || [])}
+
+Generate personalized, data-driven recommendations. Reference specific scores, gaps, and milestones from their data.`;
+
+    const result = await callGemini(
+      "dashboard-insights",
+      systemPrompt,
+      userPrompt,
+      { sessionId, orgData, readinessScore },
+      sessionId
+    );
+
+    console.log(`[AI] dashboard-insights complete for session ${sessionId}`);
+
+    return c.json({
+      success: true,
+      insights: result,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.log(`[AI] dashboard-insights error: ${error}`);
+    return c.json(
+      { error: `Dashboard insights generation failed: ${error}`, fallback: true },
       500
     );
   }

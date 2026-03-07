@@ -1,7 +1,7 @@
 // S01-GEMINI — Gemini AI client utility for Edge Functions
-// Handles API calls, caching, and run logging via KV store
+// Handles API calls, caching via ai_cache table, and run logging via ai_run_logs table
 
-import * as kv from "./kv_store.tsx";
+import { adminClient } from "./db.tsx";
 
 const GEMINI_MODEL = "gemini-2.0-flash";
 
@@ -20,7 +20,7 @@ async function hashInput(input: string): Promise<string> {
   return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
-/** Check AI cache for a previous result */
+/** Check ai_cache table for a previous result */
 export async function getCachedResult(
   functionName: string,
   input: Record<string, unknown>
@@ -28,56 +28,91 @@ export async function getCachedResult(
   try {
     const inputStr = JSON.stringify({ fn: functionName, ...input });
     const hash = await hashInput(inputStr);
-    const cached = await kv.get(`ai:cache:${hash}`);
-    if (cached && cached.expires_at && Date.now() < cached.expires_at) {
+    const db = adminClient();
+
+    const { data, error } = await db
+      .from("ai_cache")
+      .select("response")
+      .eq("input_hash", hash)
+      .gt("expires_at", new Date().toISOString())
+      .maybeSingle();
+
+    if (error) {
+      console.log(`[Gemini] Cache check error: ${error.message}`);
+      return null;
+    }
+
+    if (data?.response) {
       console.log(`[Gemini] Cache HIT for ${functionName}`);
-      return cached.result;
+      return data.response;
     }
     return null;
   } catch (e) {
-    console.log(`[Gemini] Cache check error: ${e}`);
+    console.log(`[Gemini] Cache check exception: ${e}`);
     return null;
   }
 }
 
-/** Store result in AI cache */
+/** Store result in ai_cache table with TTL via expires_at */
 export async function setCachedResult(
   functionName: string,
   input: Record<string, unknown>,
-  result: unknown,
-  ttlMs: number = 24 * 60 * 60 * 1000 // 24h default
+  response: unknown,
+  model: string,
+  tokensUsed: number,
+  ttlHours: number = 24
 ): Promise<void> {
   try {
     const inputStr = JSON.stringify({ fn: functionName, ...input });
     const hash = await hashInput(inputStr);
-    await kv.set(`ai:cache:${hash}`, {
-      result,
-      created_at: Date.now(),
-      expires_at: Date.now() + ttlMs,
+    const db = adminClient();
+
+    const { error } = await db.from("ai_cache").upsert({
+      input_hash: hash,
+      response,
+      model,
+      tokens_used: tokensUsed,
+      expires_at: new Date(Date.now() + ttlHours * 3600000).toISOString(),
     });
+
+    if (error) {
+      console.log(`[Gemini] Cache write error: ${error.message}`);
+    }
   } catch (e) {
-    console.log(`[Gemini] Cache write error: ${e}`);
+    console.log(`[Gemini] Cache write exception: ${e}`);
   }
 }
 
-/** Log an AI run for auditing */
+/** Log an AI run to ai_run_logs table for auditing */
 export async function logAIRun(params: {
-  functionName: string;
-  inputHash?: string;
-  tokensUsed?: number;
+  sessionId?: string;
+  orgId?: string;
+  promptType: string;
+  model: string;
+  tokensUsed: number;
   durationMs: number;
   success: boolean;
-  error?: string;
+  errorMessage?: string;
 }): Promise<void> {
   try {
-    const logId = `ai:log:${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-    await kv.set(logId, {
-      ...params,
-      model: GEMINI_MODEL,
-      created_at: new Date().toISOString(),
+    const db = adminClient();
+
+    const { error } = await db.from("ai_run_logs").insert({
+      session_id: params.sessionId || null,
+      org_id: params.orgId || null,
+      prompt_type: params.promptType,
+      model: params.model,
+      tokens_used: params.tokensUsed,
+      duration_ms: params.durationMs,
+      success: params.success,
+      error_message: params.errorMessage || null,
     });
+
+    if (error) {
+      console.log(`[Gemini] Log write error: ${error.message}`);
+    }
   } catch (e) {
-    console.log(`[Gemini] Log write error: ${e}`);
+    console.log(`[Gemini] Log write exception: ${e}`);
   }
 }
 
@@ -86,7 +121,8 @@ export async function callGemini(
   functionName: string,
   systemPrompt: string,
   userPrompt: string,
-  input: Record<string, unknown> = {}
+  input: Record<string, unknown> = {},
+  sessionId?: string
 ): Promise<unknown> {
   // Check cache first
   const cached = await getCachedResult(functionName, input);
@@ -142,33 +178,36 @@ export async function callGemini(
       parsed = { rawText: textContent };
     }
 
-    // Log the run
+    // Calculate token usage
     const tokensUsed =
       (data?.usageMetadata?.promptTokenCount || 0) +
       (data?.usageMetadata?.candidatesTokenCount || 0);
 
+    // Log the run to ai_run_logs table
     await logAIRun({
-      functionName,
+      sessionId,
+      promptType: functionName,
+      model: GEMINI_MODEL,
       tokensUsed,
       durationMs,
       success: true,
     });
 
-    // Cache the result
-    const ttl =
-      functionName === "analyze-business"
-        ? 24 * 60 * 60 * 1000
-        : 7 * 24 * 60 * 60 * 1000;
-    await setCachedResult(functionName, input, parsed, ttl);
+    // Cache the result in ai_cache table
+    const ttlHours = functionName === "analyze-business" ? 24 : 168; // 24h or 7 days
+    await setCachedResult(functionName, input, parsed, GEMINI_MODEL, tokensUsed, ttlHours);
 
     return parsed;
   } catch (error) {
     const durationMs = Date.now() - startMs;
     await logAIRun({
-      functionName,
+      sessionId,
+      promptType: functionName,
+      model: GEMINI_MODEL,
+      tokensUsed: 0,
       durationMs,
       success: false,
-      error: String(error),
+      errorMessage: String(error),
     });
     throw error;
   }

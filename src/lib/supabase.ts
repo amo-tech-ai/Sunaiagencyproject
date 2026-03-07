@@ -45,7 +45,19 @@ export async function api<T = unknown>(
     }
 
     const url = `${BASE_URL}${route.startsWith('/') ? route : `/${route}`}`;
-    const response = await fetch(url, fetchOptions);
+    let response = await fetch(url, fetchOptions);
+
+    // If user token caused a 401 (expired JWT), retry with anon key
+    // so the edge function gateway accepts the request
+    if (response.status === 401 && token && token !== publicAnonKey) {
+      console.warn(`[API] ${method} ${route}: token expired, retrying with anon key`);
+      const retryHeaders = { ...headers, Authorization: `Bearer ${publicAnonKey}` };
+      response = await fetch(url, {
+        ...fetchOptions,
+        headers: retryHeaders,
+      });
+    }
+
     const data = await response.json();
 
     if (!response.ok) {
@@ -71,8 +83,22 @@ export interface WizardSaveResponse {
 }
 
 export interface WizardLoadResponse {
-  session: Record<string, unknown>;
-  answers: Record<string, unknown>[];
+  session: {
+    id: string;
+    org_id: string | null;
+    user_id: string | null;
+    current_step: number;
+    status: string;
+    context_snapshot: Record<string, unknown>;
+    created_at: string;
+    updated_at: string;
+  };
+  answers: {
+    step_number: number;
+    answers: Record<string, unknown>;
+    ai_results: Record<string, unknown> | null;
+    updated_at: string;
+  }[];
   progress: { currentStep: number; completedSteps: number[] };
 }
 
@@ -119,20 +145,27 @@ export interface RoadmapResponse {
 
 // ── Wizard API ──
 export const wizardApi = {
-  save: (sessionId: string, fullState: Record<string, unknown>) =>
+  save: (sessionId: string, fullState: Record<string, unknown>, token?: string) =>
     api<WizardSaveResponse>('/wizard/save', {
       method: 'POST',
       body: { sessionId, fullState },
+      token,
     }),
 
-  saveStep: (sessionId: string, step: number, data: unknown) =>
+  saveStep: (sessionId: string, step: number, data: unknown, token?: string) =>
     api<WizardSaveResponse>('/wizard/save', {
       method: 'POST',
       body: { sessionId, step, data },
+      token,
     }),
 
-  load: (sessionId: string) =>
-    api<WizardLoadResponse>(`/wizard/${sessionId}`),
+  load: (sessionId: string, token?: string) =>
+    api<WizardLoadResponse>(`/wizard/${sessionId}`, { token }),
+
+  list: (userId: string, token?: string) =>
+    api<{ sessions: { id: string; current_step: number; status: string; created_at: string; updated_at: string }[] }>(
+      `/wizard/list/${userId}`, { token }
+    ),
 };
 
 // ── AI API ──
@@ -184,6 +217,33 @@ export const aiApi = {
     api<RoadmapResponse>('/generate-roadmap', {
       method: 'POST',
       body: params as Record<string, unknown>,
+    }),
+
+  dashboardInsights: (params: {
+    sessionId: string;
+    orgData: Record<string, unknown>;
+    readinessScore: number;
+    projectState: Record<string, unknown>;
+    recentActivities: unknown[];
+  }, token?: string) =>
+    api<{
+      success: boolean;
+      insights: {
+        insights: Array<{
+          id: string;
+          title: string;
+          description: string;
+          priority: 'high' | 'medium' | 'low';
+          actionLabel?: string;
+          actionRoute?: string;
+        }>;
+        greeting?: string;
+        summary?: string;
+      };
+    }>('/dashboard-insights', {
+      method: 'POST',
+      body: params as Record<string, unknown>,
+      token,
     }),
 };
 

@@ -1,8 +1,10 @@
 // S03-WIZARD — Wizard session persistence routes
-// Save/load wizard state to KV store with session management
+// Save/load wizard state to wizard_sessions & wizard_answers tables
+// Uses adminClient for writes (supports both anonymous and authenticated users)
+// User identity extracted from token when available, stored as user_id
 
 import { Hono } from "npm:hono";
-import * as kv from "./kv_store.tsx";
+import { adminClient } from "./db.tsx";
 import { getUserFromToken } from "./auth.tsx";
 
 const wizard = new Hono();
@@ -17,8 +19,16 @@ function generateSessionId(): string {
 wizard.post(`${PREFIX}/wizard/save`, async (c) => {
   try {
     const authHeader = c.req.header("Authorization");
-    const { userId } = await getUserFromToken(authHeader);
-    const callerKey = userId || "anonymous";
+
+    // Extract user ID if available, but don't block on auth failure
+    let callerKey: string | null = null;
+    try {
+      const { userId } = await getUserFromToken(authHeader ?? null);
+      callerKey = userId && userId !== "anonymous" ? userId : null;
+    } catch {
+      // Auth extraction failed — proceed as anonymous save
+      callerKey = null;
+    }
 
     const body = await c.req.json();
     const { sessionId, step, data, fullState } = body;
@@ -31,34 +41,68 @@ wizard.post(`${PREFIX}/wizard/save`, async (c) => {
     }
 
     const sid = sessionId || generateSessionId();
+    // Use adminClient for wizard writes — supports anonymous + expired-token users
+    // Session IDs are unguessable random keys, so this is safe
+    const db = adminClient();
 
     if (fullState) {
-      // Save entire wizard state
-      await kv.set(`wizard:session:${sid}`, {
-        ...fullState,
-        userId: callerKey,
-        updatedAt: new Date().toISOString(),
-      });
-    } else if (step && data) {
-      // Save individual step data
-      await kv.set(`wizard:answer:${sid}:step${step}`, {
-        step,
-        data,
-        updatedAt: new Date().toISOString(),
+      // Full state save → upsert wizard_sessions
+      const { error } = await db.from("wizard_sessions").upsert({
+        id: sid,
+        user_id: callerKey !== "anonymous" ? callerKey : null,
+        current_step: fullState.currentStep || 1,
+        status: fullState.status || "in_progress",
+        context_snapshot: fullState,
+        updated_at: new Date().toISOString(),
       });
 
-      // Update session metadata
-      const session = (await kv.get(`wizard:session:${sid}`)) || {};
-      await kv.set(`wizard:session:${sid}`, {
-        ...session,
-        userId: callerKey,
-        currentStep: step,
-        updatedAt: new Date().toISOString(),
-      });
+      if (error) {
+        console.log(`[Wizard] Session upsert error: ${error.message}`);
+        return c.json(
+          { error: `Failed to save wizard session: ${error.message}` },
+          500
+        );
+      }
+    }
+
+    if (step !== undefined && data) {
+      // Per-step save → upsert wizard_answers
+      const { error: ansError } = await db.from("wizard_answers").upsert(
+        {
+          session_id: sid,
+          step_number: step,
+          answers: data,
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: "session_id,step_number" }
+      );
+
+      if (ansError) {
+        console.log(`[Wizard] Answer upsert error: ${ansError.message}`);
+        return c.json(
+          { error: `Failed to save wizard answer: ${ansError.message}` },
+          500
+        );
+      }
+
+      // Also update session metadata (current_step)
+      const { error: metaError } = await db
+        .from("wizard_sessions")
+        .upsert({
+          id: sid,
+          user_id: callerKey !== "anonymous" ? callerKey : null,
+          current_step: step,
+          status: "in_progress",
+          updated_at: new Date().toISOString(),
+        });
+
+      if (metaError) {
+        console.log(`[Wizard] Session meta update error: ${metaError.message}`);
+      }
     }
 
     console.log(
-      `[Wizard] Saved session ${sid}, step ${step || "full"} for user ${callerKey}`
+      `[Wizard] Saved session ${sid}, step ${step ?? "full"} for user ${callerKey ?? "anonymous"}`
     );
 
     return c.json({
@@ -84,26 +128,47 @@ wizard.get(`${PREFIX}/wizard/:sessionId`, async (c) => {
       return c.json({ error: "Missing sessionId parameter" }, 400);
     }
 
-    const session = await kv.get(`wizard:session:${sessionId}`);
+    // Use adminClient for reads — session ID is the access key
+    const db = adminClient();
+
+    // Load session from wizard_sessions table
+    const { data: session, error: sessError } = await db
+      .from("wizard_sessions")
+      .select("*")
+      .eq("id", sessionId)
+      .maybeSingle();
+
+    if (sessError) {
+      console.log(`[Wizard] Session load error: ${sessError.message}`);
+      return c.json(
+        { error: `Failed to load session: ${sessError.message}` },
+        500
+      );
+    }
 
     if (!session) {
       return c.json({ error: `Session ${sessionId} not found` }, 404);
     }
 
-    // Load step answers
-    const stepKeys = [1, 2, 3, 4, 5].map(
-      (s) => `wizard:answer:${sessionId}:step${s}`
-    );
-    const answers = await kv.mget(stepKeys);
+    // Load step answers from wizard_answers table
+    const { data: answers, error: ansError } = await db
+      .from("wizard_answers")
+      .select("step_number, answers, ai_results, updated_at")
+      .eq("session_id", sessionId)
+      .order("step_number");
+
+    if (ansError) {
+      console.log(`[Wizard] Answers load error: ${ansError.message}`);
+    }
 
     console.log(`[Wizard] Loaded session ${sessionId}`);
 
     return c.json({
       session,
-      answers: answers.filter(Boolean),
+      answers: answers || [],
       progress: {
-        currentStep: session.currentStep || 1,
-        completedSteps: session.completedSteps || [],
+        currentStep: session.current_step || 1,
+        completedSteps: session.context_snapshot?.completedSteps || [],
       },
     });
   } catch (error) {
@@ -119,14 +184,25 @@ wizard.get(`${PREFIX}/wizard/:sessionId`, async (c) => {
 wizard.get(`${PREFIX}/wizard/list/:userId`, async (c) => {
   try {
     const userId = c.req.param("userId");
-    const sessions = await kv.getByPrefix(`wizard:session:`);
+    // Use adminClient — the userId in the URL path scopes the query
+    const db = adminClient();
 
-    // Filter by userId
-    const userSessions = sessions.filter(
-      (s: any) => s.userId === userId || s.userId === "anonymous"
-    );
+    // RLS automatically scopes to sessions the user can see
+    const { data: sessions, error } = await db
+      .from("wizard_sessions")
+      .select("id, current_step, status, created_at, updated_at")
+      .eq("user_id", userId)
+      .order("updated_at", { ascending: false });
 
-    return c.json({ sessions: userSessions });
+    if (error) {
+      console.log(`[Wizard] List error: ${error.message}`);
+      return c.json(
+        { error: `Failed to list wizard sessions: ${error.message}` },
+        500
+      );
+    }
+
+    return c.json({ sessions: sessions || [] });
   } catch (error) {
     console.log(`[Wizard] List error: ${error}`);
     return c.json(

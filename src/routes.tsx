@@ -1,7 +1,7 @@
 import WizardPage from './components/wizard/WizardPage';
 import ProcessingPage from './components/wizard/ProcessingPage';
 import ProposalPage from './components/wizard/ProposalPage';
-import { createBrowserRouter, Link } from 'react-router';
+import { createBrowserRouter, Link, Navigate } from 'react-router';
 import Layout from './components/Layout';
 import HomePageV2 from './components/HomePageV2';
 import HomePage from './components/HomePage';
@@ -32,6 +32,20 @@ import SitemapPage from './components/SitemapPage';
 import ChatbotServicePage from './components/services/ChatbotServicePage';
 import WhatsAppAIPage from './pages/WhatsAppAIPage';
 import SupabaseArchitecturePage from './components/SupabaseArchitecturePage';
+import AuthPage from './components/AuthPage';
+
+// Dashboard imports — Phase 1 (shell) + Phase 2-5 (production pages)
+import DashboardLayout from './components/dashboard/DashboardLayout';
+import DashboardHome from './components/dashboard/DashboardHome';
+import ProjectsList from './components/dashboard/ProjectsList';
+import ProjectDetail from './components/dashboard/ProjectDetail';
+import RoadmapPage from './components/dashboard/RoadmapPage';
+import SettingsPageComponent from './components/dashboard/SettingsPage';
+import {
+  ClientsPage, CRMPipelinePage, AIInsightsPage,
+  DocumentsPage, FinancialPage as DashFinancialPage, WorkflowsPage,
+  AgentsPage as DashAgentsPage,
+} from './components/dashboard/PlaceholderPage';
 
 function NotFound() {
   return (
@@ -58,6 +72,36 @@ export const router = createBrowserRouter([
     children: [
       { path: 'processing', Component: ProcessingPage },
       { path: 'proposal', Component: ProposalPage },
+    ],
+  },
+  // Auth page — standalone layout (own brand panel)
+  {
+    path: '/login',
+    Component: AuthPage,
+  },
+  // Dashboard — authenticated area with sidebar layout
+  {
+    path: '/app',
+    Component: DashboardLayout,
+    children: [
+      { index: true, element: <Navigate to="/app/dashboard" replace /> },
+      { path: 'dashboard', Component: DashboardHome },
+      // Phase 4: Projects — production pages
+      { path: 'projects', Component: ProjectsList },
+      { path: 'projects/:id', Component: ProjectDetail },
+      // Phase 2: Roadmap — production page
+      { path: 'roadmap', Component: RoadmapPage },
+      // Phase 5: Settings — production page
+      { path: 'settings', Component: SettingsPageComponent },
+      // Placeholder stubs — Phases 6-13
+      { path: 'clients', Component: ClientsPage },
+      { path: 'clients/:id', Component: ClientsPage },
+      { path: 'crm/pipelines', Component: CRMPipelinePage },
+      { path: 'insights', Component: AIInsightsPage },
+      { path: 'documents', Component: DocumentsPage },
+      { path: 'financial', Component: DashFinancialPage },
+      { path: 'workflows', Component: WorkflowsPage },
+      { path: 'agents', Component: DashAgentsPage },
     ],
   },
   {

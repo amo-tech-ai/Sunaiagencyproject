@@ -1,10 +1,10 @@
 // S00-SERVER — Main Hono server entry point
 // Mounts all route modules: health, wizard, AI, auth
+// All data persistence uses proper Supabase tables (no KV store)
 
 import { Hono } from "npm:hono";
 import { cors } from "npm:hono/cors";
 import { logger } from "npm:hono/logger";
-import * as kv from "./kv_store.tsx";
 import { wizard } from "./wizard-routes.tsx";
 import { ai } from "./ai-routes.tsx";
 import { createUser } from "./auth.tsx";

@@ -1,18 +1,29 @@
 // C33 — Step 4: Executive Summary / Strategy Brief
 // White document panel with 7 sections, inline editing, approval flow
+// NOW WIRED: Calls /readiness-score for live AI readiness assessment
 
 import { useState, useRef, useEffect, useMemo, useCallback, forwardRef } from 'react';
 import { useWizard } from '../WizardContext';
 import { WizardLayout } from '../WizardLayout';
 import { AI_SYSTEMS, ROADMAP_PHASES } from '../data/wizardData';
 import { motion, AnimatePresence } from 'motion/react';
+import { aiApi } from '../../../lib/supabase';
 import {
   Pencil, Check, X, Clock, ShoppingCart, RefreshCw, DollarSign,
-  FileText, Printer, Share2, ArrowRight
+  FileText, Printer, Share2, ArrowRight, Loader2, AlertCircle, BarChart3
 } from 'lucide-react';
 
+interface ReadinessData {
+  overallScore: number;
+  scoreBreakdown: Record<string, { score: number; label: string }>;
+  maturityLevel: string;
+  gaps: { area: string; description: string; priority: string }[];
+  strengths: string[];
+  nextSteps: string[];
+}
+
 export function StepExecutiveSummary() {
-  const { state, updateStep4 } = useWizard();
+  const { state, updateStep4, sessionId } = useWizard();
   const { step1, step3, step4, diagnosticSignals } = state;
   const selectedSystems = AI_SYSTEMS.filter(s => step3.selectedSystems.includes(s.id));
 
@@ -20,15 +31,48 @@ export function StepExecutiveSummary() {
   const [editingSection, setEditingSection] = useState<string | null>(null);
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
-  // Generate brief content (mock AI generation — in production this calls Gemini 3)
+  // ── AI Readiness Score State ──
+  const [readiness, setReadiness] = useState<ReadinessData | null>(null);
+  const [readinessLoading, setReadinessLoading] = useState(false);
+  const [readinessError, setReadinessError] = useState<string | null>(null);
+  const fetchedRef = useRef(false);
+
+  // Fetch readiness score on mount (once per session)
+  useEffect(() => {
+    if (fetchedRef.current || !sessionId) return;
+    fetchedRef.current = true;
+
+    async function fetchReadiness() {
+      setReadinessLoading(true);
+      setReadinessError(null);
+      try {
+        const { data, error } = await aiApi.readinessScore(sessionId!);
+        if (error) {
+          console.error('[Step4] Readiness score error:', error);
+          setReadinessError(error);
+        } else if (data && typeof data === 'object') {
+          const result = (data as any).readiness as ReadinessData;
+          if (result) setReadiness(result);
+        }
+      } catch (e) {
+        console.error('[Step4] Readiness fetch exception:', e);
+        setReadinessError(String(e));
+      } finally {
+        setReadinessLoading(false);
+      }
+    }
+    fetchReadiness();
+  }, [sessionId]);
+
+  // Generate brief content
   const briefContent = useMemo(() => ({
     executiveSummary: step4.briefEdits['executive-summary'] ||
-      `${step1.companyName || 'Your company'} is a ${step1.companySize || 'growing'} ${step1.industry?.replace(/-/g, ' ') || 'business'} focused on ${step1.goal?.replace(/-/g, ' ') || 'growth'}. Based on our analysis, the primary opportunity areas are ${diagnosticSignals.slice(0, 3).map(s => s.label.toLowerCase()).join(', ') || 'support automation and revenue optimization'}. We recommend ${selectedSystems.length} AI-powered systems targeting customer experience and revenue growth. The proposed roadmap spans 12 weeks with estimated ROI within 90 days of launch.`,
+      `${step1.companyName || 'Your company'} is a ${step1.companySize || 'growing'} ${step1.industry?.replace(/-/g, ' ') || 'business'} focused on ${step1.goal?.replace(/-/g, ' ') || 'growth'}. Based on our analysis, the primary opportunity areas are ${diagnosticSignals.slice(0, 3).map(s => s.label.toLowerCase()).join(', ') || 'support automation and revenue optimization'}. We recommend ${selectedSystems.length} AI-powered systems targeting customer experience and revenue growth.${readiness ? ` Your current AI readiness score is ${readiness.overallScore}/100 (${readiness.maturityLevel}).` : ' The proposed roadmap spans 12 weeks with estimated ROI within 90 days of launch.'}`,
     industryAnalysis: step4.briefEdits['industry-analysis'] ||
       `Based on our diagnostic of your ${step1.industry?.replace(/-/g, ' ') || 'industry'} operations, we've identified ${diagnosticSignals.length} key signals indicating significant AI automation potential.`,
     outcomes: step4.briefEdits['outcomes'] ||
       `At your current scale, these improvements typically translate to significant operational savings and revenue uplift within 90 days of launch.`,
-  }), [step1, step3, step4.briefEdits, diagnosticSignals, selectedSystems]);
+  }), [step1, step3, step4.briefEdits, diagnosticSignals, selectedSystems, readiness]);
 
   // Scrollspy
   useEffect(() => {
@@ -60,6 +104,26 @@ export function StepExecutiveSummary() {
     updateStep4({ briefStatus: 'in-review' });
   }, [updateStep4]);
 
+  const retryReadiness = useCallback(async () => {
+    if (!sessionId) return;
+    fetchedRef.current = false;
+    setReadinessLoading(true);
+    setReadinessError(null);
+    try {
+      const { data, error } = await aiApi.readinessScore(sessionId);
+      if (error) {
+        setReadinessError(error);
+      } else if (data && typeof data === 'object') {
+        const result = (data as any).readiness as ReadinessData;
+        if (result) setReadiness(result);
+      }
+    } catch (e) {
+      setReadinessError(String(e));
+    } finally {
+      setReadinessLoading(false);
+    }
+  }, [sessionId]);
+
   const scrollToSection = (id: string) => {
     sectionRefs.current[id]?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
@@ -68,6 +132,7 @@ export function StepExecutiveSummary() {
     { id: 'executive-summary', label: 'Executive Summary' },
     { id: 'company-profile', label: 'Company Profile' },
     { id: 'industry-analysis', label: 'Industry Analysis' },
+    { id: 'ai-readiness', label: 'AI Readiness Score' },
     { id: 'recommended-systems', label: 'Recommended Systems' },
     { id: 'proposed-roadmap', label: 'Proposed Roadmap' },
     { id: 'expected-outcomes', label: 'Expected Outcomes' },
@@ -79,6 +144,10 @@ export function StepExecutiveSummary() {
     'in-review': { label: 'In Review', color: '#2563EB', bg: '#EFF6FF' },
     approved: { label: 'Approved', color: '#00875A', bg: '#E6F4ED' },
   }[step4.briefStatus];
+
+  /* ────── Score color helper ────── */
+  const scoreColor = (score: number) =>
+    score >= 75 ? '#00875A' : score >= 50 ? '#D97706' : '#DC2626';
 
   /* ────── Right Panel ────── */
   const rightPanel = (
@@ -103,6 +172,27 @@ export function StepExecutiveSummary() {
           ))}
         </div>
       </div>
+
+      {/* Readiness Score Summary (right panel) */}
+      {readiness && (
+        <div className="border-t pt-4" style={{ borderColor: '#F0F0EC' }}>
+          <p className="text-xs tracking-widest uppercase mb-3" style={{ color: '#00875A', letterSpacing: '0.08em' }}>
+            AI Readiness
+          </p>
+          <div className="text-center mb-3">
+            <span
+              className="text-3xl"
+              style={{ fontFamily: 'JetBrains Mono, monospace', color: scoreColor(readiness.overallScore) }}
+            >
+              {readiness.overallScore}
+            </span>
+            <span className="text-sm" style={{ color: '#9CA39B' }}> / 100</span>
+          </div>
+          <p className="text-xs text-center capitalize" style={{ color: '#6B6B63' }}>
+            {readiness.maturityLevel} maturity
+          </p>
+        </div>
+      )}
 
       {/* Actions */}
       <div className="border-t pt-4 space-y-2" style={{ borderColor: '#F0F0EC' }}>
@@ -230,6 +320,121 @@ export function StepExecutiveSummary() {
             </div>
           </div>
 
+          {/* ─── Section 3.5: AI Readiness Score ─── */}
+          <div id="ai-readiness" ref={(el) => { sectionRefs.current['ai-readiness'] = el; }}>
+            <SectionHeading title="AI Readiness Score" />
+
+            {readinessLoading && (
+              <div className="mt-4 flex items-center gap-3 px-4 py-6 border rounded text-center justify-center" style={{ borderColor: '#E8E8E4', borderRadius: '4px', backgroundColor: '#FAFAF8' }}>
+                <Loader2 className="w-5 h-5 animate-spin" style={{ color: '#00875A' }} />
+                <span className="text-sm" style={{ color: '#6B6B63' }}>Generating AI readiness assessment…</span>
+              </div>
+            )}
+
+            {readinessError && !readinessLoading && (
+              <div className="mt-4 border rounded p-4 space-y-3" style={{ borderColor: '#E8E8E4', borderRadius: '4px', backgroundColor: '#FAFAF8' }}>
+                <div className="flex items-start gap-2">
+                  <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" style={{ color: '#D97706' }} />
+                  <div>
+                    <p className="text-sm" style={{ color: '#1A1A1A' }}>Readiness assessment unavailable</p>
+                    <p className="text-xs mt-1" style={{ color: '#9CA39B' }}>
+                      {readinessError.includes('Network') ? 'Check your connection and try again.' : 'The AI assessment could not be completed. Your brief is still valid without it.'}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={retryReadiness}
+                  className="text-xs px-3 py-1.5 border rounded transition-colors hover:bg-gray-50"
+                  style={{ borderColor: '#E8E8E4', borderRadius: '4px', color: '#00875A' }}
+                >
+                  Retry Assessment
+                </button>
+              </div>
+            )}
+
+            {readiness && !readinessLoading && (
+              <div className="mt-4 space-y-4">
+                {/* Overall Score */}
+                <div className="border rounded p-5 text-center" style={{ borderColor: '#E8E8E4', borderRadius: '4px' }}>
+                  <p className="text-xs uppercase tracking-widest mb-2" style={{ color: '#9CA39B', letterSpacing: '0.08em' }}>Overall Score</p>
+                  <span
+                    className="text-4xl"
+                    style={{ fontFamily: 'JetBrains Mono, monospace', color: scoreColor(readiness.overallScore) }}
+                  >
+                    {readiness.overallScore}
+                  </span>
+                  <span className="text-lg" style={{ color: '#9CA39B' }}> / 100</span>
+                  <p className="text-sm mt-1 capitalize" style={{ color: '#6B6B63' }}>
+                    {readiness.maturityLevel} maturity level
+                  </p>
+                </div>
+
+                {/* Score Breakdown */}
+                {readiness.scoreBreakdown && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {Object.entries(readiness.scoreBreakdown).map(([key, dim]) => (
+                      <div key={key} className="border rounded p-3" style={{ borderColor: '#E8E8E4', borderRadius: '4px' }}>
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="text-xs" style={{ color: '#6B6B63' }}>{dim.label}</span>
+                          <span
+                            className="text-sm"
+                            style={{ fontFamily: 'JetBrains Mono, monospace', color: scoreColor(dim.score) }}
+                          >
+                            {dim.score}
+                          </span>
+                        </div>
+                        <div className="w-full h-1.5 rounded-full" style={{ backgroundColor: '#F0F0EC' }}>
+                          <div
+                            className="h-1.5 rounded-full transition-all duration-500"
+                            style={{ width: `${dim.score}%`, backgroundColor: scoreColor(dim.score) }}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Strengths & Gaps */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {readiness.strengths && readiness.strengths.length > 0 && (
+                    <div className="border rounded p-4" style={{ borderColor: '#E8E8E4', borderRadius: '4px' }}>
+                      <p className="text-xs uppercase tracking-widest mb-2" style={{ color: '#00875A', letterSpacing: '0.08em' }}>Strengths</p>
+                      <ul className="space-y-1.5">
+                        {readiness.strengths.map((s, i) => (
+                          <li key={i} className="text-xs flex items-start gap-1.5" style={{ color: '#1A1A1A' }}>
+                            <Check className="w-3 h-3 mt-0.5 shrink-0" style={{ color: '#00875A' }} />
+                            {s}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {readiness.gaps && readiness.gaps.length > 0 && (
+                    <div className="border rounded p-4" style={{ borderColor: '#E8E8E4', borderRadius: '4px' }}>
+                      <p className="text-xs uppercase tracking-widest mb-2" style={{ color: '#D97706', letterSpacing: '0.08em' }}>Gaps to Address</p>
+                      <ul className="space-y-1.5">
+                        {readiness.gaps.map((g, i) => (
+                          <li key={i} className="text-xs" style={{ color: '#1A1A1A' }}>
+                            <span className="inline-block w-2 h-2 rounded-full mr-1.5" style={{
+                              backgroundColor: g.priority === 'high' ? '#DC2626' : g.priority === 'medium' ? '#D97706' : '#9CA39B'
+                            }} />
+                            {g.area}: {g.description}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {!readiness && !readinessLoading && !readinessError && !sessionId && (
+              <p className="text-sm mt-3" style={{ color: '#9CA39B' }}>
+                AI readiness scoring requires a saved session. Your progress will be scored once saved to cloud.
+              </p>
+            )}
+          </div>
+
           {/* ─── Section 4: Recommended Systems ─── */}
           <div id="recommended-systems" ref={(el) => { sectionRefs.current['recommended-systems'] = el; }}>
             <SectionHeading title="Recommended Systems" />
@@ -335,12 +540,12 @@ export function StepExecutiveSummary() {
               Upon approval of this brief, your project will be created and your dashboard activated.
             </p>
             <div className="space-y-2">
-              {[
+              {(readiness?.nextSteps || [
                 'Project created with selected systems',
                 'Roadmap phases and milestones set',
                 'Initial tasks generated for Phase 1',
                 'Dashboard access enabled',
-              ].map(item => (
+              ]).map(item => (
                 <div key={item} className="flex items-center gap-2">
                   <Check className="w-4 h-4" style={{ color: '#00875A' }} />
                   <span className="text-sm" style={{ color: '#1A1A1A' }}>{item}</span>

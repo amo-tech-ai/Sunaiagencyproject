@@ -6,6 +6,7 @@ import { createContext, useContext, useState, useCallback, useEffect, useRef, ty
 import { toast } from 'sonner@2.0.3';
 import type { Signal } from './data/wizardData';
 import { wizardApi } from '../../lib/supabase';
+import { useAuth } from '../AuthContext';
 
 /* ────────────────── TYPES ────────────────── */
 
@@ -177,6 +178,7 @@ export function useWizard() {
 /* ────────────────── PROVIDER ────────────────── */
 
 export function WizardProvider({ children }: { children: ReactNode }) {
+  const { accessToken } = useAuth();
   const hasRestoredRef = useRef(false);
   const [restoredFromDraft, setRestoredFromDraft] = useState(false);
   const [attemptedAdvance, setAttemptedAdvance] = useState(false);
@@ -242,7 +244,7 @@ export function WizardProvider({ children }: { children: ReactNode }) {
   }, []);
 
   // Persist to localStorage on every change (debounced) with save status
-  // Also persist to Supabase cloud storage
+  // Also persist to Supabase cloud storage with auth token
   const resetTimerRef = useRef<ReturnType<typeof setTimeout>>();
   const cloudSaveRef = useRef<ReturnType<typeof setTimeout>>();
 
@@ -265,7 +267,8 @@ export function WizardProvider({ children }: { children: ReactNode }) {
           };
           const { data, error } = await wizardApi.save(
             sessionId || '',
-            stateForCloud
+            stateForCloud,
+            accessToken || undefined
           );
           if (data?.sessionId && !sessionId) {
             setSessionId(data.sessionId);
@@ -285,14 +288,13 @@ export function WizardProvider({ children }: { children: ReactNode }) {
       resetTimerRef.current = setTimeout(() => setSaveStatus('idle'), 2000);
     }, 500);
     return () => clearTimeout(timer);
-  }, [state, sessionId]);
+  }, [state, sessionId, accessToken]);
 
   // Warn before leaving if there are unsaved changes
   useEffect(() => {
     if (!isDirty) return;
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       e.preventDefault();
-      // Modern browsers show a generic message; returnValue is required for legacy compat
       e.returnValue = '';
     };
     window.addEventListener('beforeunload', handleBeforeUnload);
@@ -353,21 +355,15 @@ export function WizardProvider({ children }: { children: ReactNode }) {
   const goNext = useCallback(() => {
     const errors = getStepErrors(state.currentStep, state);
     if (Object.keys(errors).length > 0) {
-      // Validation failed — flag attemptedAdvance to show errors
       setAttemptedAdvance(true);
-
-      // Scroll to first error field
       const firstErrorKey = Object.keys(errors).find(k => k !== '_global') || '_global';
       if (firstErrorKey !== '_global') {
         const el = document.querySelector(`[data-field="${firstErrorKey}"]`);
-        if (el) {
-          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
       return;
     }
 
-    // Valid — advance
     setAttemptedAdvance(false);
     setState(s => {
       const next = Math.min(s.currentStep + 1, 5);
