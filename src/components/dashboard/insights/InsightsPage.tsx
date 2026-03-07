@@ -22,6 +22,7 @@ import SnapshotHistory from './SnapshotHistory';
 export default function InsightsPage() {
   const { user, accessToken } = useAuth();
   const { data, loading: dataLoading, error, refetch } = useDashboardData(user?.id || null, accessToken);
+  const isAuthenticated = !!accessToken;
 
   // Live AI insights
   const [liveInsights, setLiveInsights] = useState<InsightItem[]>([]);
@@ -31,7 +32,7 @@ export default function InsightsPage() {
   const fetchedRef = useRef(false);
 
   const fetchInsights = useCallback(async (force = false) => {
-    if (!data || !data.hasWizardData || !accessToken) return;
+    if (!data || !data.hasWizardData || !isAuthenticated) return;
     if (!force && fetchedRef.current) return;
     fetchedRef.current = true;
 
@@ -55,7 +56,7 @@ export default function InsightsPage() {
           totalInvestment: data.project.totalInvestment,
         },
         recentActivities: data.activities.slice(0, 10),
-      }, accessToken);
+      }, 'use-fresh-token');
 
       if (res.data?.insights) {
         const { insights: insightsData, greeting, summary } = res.data.insights;
@@ -79,7 +80,7 @@ export default function InsightsPage() {
     } finally {
       setInsightsLoading(false);
     }
-  }, [data, accessToken]);
+  }, [data, isAuthenticated]);
 
   // Auto-fetch on mount when data is ready
   useEffect(() => {

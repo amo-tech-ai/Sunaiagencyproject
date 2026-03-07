@@ -1,5 +1,5 @@
 // C90-AUTH — Authentication Context
-// Wraps Supabase Auth state, provides login/signup/logout, persists session
+// Wraps Supabase Auth state, provides login/signup/logout (Email, Google, LinkedIn), persists session
 
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
 import { getSupabaseClient, authApi } from '../lib/supabase';
@@ -22,6 +22,7 @@ interface AuthContextType extends AuthState {
   signIn: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   signUp: (email: string, password: string, name?: string) => Promise<{ success: boolean; error?: string }>;
   signInWithGoogle: (returnPath?: string) => Promise<void>;
+  signInWithLinkedIn: (returnPath?: string) => Promise<void>;
   signOut: () => Promise<void>;
   clearError: () => void;
 }
@@ -40,6 +41,7 @@ export function useAuth() {
       signIn: async () => ({ success: false, error: 'Auth not available' }),
       signUp: async () => ({ success: false, error: 'Auth not available' }),
       signInWithGoogle: async () => {},
+      signInWithLinkedIn: async () => {},
       signOut: async () => {},
       clearError: () => {},
     } as AuthContextType;
@@ -159,6 +161,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // The page will unmount, so no need to reset loading state
   }, []);
 
+  const signInWithLinkedIn = useCallback(async (returnPath?: string) => {
+    setState(s => ({ ...s, loading: true, error: null }));
+    const { error } = await authApi.signInWithLinkedIn(returnPath);
+    if (error) {
+      setState(s => ({ ...s, loading: false, error }));
+    }
+    // On success: browser redirects to LinkedIn — keep loading: true
+    // The page will unmount, so no need to reset loading state
+  }, []);
+
   const signOut = useCallback(async () => {
     setState(s => ({ ...s, loading: true }));
     await authApi.signOut();
@@ -170,7 +182,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ ...state, signIn, signUp, signInWithGoogle, signOut, clearError }}>
+    <AuthContext.Provider value={{ ...state, signIn, signUp, signInWithGoogle, signInWithLinkedIn, signOut, clearError }}>
       {children}
     </AuthContext.Provider>
   );

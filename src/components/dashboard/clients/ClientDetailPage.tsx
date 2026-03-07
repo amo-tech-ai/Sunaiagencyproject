@@ -16,6 +16,7 @@ import ClientForm from './ClientForm';
 export default function ClientDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { accessToken } = useAuth();
+  const authToken = accessToken ? 'use-fresh-token' : undefined;
 
   const [client, setClient] = useState<Client | null>(null);
   const [contacts, setContacts] = useState<CRMContact[]>([]);
@@ -28,7 +29,7 @@ export default function ClientDetailPage() {
     if (!id) return;
     setLoading(true);
     try {
-      const res = await crmApi.getClient(id, accessToken || undefined);
+      const res = await crmApi.getClient(id, authToken);
       if (res.data) {
         setClient(res.data.client);
         setContacts(res.data.contacts);
@@ -39,7 +40,7 @@ export default function ClientDetailPage() {
     } finally {
       setLoading(false);
     }
-  }, [id, accessToken]);
+  }, [id, authToken]);
 
   useEffect(() => { fetchClient(); }, [fetchClient]);
 
@@ -47,7 +48,7 @@ export default function ClientDetailPage() {
     if (!id) return;
     setSaving(true);
     try {
-      const res = await crmApi.updateClient(id, data, accessToken || undefined);
+      const res = await crmApi.updateClient(id, data, authToken);
       if (res.data?.client) setClient(res.data.client);
       setEditing(false);
     } catch (err) {

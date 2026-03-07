@@ -202,6 +202,11 @@ export function useDashboardData(userId: string | null, accessToken: string | nu
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Stabilize: only care whether user IS authenticated, not the specific token value.
+  // The api() helper calls getFreshAccessToken() internally, so we don't need the
+  // exact token — just a flag to tell wizardApi "use an authenticated request."
+  const isAuthenticated = !!accessToken;
+
   const fetchData = useCallback(async () => {
     if (!userId) {
       setLoading(false);
@@ -212,8 +217,13 @@ export function useDashboardData(userId: string | null, accessToken: string | nu
     setError(null);
 
     try {
+      // Pass a sentinel token string — api() will replace it with a fresh token
+      // via getFreshAccessToken(). We just need a non-anon-key value to trigger
+      // the authenticated path.
+      const authToken = isAuthenticated ? 'use-fresh-token' : undefined;
+
       // 1. List user's sessions
-      const listRes = await wizardApi.list(userId, accessToken || undefined);
+      const listRes = await wizardApi.list(userId, authToken);
       if (listRes.error || !listRes.data?.sessions?.length) {
         setData(null);
         setLoading(false);
@@ -225,7 +235,7 @@ export function useDashboardData(userId: string | null, accessToken: string | nu
       const completed = sessions.find(s => s.status === 'completed') || sessions[0];
 
       // 3. Load full session data
-      const loadRes = await wizardApi.load(completed.id, accessToken || undefined);
+      const loadRes = await wizardApi.load(completed.id, authToken);
       if (loadRes.error || !loadRes.data) {
         setError(loadRes.error || 'Failed to load session data');
         setLoading(false);
@@ -268,7 +278,7 @@ export function useDashboardData(userId: string | null, accessToken: string | nu
     } finally {
       setLoading(false);
     }
-  }, [userId, accessToken]);
+  }, [userId, isAuthenticated]);
 
   useEffect(() => {
     fetchData();

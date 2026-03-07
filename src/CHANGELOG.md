@@ -7,6 +7,79 @@
 
 ---
 
+## [0.17.0] — 2026-03-07 — LinkedIn OIDC Auth + Multi-Provider Login
+
+### Summary
+
+Added LinkedIn (OIDC) as a second social login provider alongside Google. The existing provider-agnostic `AuthCallbackPage` and session infrastructure required zero changes — only 3 files modified with ~30 lines of net new code. The `/login` page now shows Google, LinkedIn, and email/password options. LinkedIn login is code-complete but **not yet active** — requires manual LinkedIn Developer Dashboard + Supabase Dashboard configuration (same pattern as Google auth).
+
+### Changed — LinkedIn OIDC Support (3 files)
+
+- **L01-SUPABASE** `lib/supabase.ts` — Added `authApi.signInWithLinkedIn(returnPath?)` method using `supabase.auth.signInWithOAuth({ provider: 'linkedin_oidc' })` with dynamic `redirectTo` URL. Uses `linkedin_oidc` (not deprecated `linkedin`) per Supabase requirements
+- **C90-AUTH** `AuthContext.tsx` — Added `signInWithLinkedIn()` to `AuthContextType` interface, `useAuth()` fallback, and `AuthProvider` value. Identical pattern to `signInWithGoogle()`: sets loading state, delegates to `authApi`, keeps loading on success (browser redirects)
+- **C91-AUTH-PAGE** `AuthPage.tsx` — Added LinkedIn OIDC button below Google button with official LinkedIn "in" logo SVG (`#0A66C2` brand color), separate `linkedinRedirecting` state, `handleLinkedInSignIn` handler, and updated `isDisabled` flag to include `linkedinRedirecting`. Submit button opacity now accounts for both OAuth redirect states
+- **C92-AUTH-CALLBACK** `AuthCallbackPage.tsx` — Updated comment to reflect multi-provider support (no code changes needed — already provider-agnostic)
+- **routes.tsx** — Updated OAuth callback route comment to reference both Google and LinkedIn
+
+### Added — Documentation
+
+- **`/docs/supabase/07-linkedin-auth-plan.md`** (v2.0.0) — Comprehensive implementation plan with 7 Mermaid diagrams (system architecture, OIDC sequence, session lifecycle, component architecture, user journey flowchart, Gantt implementation order, secret management), LinkedIn vs Google comparison table, 10 test scenarios, 5 error scenarios, setup checklists, and code reuse summary
+
+### Auth Flow — LinkedIn Data Path
+
+```
+User clicks "Continue with LinkedIn" on /login
+  -> signInWithLinkedIn(returnPath="/app/dashboard")
+  -> authApi.signInWithLinkedIn() builds redirectTo: /auth/callback?return=%2Fapp%2Fdashboard
+  -> supabase.auth.signInWithOAuth({ provider: 'linkedin_oidc', redirectTo })
+  -> Browser redirects to LinkedIn authorization screen
+  -> User approves -> LinkedIn sends authorization code to Supabase
+  -> Supabase exchanges code for OIDC tokens, validates ID token
+  -> Supabase creates/updates auth.users row with LinkedIn profile data
+  -> Supabase redirects to /auth/callback?return=%2Fapp%2Fdashboard#access_token=...
+  -> AuthCallbackPage (provider-agnostic) restores session
+  -> onAuthStateChange fires SIGNED_IN -> AuthContext updates user state
+  -> navigateOnce("/app/dashboard") -> DashboardHeader shows LinkedIn avatar
+```
+
+### Activation Checklist (Manual Steps Required)
+
+| Step | Action | Status |
+|------|--------|--------|
+| 1 | Create LinkedIn App at [LinkedIn Developer Dashboard](https://www.linkedin.com/developers/) | Pending |
+| 2 | Go to Products tab, request "Sign In with LinkedIn using OpenID Connect" | Pending |
+| 3 | Go to Auth tab, add redirect URL: `https://<PROJECT_ID>.supabase.co/auth/v1/callback` | Pending |
+| 4 | Copy Client ID + Client Secret | Pending |
+| 5 | Enable LinkedIn (OIDC) provider in Supabase Dashboard > Authentication > Providers | Pending |
+| 6 | Paste Client ID + Client Secret into Supabase LinkedIn (OIDC) provider config | Pending |
+| 7 | Verify scopes: `openid`, `profile`, `email` at bottom of LinkedIn Auth tab | Pending |
+
+### Files Modified
+
+```
+/lib/supabase.ts — Added authApi.signInWithLinkedIn() with linkedin_oidc provider
+/components/AuthContext.tsx — Added signInWithLinkedIn() to interface, fallback, provider
+/components/AuthPage.tsx — LinkedIn button, linkedinRedirecting state, isDisabled update
+/components/AuthCallbackPage.tsx — Updated comment (multi-provider)
+/routes.tsx — Updated comment (multi-provider)
+/components/dashboard/DashboardSidebar.tsx — Version bump to v0.17.0
+```
+
+### Files Created
+
+```
+/docs/supabase/07-linkedin-auth-plan.md — LinkedIn OIDC auth implementation plan (v2.0.0)
+```
+
+### Production Status
+
+- Dashboard components: 34 production + 4 placeholder stubs
+- Edge function routes: 15 (unchanged — LinkedIn OAuth handled by Supabase Auth service)
+- Auth methods: 5 (email sign-in, email sign-up, Google OAuth, LinkedIn OIDC, guest/anonymous)
+- Project completion: ~58% (Phases 1-6, 9-10 done; Google + LinkedIn Auth code-complete; Phases 7-8, 11-13 pending)
+
+---
+
 ## [0.16.0] — 2026-03-07 — Google OAuth + Auth Flow Hardening
 
 ### Summary

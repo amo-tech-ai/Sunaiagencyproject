@@ -23,6 +23,9 @@ const PAGE_SIZE = 20;
 export default function AgentsPage() {
   const { accessToken } = useAuth();
 
+  // Stabilize: use auth flag instead of raw token to avoid refetches on token refresh
+  const authToken = accessToken ? 'use-fresh-token' : undefined;
+
   const [stats, setStats] = useState<AggregateStats | null>(null);
   const [cacheStats, setCacheStats] = useState<CacheStats | null>(null);
   const [logs, setLogs] = useState<RunLogEntry[]>([]);
@@ -39,22 +42,21 @@ export default function AgentsPage() {
   const fetchStats = useCallback(async () => {
     setStatsLoading(true);
     try {
-      const res = await agentApi.getAggregateStats(accessToken || undefined);
+      const res = await agentApi.getAggregateStats(authToken);
       if (res.data) setStats(res.data);
       if (res.error) console.error('[AgentsPage] Stats error:', res.error);
     } catch (err) {
       console.error('[AgentsPage] Stats fetch failed:', err);
-      setError(String(err));
     } finally {
       setStatsLoading(false);
     }
-  }, [accessToken]);
+  }, [authToken]);
 
   // Fetch cache stats
   const fetchCacheStats = useCallback(async () => {
     setCacheLoading(true);
     try {
-      const res = await agentApi.getCacheStats(accessToken || undefined);
+      const res = await agentApi.getCacheStats(authToken);
       if (res.data) setCacheStats(res.data);
       if (res.error) console.error('[AgentsPage] Cache error:', res.error);
     } catch (err) {
@@ -62,7 +64,7 @@ export default function AgentsPage() {
     } finally {
       setCacheLoading(false);
     }
-  }, [accessToken]);
+  }, [authToken]);
 
   // Fetch run logs (paginated + filtered)
   const fetchLogs = useCallback(async () => {
@@ -70,7 +72,7 @@ export default function AgentsPage() {
     try {
       const res = await agentApi.getRunLogs(
         { limit: PAGE_SIZE, offset: page * PAGE_SIZE, promptType: filter || undefined },
-        accessToken || undefined,
+        authToken,
       );
       if (res.data) {
         setLogs(res.data.logs);
@@ -82,7 +84,7 @@ export default function AgentsPage() {
     } finally {
       setLogsLoading(false);
     }
-  }, [accessToken, page, filter]);
+  }, [authToken, page, filter]);
 
   useEffect(() => { fetchStats(); fetchCacheStats(); }, [fetchStats, fetchCacheStats]);
   useEffect(() => { fetchLogs(); }, [fetchLogs]);

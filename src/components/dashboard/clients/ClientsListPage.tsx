@@ -16,6 +16,7 @@ import ClientForm from './ClientForm';
 
 export default function ClientsListPage() {
   const { accessToken } = useAuth();
+  const authToken = accessToken ? 'use-fresh-token' : undefined;
 
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
@@ -28,7 +29,7 @@ export default function ClientsListPage() {
     setLoading(true);
     setError(null);
     try {
-      const res = await crmApi.listClients(accessToken || undefined);
+      const res = await crmApi.listClients(authToken);
       if (res.data?.clients) {
         setClients(res.data.clients);
       }
@@ -42,14 +43,14 @@ export default function ClientsListPage() {
     } finally {
       setLoading(false);
     }
-  }, [accessToken]);
+  }, [authToken]);
 
   useEffect(() => { fetchClients(); }, [fetchClients]);
 
   const handleCreate = async (data: Partial<Client>) => {
     setSaving(true);
     try {
-      const res = await crmApi.createClient(data, accessToken || undefined);
+      const res = await crmApi.createClient(data, authToken);
       if (res.data?.client) {
         setClients(prev => [res.data!.client, ...prev]);
         setCreating(false);
@@ -65,7 +66,7 @@ export default function ClientsListPage() {
   const handleDelete = async (id: string) => {
     if (!confirm('Delete this client? This cannot be undone.')) return;
     try {
-      await crmApi.deleteClient(id, accessToken || undefined);
+      await crmApi.deleteClient(id, authToken);
       setClients(prev => prev.filter(c => c.id !== id));
     } catch (err) {
       console.error('[ClientsList] Delete exception:', err);

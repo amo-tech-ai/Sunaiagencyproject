@@ -1,7 +1,7 @@
 // C91-AUTH-PAGE — Login / Signup Page
 // BCG consulting-inspired: warm off-white bg, Georgia headlines, green accents
 // Two-column on desktop (brand + form), single-column on mobile
-// Supports: Google OAuth, email/password, guest access
+// Supports: Google OAuth, LinkedIn OIDC, email/password, guest access
 
 import { useState, useCallback, useEffect } from 'react';
 import { useAuth } from './AuthContext';
@@ -12,7 +12,7 @@ import { motion, AnimatePresence } from 'motion/react';
 type Mode = 'login' | 'signup';
 
 export default function AuthPage() {
-  const { signIn, signUp, signInWithGoogle, loading, error, clearError, user } = useAuth();
+  const { signIn, signUp, signInWithGoogle, signInWithLinkedIn, loading, error, clearError, user } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const returnPath = searchParams.get('return') || '/app/dashboard';
@@ -24,6 +24,7 @@ export default function AuthPage() {
   const [success, setSuccess] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
   const [googleRedirecting, setGoogleRedirecting] = useState(false);
+  const [linkedinRedirecting, setLinkedinRedirecting] = useState(false);
 
   // If already logged in, redirect to dashboard
   useEffect(() => {
@@ -77,6 +78,15 @@ export default function AuthPage() {
     setGoogleRedirecting(false);
   }, [signInWithGoogle, clearError, returnPath]);
 
+  const handleLinkedInSignIn = useCallback(async () => {
+    setLocalError(null);
+    clearError();
+    setLinkedinRedirecting(true);
+    await signInWithLinkedIn(returnPath);
+    // If we're still here, there was an error (otherwise browser redirected)
+    setLinkedinRedirecting(false);
+  }, [signInWithLinkedIn, clearError, returnPath]);
+
   const switchMode = () => {
     setMode(m => m === 'login' ? 'signup' : 'login');
     setLocalError(null);
@@ -85,7 +95,7 @@ export default function AuthPage() {
   };
 
   const displayError = localError || error;
-  const isDisabled = loading || success || googleRedirecting;
+  const isDisabled = loading || success || googleRedirecting || linkedinRedirecting;
 
   return (
     <div className="min-h-screen flex" style={{ backgroundColor: '#F5F5F0' }}>
@@ -254,6 +264,42 @@ export default function AuthPage() {
                 )}
               </button>
 
+              {/* ── LinkedIn Sign-In Button ── */}
+              <button
+                type="button"
+                onClick={handleLinkedInSignIn}
+                disabled={isDisabled}
+                className="w-full flex items-center justify-center gap-3 py-2.5 text-sm border rounded transition-colors mt-3"
+                style={{
+                  borderColor: '#E8E8E4',
+                  borderRadius: '4px',
+                  backgroundColor: '#FFFFFF',
+                  color: '#1A1A1A',
+                  cursor: isDisabled ? 'default' : 'pointer',
+                  opacity: isDisabled && !linkedinRedirecting ? 0.5 : 1,
+                }}
+                onMouseEnter={e => {
+                  if (!isDisabled) e.currentTarget.style.backgroundColor = '#F5F5F0';
+                }}
+                onMouseLeave={e => {
+                  if (!isDisabled) e.currentTarget.style.backgroundColor = '#FFFFFF';
+                }}
+              >
+                {linkedinRedirecting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" style={{ color: '#0A66C2' }} />
+                    Redirecting to LinkedIn…
+                  </>
+                ) : (
+                  <>
+                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M15.335 15.339H12.67v-4.177c0-.996-.02-2.278-1.39-2.278-1.389 0-1.601 1.086-1.601 2.207v4.248H7.013V6.75h2.56v1.17h.035c.358-.674 1.228-1.387 2.528-1.387 2.7 0 3.2 1.778 3.2 4.091v4.715zM4.003 5.575a1.546 1.546 0 1 1 0-3.092 1.546 1.546 0 0 1 0 3.092zM5.339 15.339H2.666V6.75h2.673v8.589zM16.67 0H1.329C.593 0 0 .58 0 1.297v15.406C0 17.42.594 18 1.328 18h15.339C17.4 18 18 17.42 18 16.703V1.297C18 .58 17.4 0 16.67 0z" fill="#0A66C2"/>
+                    </svg>
+                    Continue with LinkedIn
+                  </>
+                )}
+              </button>
+
               {/* Divider */}
               <div className="mt-6 mb-6 flex items-center gap-3">
                 <div className="flex-1 border-t" style={{ borderColor: '#E8E8E4' }} />
@@ -360,7 +406,7 @@ export default function AuthPage() {
                     backgroundColor: success ? '#E6F4ED' : loading ? '#9CA39B' : '#1A1A1A',
                     color: success ? '#00875A' : '#FFFFFF',
                     borderRadius: '4px',
-                    opacity: (loading || googleRedirecting) ? 0.7 : 1,
+                    opacity: (loading || googleRedirecting || linkedinRedirecting) ? 0.7 : 1,
                     cursor: isDisabled ? 'default' : 'pointer',
                   }}
                   onMouseEnter={e => {
@@ -370,7 +416,7 @@ export default function AuthPage() {
                     if (!isDisabled) e.currentTarget.style.backgroundColor = '#1A1A1A';
                   }}
                 >
-                  {loading && !googleRedirecting ? (
+                  {loading && !googleRedirecting && !linkedinRedirecting ? (
                     <><Loader2 className="w-4 h-4 animate-spin" /> Processing…</>
                   ) : success ? (
                     <><Check className="w-4 h-4" /> Success</>

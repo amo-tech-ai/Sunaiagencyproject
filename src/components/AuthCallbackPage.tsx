@@ -1,11 +1,12 @@
 // C92-AUTH-CALLBACK — OAuth Callback Handler
-// Handles redirect from Supabase after Google OAuth consent
+// Handles redirect from Supabase after OAuth consent (Google, LinkedIn, etc.)
+// Provider-agnostic: works with any Supabase OAuth provider via onAuthStateChange
 // Restores session, then redirects to /app/dashboard or /login on error
 //
 // Flow:
 // 1. Supabase client auto-detects access_token in URL hash fragment
 // 2. onAuthStateChange fires SIGNED_IN with the new session
-// 3. We navigate to /app/dashboard
+// 3. We navigate to /app/dashboard (or ?return= path)
 // 4. If nothing fires within 8s, fall back to /login
 
 import { useEffect, useState, useRef } from 'react';

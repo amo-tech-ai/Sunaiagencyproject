@@ -16,6 +16,19 @@ export function getSupabaseClient() {
   return _client;
 }
 
+// ── Fresh token helper — always gets the latest access token from Supabase ──
+// Supabase JS auto-refreshes expired tokens internally, so getSession()
+// returns a valid token even if the original one expired.
+async function getFreshAccessToken(): Promise<string | null> {
+  try {
+    const supabase = getSupabaseClient();
+    const { data: { session } } = await supabase.auth.getSession();
+    return session?.access_token ?? null;
+  } catch {
+    return null;
+  }
+}
+
 // ── API helper — calls Edge Functions ──
 interface ApiOptions {
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
@@ -30,9 +43,20 @@ export async function api<T = unknown>(
   const { method = 'GET', body, token } = options;
 
   try {
+    // If a token was provided (authenticated request), always get a fresh one
+    // from the Supabase session to avoid stale JWT errors. The Supabase JS
+    // client handles auto-refresh internally.
+    let activeToken = token;
+    if (token && token !== publicAnonKey) {
+      const fresh = await getFreshAccessToken();
+      if (fresh) {
+        activeToken = fresh;
+      }
+    }
+
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${token || publicAnonKey}`,
+      Authorization: `Bearer ${activeToken || publicAnonKey}`,
     };
 
     const fetchOptions: RequestInit = {
@@ -47,10 +71,10 @@ export async function api<T = unknown>(
     const url = `${BASE_URL}${route.startsWith('/') ? route : `/${route}`}`;
     let response = await fetch(url, fetchOptions);
 
-    // If user token caused a 401 (expired JWT), try refreshing the session first
+    // If still 401 after using a fresh token, try one explicit refresh cycle
     // then fall back to anon key so the edge function gateway accepts the request
-    if (response.status === 401 && token && token !== publicAnonKey) {
-      // Attempt to refresh the Supabase session for a fresh token
+    if (response.status === 401 && activeToken && activeToken !== publicAnonKey) {
+      // Attempt to force-refresh the Supabase session for a new token
       try {
         const supabase = getSupabaseClient();
         const { data: refreshData } = await supabase.auth.refreshSession();
@@ -295,6 +319,26 @@ export const authApi = {
     });
     if (error) {
       console.error('[Auth] Google OAuth error:', error.message);
+      return { error: error.message };
+    }
+    // Browser will redirect — no return value needed
+    return { error: null };
+  },
+
+  signInWithLinkedIn: async (returnPath?: string) => {
+    const supabase = getSupabaseClient();
+    const callbackUrl = new URL('/auth/callback', window.location.origin);
+    if (returnPath) {
+      callbackUrl.searchParams.set('return', returnPath);
+    }
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'linkedin_oidc',
+      options: {
+        redirectTo: callbackUrl.toString(),
+      },
+    });
+    if (error) {
+      console.error('[Auth] LinkedIn OIDC OAuth error:', error.message);
       return { error: error.message };
     }
     // Browser will redirect — no return value needed

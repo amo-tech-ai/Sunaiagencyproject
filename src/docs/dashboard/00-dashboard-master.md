@@ -4,10 +4,10 @@
 **Project:** Sun AI Agency — AI Consulting & Solutions Website
 **Stack:** Vite + React 18 + Tailwind CSS v4 + Supabase + Vercel
 **Design System:** BCG Consulting-Inspired (Calm Luxury Editorial)
-**Current Version:** v0.13.0
+**Current Version:** v0.16.0
 **Last Audit:** 2026-03-07
-**Total Routes:** 29 marketing + 1 auth + 1 wizard + 14 dashboard = 45 routes
-**Total Components:** ~120+ production files
+**Total Routes:** 29 marketing + 2 auth + 1 wizard + 14 dashboard = 46 routes
+**Total Components:** ~140+ production files
 
 ---
 
@@ -28,8 +28,8 @@
 | Marketing Site (29 pages) | 🟢 Complete | 100% |
 | Design System (BCG tokens) | 🟢 Complete | 95% |
 | Project Brief Wizard (5 steps) | 🟢 Complete | 100% |
-| Authentication System | 🟢 Complete | 100% |
-| Backend Edge Functions (6 endpoints) | 🟢 Complete | 100% |
+| Authentication (Email + Google OAuth) | 🟢 Complete | 100% |
+| Backend Edge Functions (15 endpoints) | 🟢 Complete | 100% |
 | Supabase Tables (KV→relational) | 🟢 Complete | 100% |
 | Dashboard Shell (Phase 1) | 🟢 Complete | 100% |
 | Dashboard Home (Phase 1) | 🟢 Complete | 100% |
@@ -38,15 +38,15 @@
 | Dashboard Projects (Phase 4) | 🟢 Complete | 100% |
 | Dashboard Settings (Phase 5) | 🟢 Complete | 100% |
 | Dashboard UX/Responsive (v0.12.1) | 🟢 Complete | 100% |
-| Client Management (Phase 6) | 🔴 Not Started | 0% |
-| Project Delivery (Phase 7) | 🔴 Not Started | 0% |
-| CRM Pipeline (Phase 8) | 🔴 Not Started | 0% |
-| AI Insights Full Page (Phase 9) | 🔴 Not Started | 0% |
-| AI Agent Management (Phase 10) | 🔴 Not Started | 0% |
+| Client Management (Phase 6) | 🟡 Code Done | 90% |
+| CRM Pipeline (Phase 7) | 🔴 Not Started | 0% |
+| Documents & Files (Phase 8) | 🔴 Not Started | 0% |
+| AI Insights Full Page (Phase 9) | 🟢 Complete | 100% |
+| AI Agent Management (Phase 10) | 🟢 Complete | 100% |
 | Workflow Automation (Phase 11) | 🔴 Not Started | 0% |
 | Document Management (Phase 12) | 🔴 Not Started | 0% |
 | Financial Dashboard (Phase 13) | 🔴 Not Started | 0% |
-| **OVERALL PROJECT** | **🟡 In Progress** | **~42%** |
+| **OVERALL PROJECT** | **🟡 In Progress** | **~57%** |
 
 ---
 
@@ -143,18 +143,22 @@
 
 | Task | File(s) | Status | % | Confirmed | Missing | Next Action |
 |------|---------|--------|---|-----------|---------|-------------|
-| Auth Context (C90) | `AuthContext.tsx` | 🟢 | 100% | `useAuth()` hook: signIn, signUp, signOut, clearError, session restore, `onAuthStateChange` | — | None |
-| Auth Page (C91) | `AuthPage.tsx` | 🟢 | 100% | Login/signup, two-column layout, mode toggle, validation, "Continue as Guest" | — | None |
-| Auth Route | `/login` in `routes.tsx` | 🟢 | 100% | Standalone route, no header/footer | — | None |
+| Auth Context (C90) | `AuthContext.tsx` | 🟢 | 100% | `useAuth()` hook: signIn, signUp, signOut, signInWithGoogle, clearError, session restore, `onAuthStateChange`, avatarUrl | — | None |
+| Auth Page (C91) | `AuthPage.tsx` | 🟢 | 100% | Login/signup, Google OAuth button, two-column layout, mode toggle, validation, `?return=` passthrough, "Continue as Guest" | — | None |
+| Auth Callback Page (C92) | `AuthCallbackPage.tsx` | 🟢 | 100% | OAuth redirect handler at `/auth/callback`, race-condition-proof `onAuthStateChange`, `handledRef` guard, 8s timeout, `?return=` passthrough | — | None |
+| Auth Route (Login) | `/login` in `routes.tsx` | 🟢 | 100% | Standalone route, no header/footer | — | None |
+| Auth Route (Callback) | `/auth/callback` in `routes.tsx` | 🟢 | 100% | OAuth redirect handler | — | None |
 | Auth Provider Wrapper | `App.tsx` | 🟢 | 100% | `<AuthProvider>` wraps `<RouterProvider>` | — | None |
 | Signup Edge Function | `index.tsx` `POST /signup` | 🟢 | 100% | Admin createUser, auto email confirm | — | None |
 | Auth Utilities | `auth.tsx` | 🟢 | 100% | `createUser`, `getUserFromToken`, `requireAuth` | — | None |
 | Header Auth Dropdown | `Header.tsx` | 🟢 | 100% | Avatar, name, email, sign-out (auth) / "Sign In" (anon) | — | None |
 | Dashboard Auth Guard | `DashboardLayout.tsx` | 🟢 | 100% | Redirects to `/login?return=...` if not auth'd | — | None |
+| Dashboard Header Avatar | `DashboardHeader.tsx` | 🟢 | 100% | Google profile photo via `avatarUrl`, initials fallback, `referrerPolicy="no-referrer"` | — | None |
 | Token Pass-Through | `WizardContext.tsx` → `wizardApi` | 🟢 | 100% | accessToken passed for RLS-scoped saves | — | None |
-| Social Login (Google/GitHub) | — | 🔴 | 0% | — | Not implemented | Implement if requested |
+| Google OAuth | `lib/supabase.ts` → `AuthContext` → `AuthPage` | 🟢 | 100% | `signInWithGoogle(returnPath?)`, Google Cloud Console + Supabase provider configured and active | — | None |
+| Google Auth Plan Doc | `/docs/supabase/06-google-auth-plan.md` | 🟢 | 100% | Mermaid diagrams, PKCE flow, test scenarios, setup checklist | — | None |
 
-**Auth Total: 🟢 95% Complete** (social login deferred)
+**Auth Total: 🟢 100% Complete** (Email + Google OAuth both active)
 
 ---
 
@@ -366,26 +370,7 @@
 
 **Phase 6: 🔴 0% — 10 components + edge functions + 2 tables needed**
 
-### Phase 7: Project Delivery
-
-| Task | Planned File | Status | % | Dependencies |
-|------|-------------|--------|---|--------------|
-| Project Delivery Page | `delivery/ProjectDelivery.tsx` | 🔴 | 0% | — |
-| Project Header | `delivery/ProjectHeader.tsx` | 🔴 | 0% | — |
-| View Toggle | `delivery/ViewToggle.tsx` | 🔴 | 0% | — |
-| Phase Timeline | `delivery/PhaseTimeline.tsx` | 🔴 | 0% | — |
-| Task Kanban | `delivery/TaskKanban.tsx` | 🔴 | 0% | `react-dnd` |
-| Task Card | `delivery/TaskCard.tsx` | 🔴 | 0% | — |
-| Task Detail Modal | `delivery/TaskDetailModal.tsx` | 🔴 | 0% | — |
-| Task List View | `delivery/TaskListView.tsx` | 🔴 | 0% | — |
-| Milestone Tracker | `delivery/MilestoneTracker.tsx` | 🔴 | 0% | — |
-| Deliverable Checklist | `delivery/DeliverableChecklist.tsx` | 🔴 | 0% | — |
-| Team Avatar Row | `delivery/TeamAvatarRow.tsx` | 🔴 | 0% | — |
-| Budget Gauge | `delivery/BudgetGauge.tsx` | 🔴 | 0% | — |
-
-**Phase 7: 🔴 0% — 12 components needed**
-
-### Phase 8: CRM Pipeline
+### Phase 7: CRM Pipeline
 
 | Task | Planned File | Status | % | Dependencies |
 |------|-------------|--------|---|--------------|
@@ -400,48 +385,64 @@
 | Forecast Chart | `crm/ForecastChart.tsx` | 🔴 | 0% | `recharts` |
 | Deal Quick Create | `crm/DealQuickCreate.tsx` | 🔴 | 0% | — |
 
-**Phase 8: 🔴 0% — 10 components + 4 tables needed**
+**Phase 7: 🔴 0% — 10 components + 4 tables needed**
+
+### Phase 8: Documents & Files
+
+| Task | Planned File | Status | % | Dependencies |
+|------|-------------|--------|---|--------------|
+| Document Page | `documents/DocumentManagementPage.tsx` | 🔴 | 0% | — |
+| Folder Tree | `documents/FolderTree.tsx` | 🔴 | 0% | — |
+| Document Grid | `documents/DocumentGrid.tsx` | 🔴 | 0% | — |
+| Document List View | `documents/DocumentListView.tsx` | 🔴 | 0% | — |
+| Upload Dropzone | `documents/UploadDropzone.tsx` | 🔴 | 0% | Supabase Storage |
+| Document Preview | `documents/DocumentPreview.tsx` | 🔴 | 0% | — |
+| Version History | `documents/VersionHistory.tsx` | 🔴 | 0% | — |
+| Share Link Modal | `documents/ShareLinkModal.tsx` | 🔴 | 0% | — |
+| Category Filter | `documents/CategoryFilter.tsx` | 🔴 | 0% | — |
+
+**Phase 8: 🔴 0% — 9 components + Supabase Storage bucket needed**
 
 ### Phase 9: AI Insights Full Page
 
 | Task | Planned File | Status | % | Dependencies |
 |------|-------------|--------|---|--------------|
-| AI Insights Page | `insights/AIInsightsPage.tsx` | 🔴 | 0% | — |
-| Section Anchor Nav | `insights/SectionAnchorNav.tsx` | 🔴 | 0% | — |
-| Business Profile Card | `insights/BusinessProfileCard.tsx` | 🔴 | 0% | — |
-| Diagnostic Insights Grid | `insights/DiagnosticInsightsGrid.tsx` | 🔴 | 0% | — |
-| Insight Card | `insights/InsightCard.tsx` | 🔴 | 0% | — |
-| System Ranking List | `insights/SystemRankingList.tsx` | 🔴 | 0% | — |
-| System Card | `insights/SystemCard.tsx` | 🔴 | 0% | — |
-| Readiness Radar Chart | `insights/ReadinessRadarChart.tsx` | 🔴 | 0% | `recharts` RadarChart |
-| Readiness Score Breakdown | `insights/ReadinessScoreBreakdown.tsx` | 🔴 | 0% | — |
-| Dimension Row | `insights/DimensionRow.tsx` | 🔴 | 0% | — |
-| Roadmap Summary Card | `insights/RoadmapSummaryCard.tsx` | 🔴 | 0% | — |
-| Re-Run Button | `insights/ReRunButton.tsx` | 🔴 | 0% | 5 AI endpoints |
-| Snapshot Comparison | `insights/SnapshotComparisonView.tsx` | 🔴 | 0% | `context_snapshots` table |
-| AI Run Stats | `insights/AIRunStats.tsx` | 🔴 | 0% | `ai_run_logs` table |
+| AI Insights Page | `insights/AIInsightsPage.tsx` | 🟢 | 100% | — |
+| Section Anchor Nav | `insights/SectionAnchorNav.tsx` | 🟢 | 100% | — |
+| Business Profile Card | `insights/BusinessProfileCard.tsx` | 🟢 | 100% | — |
+| Diagnostic Insights Grid | `insights/DiagnosticInsightsGrid.tsx` | 🟢 | 100% | — |
+| Insight Card | `insights/InsightCard.tsx` | 🟢 | 100% | — |
+| System Ranking List | `insights/SystemRankingList.tsx` | 🟢 | 100% | — |
+| System Card | `insights/SystemCard.tsx` | 🟢 | 100% | — |
+| Readiness Radar Chart | `insights/ReadinessRadarChart.tsx` | 🟢 | 100% | `recharts` RadarChart |
+| Readiness Score Breakdown | `insights/ReadinessScoreBreakdown.tsx` | 🟢 | 100% | — |
+| Dimension Row | `insights/DimensionRow.tsx` | 🟢 | 100% | — |
+| Roadmap Summary Card | `insights/RoadmapSummaryCard.tsx` | 🟢 | 100% | — |
+| Re-Run Button | `insights/ReRunButton.tsx` | 🟢 | 100% | 5 AI endpoints |
+| Snapshot Comparison | `insights/SnapshotComparisonView.tsx` | 🟢 | 100% | `context_snapshots` table |
+| AI Run Stats | `insights/AIRunStats.tsx` | 🟢 | 100% | `ai_run_logs` table |
 
-**Phase 9: 🔴 0% — 14 components needed**
+**Phase 9: 🟢 100% Complete**
 
 ### Phase 10: AI Agent Management
 
 | Task | Planned File | Status | % | Dependencies |
 |------|-------------|--------|---|--------------|
-| Agent Management Page | `agents/AIAgentManagement.tsx` | 🔴 | 0% | — |
-| Agent Metrics Row | `agents/AgentMetricsRow.tsx` | 🔴 | 0% | `ai_run_logs` |
-| Agent Catalog Grid | `agents/AgentCatalogGrid.tsx` | 🔴 | 0% | — |
-| Agent Card | `agents/AgentCard.tsx` | 🔴 | 0% | — |
-| Run History Table | `agents/RunHistoryTable.tsx` | 🔴 | 0% | — |
-| Run History Filters | `agents/RunHistoryFilters.tsx` | 🔴 | 0% | — |
-| Response Time Chart | `agents/ResponseTimeChart.tsx` | 🔴 | 0% | `recharts` |
-| Token Usage Chart | `agents/TokenUsageChart.tsx` | 🔴 | 0% | `recharts` |
-| Cost Chart | `agents/CostChart.tsx` | 🔴 | 0% | `recharts` |
-| Error Log List | `agents/ErrorLogList.tsx` | 🔴 | 0% | — |
-| Error Detail Card | `agents/ErrorDetailCard.tsx` | 🔴 | 0% | — |
-| Cache Stats Card | `agents/CacheStatsCard.tsx` | 🔴 | 0% | `ai_cache` |
-| Cache Entry Table | `agents/CacheEntryTable.tsx` | 🔴 | 0% | — |
+| Agent Management Page | `agents/AIAgentManagement.tsx` | 🟢 | 100% | — |
+| Agent Metrics Row | `agents/AgentMetricsRow.tsx` | 🟢 | 100% | `ai_run_logs` |
+| Agent Catalog Grid | `agents/AgentCatalogGrid.tsx` | 🟢 | 100% | — |
+| Agent Card | `agents/AgentCard.tsx` | 🟢 | 100% | — |
+| Run History Table | `agents/RunHistoryTable.tsx` | 🟢 | 100% | — |
+| Run History Filters | `agents/RunHistoryFilters.tsx` | 🟢 | 100% | — |
+| Response Time Chart | `agents/ResponseTimeChart.tsx` | 🟢 | 100% | `recharts` |
+| Token Usage Chart | `agents/TokenUsageChart.tsx` | 🟢 | 100% | `recharts` |
+| Cost Chart | `agents/CostChart.tsx` | 🟢 | 100% | `recharts` |
+| Error Log List | `agents/ErrorLogList.tsx` | 🟢 | 100% | — |
+| Error Detail Card | `agents/ErrorDetailCard.tsx` | 🟢 | 100% | — |
+| Cache Stats Card | `agents/CacheStatsCard.tsx` | 🟢 | 100% | `ai_cache` |
+| Cache Entry Table | `agents/CacheEntryTable.tsx` | 🟢 | 100% | — |
 
-**Phase 10: 🔴 0% — 13 components needed (reads existing `ai_run_logs` + `ai_cache` tables)**
+**Phase 10: 🟢 100% Complete**
 
 ### Phase 11: Workflow Automation
 
@@ -459,7 +460,7 @@
 | AI Suggestion Panel | `workflows/AISuggestionPanel.tsx` | 🔴 | 0% | Gemini |
 | Natural Language Input | `workflows/NaturalLanguageInput.tsx` | 🔴 | 0% | — |
 
-**Phase 11: 🔴 0% — 11 components needed**
+**Phase 11: 🔴 Not Started — 11 components needed**
 
 ### Phase 12: Document Management
 
@@ -475,7 +476,7 @@
 | Share Link Modal | `documents/ShareLinkModal.tsx` | 🔴 | 0% | — |
 | Category Filter | `documents/CategoryFilter.tsx` | 🔴 | 0% | — |
 
-**Phase 12: 🔴 0% — 9 components + Supabase Storage bucket needed**
+**Phase 12: 🔴 Not Started — 9 components + Supabase Storage bucket needed**
 
 ### Phase 13: Financial Dashboard
 
@@ -495,7 +496,7 @@
 | Overdue Alert Banner | `financial/OverdueAlertBanner.tsx` | 🔴 | 0% | — |
 | Date Range Picker | `financial/DateRangePicker.tsx` | 🔴 | 0% | — |
 
-**Phase 13: 🔴 0% — 13 components needed**
+**Phase 13: 🔴 Not Started — 13 components needed**
 
 ---
 
@@ -507,7 +508,7 @@
 | Supabase Realtime | Live subscriptions for collaboration | 🔴 | 0% | — | No channels configured | Future |
 | Document Upload Pipeline | Edge function + Storage + signed URLs | 🔴 | 0% | — | Spec at `/docs/supabase/` but not built | Phase 12 |
 | Realtime Subscriptions | Wizard collaboration, dashboard live updates | 🔴 | 0% | — | Spec at `/docs/supabase/` but not built | Future |
-| Social Login (Google/GitHub) | OAuth providers | 🔴 | 0% | — | Not configured in Supabase | If requested |
+| Google OAuth Login | OAuth provider | 🟢 | 100% | Google Cloud Console configured, Supabase provider active, callback page built | — | None |
 | Email Notifications | Milestone alerts, overdue reminders | 🔴 | 0% | — | No email service configured | Future |
 | PDF Export | Strategy brief, roadmap, status reports | 🔴 | 0% | — | No client-side PDF generation | Phase 12 |
 | Gemini 2.0 Flash | AI model | 🟢 | 100% | Used by all 6 AI endpoints | — | None |
@@ -620,8 +621,8 @@ Based on dependencies, value, and complexity, here is the recommended sequential
 | Dashboard — Phase 4 (Projects) | 2 | 2 | 100% |
 | Dashboard — Phase 5 (Settings) | 1 | 1 | 100% |
 | Dashboard — Phase 6 (Clients) | 0 | 10 | 0% |
-| Dashboard — Phase 7 (Delivery) | 0 | 12 | 0% |
-| Dashboard — Phase 8 (CRM Pipeline) | 0 | 10 | 0% |
+| Dashboard — Phase 7 (CRM Pipeline) | 0 | 10 | 0% |
+| Dashboard — Phase 8 (Documents & Files) | 0 | 9 | 0% |
 | Dashboard — Phase 9 (AI Insights) | 0 | 14 | 0% |
 | Dashboard — Phase 10 (AI Agents) | 0 | 13 | 0% |
 | Dashboard — Phase 11 (Workflows) | 0 | 11 | 0% |
@@ -665,6 +666,9 @@ Based on dependencies, value, and complexity, here is the recommended sequential
 | v0.12.0 | 2026-03-07 | Dashboard Phase 1: Shell + Home MVP | 13 dashboard + 1 hook |
 | v0.12.1 | 2026-03-07 | UX best practices + mobile-first responsive | 0 new, 12 updated |
 | v0.13.0 | 2026-03-07 | Dashboard Phases 2-5: Roadmap, Projects, API, Settings | 5 new + 1 endpoint |
+| v0.14.0 | 2026-03-07 | Live AI Insights, Wizard 401 Fix, Progress Tracker | 0 new, wiring + docs |
+| v0.15.0 | 2026-03-07 | Phase 9 AI Insights + Phase 10 AI Agents + Phase 6 CRM | 17 new + 9 endpoints |
+| v0.16.0 | 2026-03-07 | Google OAuth + Auth Flow Hardening (6 bug fixes) | 1 new (AuthCallbackPage) |
 
 ---
 
@@ -687,4 +691,4 @@ Based on dependencies, value, and complexity, here is the recommended sequential
 
 ---
 
-*This document is auto-maintained. Last verified: 2026-03-07 v0.13.0*
+*This document is auto-maintained. Last verified: 2026-03-07 v0.16.0*

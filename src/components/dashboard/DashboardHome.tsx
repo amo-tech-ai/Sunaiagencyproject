@@ -28,8 +28,10 @@ export default function DashboardHome() {
   const fetchedRef = useRef(false);
 
   // Fetch live AI insights once dashboard data is available
+  // Uses isAuthenticated flag instead of accessToken to avoid refetching on token refresh
+  const isAuthenticated = !!accessToken;
   useEffect(() => {
-    if (!data || !data.hasWizardData || !accessToken || fetchedRef.current) return;
+    if (!data || !data.hasWizardData || !isAuthenticated || fetchedRef.current) return;
     fetchedRef.current = true;
 
     const fetchLiveInsights = async () => {
@@ -53,7 +55,7 @@ export default function DashboardHome() {
             totalInvestment: data.project.totalInvestment,
           },
           recentActivities: data.activities.slice(0, 10),
-        }, accessToken);
+        }, 'use-fresh-token');
 
         if (res.data?.insights?.insights) {
           const mapped: InsightItem[] = res.data.insights.insights.map((i) => ({
@@ -75,7 +77,7 @@ export default function DashboardHome() {
     };
 
     fetchLiveInsights();
-  }, [data, accessToken]);
+  }, [data, isAuthenticated]);
 
   // Merge live + static insights (live first, dedup by id)
   const mergedInsights = (() => {

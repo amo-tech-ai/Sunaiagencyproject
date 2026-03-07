@@ -21,6 +21,46 @@ function isValidUUID(s: string): boolean {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s);
 }
 
+// ── GET /wizard/list/:userId — List user's wizard sessions ──
+// IMPORTANT: Must be registered BEFORE /wizard/:sessionId to prevent route collision
+// Note: user_id column doesn't exist in DB, so we can't filter by user.
+// We return all sessions — in practice, session IDs are scoped by the frontend.
+wizard.get(`${PREFIX}/wizard/list/:userId`, async (c) => {
+  try {
+    const userId = c.req.param("userId");
+    const db = adminClient();
+
+    const { data: sessions, error } = await db
+      .from("wizard_sessions")
+      .select("id, current_step, created_at, updated_at")
+      .order("updated_at", { ascending: false })
+      .limit(20);
+
+    if (error) {
+      console.log(`[Wizard] List error: ${error.message}`);
+      return c.json(
+        { error: `Failed to list wizard sessions: ${error.message}` },
+        500
+      );
+    }
+
+    // Derive status from current_step since status column doesn't exist in DB
+    // Step 5 = final wizard step, so current_step >= 5 means completed
+    const enriched = (sessions || []).map((s: any) => ({
+      ...s,
+      status: s.current_step >= 5 ? "completed" : "in_progress",
+    }));
+
+    return c.json({ sessions: enriched });
+  } catch (error) {
+    console.log(`[Wizard] List error: ${error}`);
+    return c.json(
+      { error: `Failed to list wizard sessions: ${error}` },
+      500
+    );
+  }
+});
+
 // ── POST /wizard/save — Save wizard step data ──
 wizard.post(`${PREFIX}/wizard/save`, async (c) => {
   try {
@@ -178,38 +218,6 @@ wizard.get(`${PREFIX}/wizard/:sessionId`, async (c) => {
     console.log(`[Wizard] Load error: ${error}`);
     return c.json(
       { error: `Failed to load wizard session: ${error}` },
-      500
-    );
-  }
-});
-
-// ── GET /wizard/list/:userId — List user's wizard sessions ──
-// Note: user_id column doesn't exist in DB, so we can't filter by user.
-// We return all sessions — in practice, session IDs are scoped by the frontend.
-wizard.get(`${PREFIX}/wizard/list/:userId`, async (c) => {
-  try {
-    const userId = c.req.param("userId");
-    const db = adminClient();
-
-    const { data: sessions, error } = await db
-      .from("wizard_sessions")
-      .select("id, current_step, created_at, updated_at")
-      .order("updated_at", { ascending: false })
-      .limit(20);
-
-    if (error) {
-      console.log(`[Wizard] List error: ${error.message}`);
-      return c.json(
-        { error: `Failed to list wizard sessions: ${error.message}` },
-        500
-      );
-    }
-
-    return c.json({ sessions: sessions || [] });
-  } catch (error) {
-    console.log(`[Wizard] List error: ${error}`);
-    return c.json(
-      { error: `Failed to list wizard sessions: ${error}` },
       500
     );
   }

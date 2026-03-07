@@ -83,7 +83,7 @@ export const router = createBrowserRouter([
     path: '/login',
     Component: AuthPage,
   },
-  // OAuth callback — handles redirect from Google via Supabase
+  // OAuth callback — handles redirect from Google/LinkedIn via Supabase
   {
     path: '/auth/callback',
     Component: AuthCallbackPage,
