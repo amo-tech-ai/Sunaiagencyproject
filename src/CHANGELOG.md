@@ -7,6 +7,292 @@
 
 ---
 
+## [0.22.0] — 2026-03-07 — Phase 11: Workflow Automation + Phase 13: Financial Dashboard
+
+### Summary
+
+Full implementation of the two remaining dashboard phases, completing all 13 phases of the Sun AI Agency dashboard. Phase 11 — Workflow Automation: 8 backend routes for workflow CRUD, toggle, execution, metrics, and template installation (all using KV store). Frontend features active workflows list with status toggles, workflow builder modal (trigger-condition-action chain editor), 5 pre-built templates (Wizard Complete -> Project Setup, Deal Stage Change -> Notify, Milestone Due -> Alert, Weekly Report, Lead Qualification), execution log with expandable action results, manual trigger with dry-run option, and 4-metric summary row. Phase 13 — Financial Dashboard: 10 backend routes for invoice CRUD, payment recording, revenue metrics, chart data, profitability, and payment reminders. Frontend features 4-card revenue metrics row (MRR, revenue, outstanding, overdue with red alert), invoice management with status lifecycle (draft -> sent -> paid/overdue), status filter tabs with counts, revenue trend line chart, revenue by client horizontal bar chart, revenue by service breakdown, project profitability table with color-coded margins, create invoice modal, record payment modal, and overdue alert banner.
+
+### Added — Phase 11: Workflow Automation Components
+
+- **C-WORKFLOWS-PAGE** `workflows/WorkflowAutomationPage.tsx` — Main page at `/app/workflows`: active workflows list with toggle/edit/delete/run/dry-run, workflow builder modal, 5 pre-built templates, execution log with expandable details, metrics row, tabbed interface, empty states, responsive mobile layout
+- **T-WORKFLOWS** `/lib/types/workflows.ts` — TypeScript interfaces: Workflow, WorkflowExecution, WorkflowMetrics, WorkflowTrigger, WorkflowCondition, WorkflowAction, WorkflowCreateInput. Constants: WORKFLOW_TEMPLATES, TRIGGER_LABELS, ACTION_LABELS
+
+### Added — Phase 11: Workflow Backend (8 routes)
+
+- **S11-WORKFLOWS** `workflow-routes.tsx` — `GET /dashboard/workflows` (list all), `POST /dashboard/workflows` (create/update), `DELETE /dashboard/workflows/:id`, `POST /dashboard/workflows/toggle` (enable/disable), `GET /dashboard/workflows/metrics` (aggregate stats), `GET /dashboard/workflows/executions` (execution log), `POST /dashboard/workflows/run` (manual trigger with dry-run), `POST /dashboard/workflows/install-template`
+
+### Added — Phase 13: Financial Dashboard Components
+
+- **C-FINANCIAL-PAGE** `financial/FinancialDashboardPage.tsx` — Main page at `/app/financial`: revenue metrics row, invoice table with status filters and search, revenue trend chart (Recharts LineChart), revenue by client chart (Recharts BarChart), revenue by service breakdown, project profitability table, create invoice modal, record payment modal, overdue alert banner, responsive layout
+- **T-FINANCIAL** `/lib/types/financial.ts` — TypeScript interfaces: Invoice, Payment, RevenueMetrics, ProjectProfitability, RevenueTrendPoint, RevenueByClient, RevenueByService, InvoiceCreateInput, PaymentRecordInput. Constants: INVOICE_STATUS_CONFIG. Utils: formatCurrency, formatCompactCurrency
+
+### Added — Phase 13: Financial Backend (10 routes)
+
+- **S13-FINANCIAL** `financial-routes.tsx` — `GET /dashboard/financial/metrics`, `GET /dashboard/financial/invoices` (with status/search filters), `POST /dashboard/financial/invoices` (create), `PUT /dashboard/financial/invoices/:id` (update with status transition validation), `DELETE /dashboard/financial/invoices/:id` (draft only), `POST /dashboard/financial/payments/record`, `GET /dashboard/financial/payments`, `GET /dashboard/financial/charts` (by client, by service, monthly trend with 3-month forecast), `GET /dashboard/financial/profitability`, `POST /dashboard/financial/invoices/:id/reminder`
+
+### Added — Frontend API Layer
+
+- **L01-SUPABASE** `lib/supabase.ts` — Added `workflowApi` module (list, create, update, delete, toggle, getMetrics, getExecutions, run, installTemplate) and `financialApi` module (getMetrics, listInvoices, createInvoice, updateInvoice, deleteInvoice, sendReminder, recordPayment, listPayments, getCharts, getProfitability)
+
+### Changed — Routing, Navigation & Wiring
+
+- **routes.tsx** — Replaced final 2 placeholder stubs with production pages: `WorkflowAutomationPage` (Phase 11) and `FinancialDashboardPage` (Phase 13)
+- **S00-SERVER** `index.tsx` — Mounted workflow and financial routes
+- **C80-SIDEBAR** `DashboardSidebar.tsx` — Version bump to v0.22.0
+
+### Files Created
+
+```
+/lib/types/workflows.ts
+/lib/types/financial.ts
+/supabase/functions/server/workflow-routes.tsx
+/supabase/functions/server/financial-routes.tsx
+/components/dashboard/workflows/WorkflowAutomationPage.tsx
+/components/dashboard/financial/FinancialDashboardPage.tsx
+```
+
+### Files Modified
+
+```
+/routes.tsx — Replaced 2 placeholders with production pages
+/supabase/functions/server/index.tsx — Mounted workflow + financial routes
+/lib/supabase.ts — Added workflowApi + financialApi with 19 methods
+/components/dashboard/DashboardSidebar.tsx — Version bump to v0.22.0
+```
+
+### Production Status
+
+- Dashboard components: 43 production + 0 placeholder stubs (ALL PHASES COMPLETE)
+- Edge function routes: 49 (6 wizard/AI + 3 agent stats + 6 CRM CRUD + 9 pipeline + 7 documents + 8 workflows + 10 financial)
+- Supabase Storage: 1 private bucket (make-283466b6-documents)
+- Project completion: ~85% (All 13 dashboard phases complete; remaining work is enhancements + infrastructure)
+
+---
+
+## [0.20.0] — 2026-03-07 — Phase 8: Document Management with Supabase Storage
+
+### Summary
+
+Full implementation of Phase 8 — Document Management with Supabase Storage. Created a private storage bucket (`make-283466b6-documents`) with signed URLs for secure access. Backend provides 7 routes for upload (multipart FormData), list, get (with signed URL), update metadata, delete (storage + KV), share link generation with configurable expiry (1h/1d/1w/30d), and aggregate stats. Frontend features grid/list view toggle, category filter tabs (Proposals/Contracts/Deliverables/Reports/Exports), real-time search, drag-and-drop upload with progress indicators, document detail slide-out panel, share link generation with copy-to-clipboard, and delete confirmation dialog. Document metadata stored in KV store (`doc:{uuid}`), files in Supabase Storage. Also created TODO.md project tracker.
+
+### Added — Document Management Components (1 page + types)
+
+- **C-DOCUMENTS-PAGE** `documents/DocumentManagementPage.tsx` — Main page at `/app/documents`: grid/list view, category pills, search, drag-drop upload zone, file progress indicators, document detail slide-out panel with download/share/delete, delete confirmation dialog, empty/loading/error states, responsive mobile layout
+- **T-DOCUMENTS** `/lib/types/documents.ts` — TypeScript interfaces: DocumentMeta, DocumentCategory, FileType, ShareLink, DocumentUploadInput. Utility functions: formatFileSize, formatRelativeTime, getFileType. Constants: CATEGORY_CONFIG (5 categories with colors), FILE_TYPE_ICONS
+
+### Added — Document Backend (7 routes)
+
+- **S08-DOCUMENTS** `document-routes.tsx` — `GET /documents` (list with category/search filter), `GET /documents/:id` (with signed URL), `POST /documents/upload` (multipart FormData, 50MB limit), `PUT /documents/:id` (metadata update), `DELETE /documents/:id` (storage + KV), `POST /documents/:id/share` (configurable expiry signed URL), `GET /documents/stats` (aggregate stats by category/type)
+
+### Added — Frontend API Layer
+
+- **L01-SUPABASE** `lib/supabase.ts` — Added `documentApi` module with: `list()`, `get()`, `upload()` (FormData with fresh token), `update()`, `delete()`, `share()`, `getStats()` methods + type exports
+
+### Changed — Routing, Navigation & Wiring
+
+- **routes.tsx** — Replaced Documents placeholder stub with production `DocumentManagementPage`
+- **S00-SERVER** `index.tsx` — Mounted document routes via `app.route("/", documents)`
+- **C80-SIDEBAR** `DashboardSidebar.tsx` — Version bump to v0.20.0
+
+### Added — Project Tracking
+
+- **TODO.md** — Comprehensive project TODO with immediate priorities, phase completion matrix, next phases breakdown, improvement lists, and infrastructure tasks
+
+### Features
+
+1. Grid view with file-type-colored icons (PDF=red, DOCX=blue, images=purple, Excel=green)
+2. List view with sortable table layout
+3. 5 category filter tabs with count badges
+4. Real-time search filtering by name
+5. Drag-and-drop file upload with overlay
+6. Multi-file upload with per-file progress indicators
+7. Document detail slide-out panel (Motion animated)
+8. Time-limited share link generation (1h, 1d, 1w, 30d)
+9. Copy-to-clipboard for share URLs
+10. Delete with confirmation dialog
+11. Signed URL download (1h expiry)
+12. Private Supabase Storage bucket (auto-created on first upload)
+13. Stats: total files, total size, this-week count, per-category breakdown
+14. Mobile responsive: stacked cards, 44px touch targets
+
+### Files Created
+
+```
+/lib/types/documents.ts
+/supabase/functions/server/document-routes.tsx
+/components/dashboard/documents/DocumentManagementPage.tsx
+/TODO.md
+```
+
+### Files Modified
+
+```
+/routes.tsx — Replaced Documents placeholder with DocumentManagementPage
+/supabase/functions/server/index.tsx — Mounted document routes
+/lib/supabase.ts — Added documentApi with 7 methods
+/components/dashboard/DashboardSidebar.tsx — Version bump to v0.20.0
+```
+
+### Production Status
+
+- Dashboard components: 41 production + 2 placeholder stubs (Financial, Workflows)
+- Edge function routes: 31 (6 wizard/AI + 3 agent stats + 6 CRM CRUD + 9 pipeline + 7 documents)
+- Supabase Storage: 1 private bucket (make-283466b6-documents)
+- Project completion: ~68% (Phases 1-10 done; Phase 11, 13 pending)
+
+---
+
+## [0.19.1] — 2026-03-07 — PerformanceChart Recharts Duplicate Key Fix
+
+### Summary
+
+Fixed a persistent React warning ("Encountered two children with the same key, null") caused by a known recharts internal SVG key-generation bug in vertical `BarChart` layout mode. Replaced the recharts-based `PerformanceChart` component with a lightweight CSS-based horizontal bar chart that preserves the same visual design (green bars, labels, hover tooltips with run/token/latency details) while eliminating the duplicate-key issue entirely. Also removed the unused `Cell` import.
+
+### Fixed
+
+- **C103-PERFORMANCE-CHART** `agents/PerformanceChart.tsx` — Replaced recharts `BarChart` (vertical layout) with pure CSS horizontal bars to eliminate recharts internal `null` key warnings. Added null/empty type filtering on `stats.byType` entries. Hover tooltips preserved via CSS `group-hover` pattern. Removed `recharts` dependency from this component. Visual output unchanged: green `#00875A` bars, `#F5F5F0` background, Georgia labels, runs/tokens/avgMs/successRate tooltip.
+
+### Files Modified
+
+```
+/components/dashboard/agents/PerformanceChart.tsx — Rewrote from recharts BarChart to CSS bars
+```
+
+### Production Status
+
+- Dashboard components: 40 production + 1 placeholder stub
+- Edge function routes: 24 (6 wizard/AI + 3 agent stats + 6 CRM CRUD + 9 pipeline)
+- Project completion: ~62% (Phases 1–7, 9–10 done; Phase 8, 11–13 pending)
+
+---
+
+## [0.19.0] — 2026-03-07 — Phase 7: CRM Pipeline Kanban Board
+
+### Summary
+
+Full implementation of Phase 7 — CRM Pipeline Management with a horizontal Kanban board, drag-and-drop deal management, multiple pipeline support, deal detail slide-out panel, interaction logging, quick-create dialog, and weighted pipeline forecast chart. Added 9 new backend routes for pipelines, deals, interactions, and contacts. Frontend features include optimistic drag-and-drop updates, stale deal indicators (amber >7 days, red >14 days), high-value deal accents (>$10K), and mobile-responsive stacked collapsible columns.
+
+### Added — CRM Pipeline Components (6 new)
+
+- **C07-FORECAST** `crm/ForecastChart.tsx` — Recharts BarChart showing weighted monthly pipeline forecast with conditional bar coloring and custom tooltip
+- **C-CRM-PAGE** `crm/CRMPipelinePage.tsx` — Main page at `/app/crm/pipelines`: kanban board, pipeline tabs, forecast chart, loading/error/empty states
+- **C-STAGE-COL** `crm/StageColumn.tsx` — Kanban column with HTML5 drop zone, stage header (name, deal count, total value)
+- **C-DEAL-CARD** `crm/DealCard.tsx` — Deal card with title, value, probability, contact, stale indicators, drag handle
+- **C-DEAL-DETAIL** `crm/DealDetailPanel.tsx` — Motion-animated slide-out panel with Details, Interactions, and Activity tabs, inline interaction logging form
+- **C-DEAL-CREATE** `crm/DealQuickCreate.tsx` — Dialog for creating deals with title, value, probability, and stage selection
+
+### Added — CRM Pipeline Types
+
+- **T-CRM-PIPELINE** `/lib/types/crm-pipeline.ts` — TypeScript interfaces: Pipeline, Stage, Deal, Interaction, ForecastDataPoint
+
+### Added — CRM Pipeline Backend (9 routes)
+
+- **S07-PIPELINE** `pipeline-routes.tsx` — `GET /crm/pipelines` (list with deal counts), `GET /crm/pipelines/:id` (full pipeline with stages/deals/forecast), `POST /crm/deals`, `PUT /crm/deals/:id`, `GET /crm/deals/:id` (with interactions + contact), `DELETE /crm/deals/:id`, `POST /crm/interactions`, `GET /crm/deals/:id/interactions`, `GET /crm/contacts`
+
+### Changed — Routing, Navigation & Data Layer
+
+- **routes.tsx** — Replaced CRM Pipeline placeholder stub with production `CRMPipelinePage` component
+- **S00-SERVER** `index.tsx` — Mounted pipeline routes
+- **L01-SUPABASE** `lib/supabase.ts` — Added `pipelineApi` module with all CRM pipeline API methods
+- **C80-SIDEBAR** `DashboardSidebar.tsx` — Version bump to v0.19.0
+
+### Database Tables Required
+
+- `crm_pipelines` — Named pipeline groups
+- `crm_stages` — Ordered stages per pipeline
+- `crm_deals` — Deals with value, probability, stage_id
+- `crm_interactions` — Activity log (call/email/meeting/note)
+
+Seed data creates "New Business" pipeline (Lead, Qualified, Proposal Sent, Negotiation, Closed Won, Closed Lost) and "Upsell" pipeline (Identified, Pitched, Approved, Delivered).
+
+### Features
+
+1. Horizontal kanban board with HTML5 native drag-and-drop
+2. Multiple pipeline support via tabs
+3. Optimistic updates on deal stage moves
+4. Deal detail slide-out panel (Motion animated)
+5. Interaction logging (call/email/meeting/note)
+6. Deal quick-create dialog
+7. Weighted monthly forecast chart (Recharts)
+8. Stale deal indicators: amber >7 days, red >14 days
+9. High-value deal indicator: green accent >$10K
+10. Mobile responsive: stacked collapsible columns
+
+### Files Created
+
+```
+/lib/types/crm-pipeline.ts
+/supabase/functions/server/pipeline-routes.tsx
+/components/dashboard/crm/CRMPipelinePage.tsx
+/components/dashboard/crm/StageColumn.tsx
+/components/dashboard/crm/DealCard.tsx
+/components/dashboard/crm/DealDetailPanel.tsx
+/components/dashboard/crm/DealQuickCreate.tsx
+/components/dashboard/crm/ForecastChart.tsx
+/docs/dashboard/07-crm-pipeline-implementation.md
+```
+
+### Files Modified
+
+```
+/routes.tsx — Replaced placeholder with CRMPipelinePage
+/supabase/functions/server/index.tsx — Mounted pipeline routes
+/lib/supabase.ts — Added pipelineApi
+/components/dashboard/DashboardSidebar.tsx — Version bump
+```
+
+### Production Status
+
+- Dashboard components: 40 production + 1 placeholder stub
+- Edge function routes: 24 (6 wizard/AI + 3 agent stats + 6 CRM CRUD + 9 pipeline)
+- Project completion: ~62% (Phases 1–7, 9–10 done; Phase 8, 11–13 pending)
+
+---
+
+## [0.18.0] — 2026-03-07 — Database Migrations + Auto-Schema Utility
+
+### Summary
+
+Created 5 SQL migration files covering wizard_sessions enhancement, AI tables, CRM core tables, CRM pipeline tables, and seed data — all with RLS policies, indexes, and column parity to existing edge functions and frontend types. Added an auto-migration utility (`ensure-schema.tsx`) that handles `ALTER TABLE ADD COLUMN IF NOT EXISTS` for `ai_run_logs` and `ai_cache` tables, runs once per server lifecycle as middleware on `/ai/*` routes and from `gemini.tsx` write operations.
+
+### Added — Database Migrations (5 files)
+
+- **`20260307120000_enhance_wizard_sessions.sql`** — Wizard sessions table enhancements
+- **`20260307120100_create_ai_tables.sql`** — AI run logs and cache tables with RLS
+- **`20260307120200_create_crm_core_tables.sql`** — CRM core tables (clients, contacts) with RLS and indexes
+- **`20260307120300_create_crm_pipeline_tables.sql`** — CRM pipeline tables (pipelines, stages, deals, interactions)
+- **`20260307120400_seed_default_pipeline_and_verify.sql`** — Seed data for default pipelines and verification
+
+### Added — Auto-Schema Utility
+
+- **`ensure-schema.tsx`** — Runtime schema migration utility using `ALTER TABLE ADD COLUMN IF NOT EXISTS` for `ai_run_logs` and `ai_cache` tables. Runs once per server lifecycle via singleton guard. Wired as middleware on `/ai/*` routes in `index.tsx` and called from `gemini.tsx` write operations.
+
+### Changed — Server Wiring
+
+- **S00-SERVER** `index.tsx` — Added ensure-schema middleware for `/ai/*` routes
+- **S04-AI** `ai-routes.tsx` — Wired ensure-schema call
+- **S05-GEMINI** `gemini.tsx` — Calls ensure-schema before AI table writes
+
+### Files Created
+
+```
+/supabase/migrations/20260307120000_enhance_wizard_sessions.sql
+/supabase/migrations/20260307120100_create_ai_tables.sql
+/supabase/migrations/20260307120200_create_crm_core_tables.sql
+/supabase/migrations/20260307120300_create_crm_pipeline_tables.sql
+/supabase/migrations/20260307120400_seed_default_pipeline_and_verify.sql
+/supabase/functions/server/ensure-schema.tsx
+```
+
+### Production Status
+
+- Dashboard components: 34 production + 4 placeholder stubs
+- Edge function routes: 15
+- Project completion: ~58% (Phases 1–6, 9–10 done; Phase 7–8, 11–13 pending)
+
+---
+
 ## [0.17.0] — 2026-03-07 — LinkedIn OIDC Auth + Multi-Provider Login
 
 ### Summary

@@ -17,16 +17,15 @@ import PerformanceChart from './PerformanceChart';
 import TokenUsagePanel from './TokenUsagePanel';
 import CacheStatsPanel from './CacheStatsPanel';
 import RunHistoryTable from './RunHistoryTable';
-import { useRealtimeChannel } from '../../../lib/hooks/useRealtimeChannel';
-import { RealtimeStatus } from '../RealtimeStatus';
 
 const PAGE_SIZE = 20;
 
 export default function AgentsPage() {
-  const { accessToken } = useAuth();
-
-  // Stabilize: use auth flag instead of raw token to avoid refetches on token refresh
-  const authToken = accessToken ? 'use-fresh-token' : undefined;
+  // AI dashboard endpoints only need the Authorization header to exist —
+  // they use the service-role admin client server-side, not the user JWT.
+  // Using undefined lets api() default to publicAnonKey, avoiding 401s
+  // from the Supabase gateway when a user JWT is stale/expired.
+  const authToken = undefined;
 
   const [stats, setStats] = useState<AggregateStats | null>(null);
   const [cacheStats, setCacheStats] = useState<CacheStats | null>(null);
@@ -40,26 +39,19 @@ export default function AgentsPage() {
   const [logsLoading, setLogsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Live AI run feed via Realtime broadcast
-  const { status: realtimeStatus } = useRealtimeChannel({
-    channelName: 'ai-runs',
-    event: 'INSERT',
-    onMessage: (newRun) => {
-      setLogs(prev => [newRun as RunLogEntry, ...prev].slice(0, PAGE_SIZE + page * PAGE_SIZE));
-      setLogTotal(prev => prev + 1);
-      fetchStats();
-    },
-  });
-
   // Fetch aggregate stats
   const fetchStats = useCallback(async () => {
     setStatsLoading(true);
     try {
       const res = await agentApi.getAggregateStats(authToken);
-      if (res.data) setStats(res.data);
-      if (res.error) console.error('[AgentsPage] Stats error:', res.error);
+      if (res.data) { setStats(res.data); setError(null); }
+      if (res.error) {
+        console.error('[AgentsPage] Stats error:', res.error);
+        setError(res.error);
+      }
     } catch (err) {
       console.error('[AgentsPage] Stats fetch failed:', err);
+      setError(String(err));
     } finally {
       setStatsLoading(false);
     }
@@ -88,8 +80,8 @@ export default function AgentsPage() {
         authToken,
       );
       if (res.data) {
-        setLogs(res.data.logs);
-        setLogTotal(res.data.total);
+        setLogs(res.data.logs || []);
+        setLogTotal(res.data.total || 0);
       }
       if (res.error) console.error('[AgentsPage] Logs error:', res.error);
     } catch (err) {
@@ -114,10 +106,18 @@ export default function AgentsPage() {
   };
 
   if (error && !stats && !cacheStats) {
+    // Detect "column does not exist" as a schema mismatch that requires migration
+    const isSchemaError = error.includes('does not exist') || error.includes('column');
     return (
       <div className="bg-white rounded border border-[#E8E8E4] p-6 sm:p-8 text-center">
         <p className="text-[#DC2626] text-sm mb-3">Unable to load agent data</p>
         <p className="text-[#6B6B63] text-xs mb-4 max-w-md mx-auto break-words">{error}</p>
+        {isSchemaError && (
+          <p className="text-[#D97706] text-xs mb-4 max-w-md mx-auto">
+            The <code className="font-mono bg-[#F5F5F0] px-1 rounded">ai_run_logs</code> and <code className="font-mono bg-[#F5F5F0] px-1 rounded">ai_cache</code> tables may need to be updated.
+            Run the migration <code className="font-mono bg-[#F5F5F0] px-1 rounded">20260307120100_create_ai_tables.sql</code> in the Supabase SQL Editor.
+          </p>
+        )}
         <button
           onClick={handleRefresh}
           className="px-5 py-2.5 bg-[#1A1A1A] text-[#F5F5F0] text-sm rounded hover:bg-[#333] transition-colors min-h-[44px]"
@@ -137,17 +137,14 @@ export default function AgentsPage() {
             Real-time data from <span className="font-mono">ai_run_logs</span> + <span className="font-mono">ai_cache</span> tables
           </p>
         </div>
-        <div className="flex items-center gap-3">
-          <RealtimeStatus status={realtimeStatus} showLabel />
-          <button
-            onClick={handleRefresh}
-            disabled={statsLoading}
-            className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded border border-[#E8E8E4] text-[#1A1A1A] hover:bg-[#F5F5F0] transition-colors min-h-[36px] disabled:opacity-40"
-          >
-            <RefreshCw className={`w-3.5 h-3.5 ${statsLoading ? 'animate-spin' : ''}`} />
-            Refresh
-          </button>
-        </div>
+        <button
+          onClick={handleRefresh}
+          disabled={statsLoading}
+          className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded border border-[#E8E8E4] text-[#1A1A1A] hover:bg-[#F5F5F0] transition-colors min-h-[36px] disabled:opacity-40"
+        >
+          <RefreshCw className={`w-3.5 h-3.5 ${statsLoading ? 'animate-spin' : ''}`} />
+          Refresh
+        </button>
       </div>
 
       {/* Summary stats row */}

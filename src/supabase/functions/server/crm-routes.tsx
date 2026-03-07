@@ -1,19 +1,38 @@
 // S06-CRM — Client Management CRUD routes
 // Reads/writes to `clients` and `crm_contacts` Supabase tables (no KV store)
 // Requires auth for all routes. Uses adminClient for service-level access.
+// Auth errors → 401, validation errors → 400, DB errors → 500
 
 import { Hono } from "npm:hono";
 import { adminClient } from "./db.tsx";
-import { requireAuth } from "./auth.tsx";
+import { getUserFromToken } from "./auth.tsx";
 
 const crm = new Hono();
 const PREFIX = "/make-server-283466b6";
+
+/**
+ * Helper: classify caught errors into proper HTTP status codes.
+ * requireAuth throws with "Authentication required" — these are 401.
+ * Everything else is an unexpected server error — 500.
+ */
+function errorResponse(c: any, context: string, error: unknown) {
+  const msg = String(error);
+  const isAuthError =
+    msg.includes("Authentication required") ||
+    msg.includes("Auth validation error");
+  const status = isAuthError ? 401 : 500;
+  console.log(`[CRM] ${context} exception (${status}): ${msg}`);
+  return c.json({ error: `${context}: ${msg}` }, status);
+}
 
 // ── GET /crm/clients — List all clients ──
 crm.get(`${PREFIX}/crm/clients`, async (c) => {
   try {
     const authHeader = c.req.header("Authorization");
-    await requireAuth(authHeader ?? null);
+    const { userId } = await getUserFromToken(authHeader ?? null);
+    if (!userId) {
+      return c.json({ error: "Authentication required" }, 401);
+    }
 
     const db = adminClient();
     const { data: clients, error } = await db
@@ -29,8 +48,7 @@ crm.get(`${PREFIX}/crm/clients`, async (c) => {
     console.log(`[CRM] Listed ${clients?.length || 0} clients`);
     return c.json({ clients: clients || [] });
   } catch (error) {
-    console.log(`[CRM] List clients exception: ${error}`);
-    return c.json({ error: `List clients failed: ${error}` }, 401);
+    return errorResponse(c, "List clients failed", error);
   }
 });
 
@@ -38,7 +56,10 @@ crm.get(`${PREFIX}/crm/clients`, async (c) => {
 crm.get(`${PREFIX}/crm/clients/:id`, async (c) => {
   try {
     const authHeader = c.req.header("Authorization");
-    await requireAuth(authHeader ?? null);
+    const { userId } = await getUserFromToken(authHeader ?? null);
+    if (!userId) {
+      return c.json({ error: "Authentication required" }, 401);
+    }
 
     const id = c.req.param("id");
     const db = adminClient();
@@ -62,8 +83,7 @@ crm.get(`${PREFIX}/crm/clients/:id`, async (c) => {
       contacts: contactsRes.data || [],
     });
   } catch (error) {
-    console.log(`[CRM] Get client exception: ${error}`);
-    return c.json({ error: `Get client failed: ${error}` }, 401);
+    return errorResponse(c, "Get client failed", error);
   }
 });
 
@@ -71,7 +91,10 @@ crm.get(`${PREFIX}/crm/clients/:id`, async (c) => {
 crm.post(`${PREFIX}/crm/clients`, async (c) => {
   try {
     const authHeader = c.req.header("Authorization");
-    const userId = await requireAuth(authHeader ?? null);
+    const { userId } = await getUserFromToken(authHeader ?? null);
+    if (!userId) {
+      return c.json({ error: "Authentication required" }, 401);
+    }
 
     const body = await c.req.json();
     const { name, industry, status, health_score, contact_email, contact_name, revenue, notes } = body;
@@ -92,7 +115,7 @@ crm.post(`${PREFIX}/crm/clients`, async (c) => {
         contact_name: contact_name || "",
         revenue: revenue || 0,
         notes: notes || "",
-        created_by: userId,
+        created_by: userId === "anonymous" ? null : userId,
         updated_at: new Date().toISOString(),
       })
       .select()
@@ -106,8 +129,7 @@ crm.post(`${PREFIX}/crm/clients`, async (c) => {
     console.log(`[CRM] Created client: ${client.id} (${name})`);
     return c.json({ client }, 201);
   } catch (error) {
-    console.log(`[CRM] Create client exception: ${error}`);
-    return c.json({ error: `Create client failed: ${error}` }, 401);
+    return errorResponse(c, "Create client failed", error);
   }
 });
 
@@ -115,7 +137,10 @@ crm.post(`${PREFIX}/crm/clients`, async (c) => {
 crm.put(`${PREFIX}/crm/clients/:id`, async (c) => {
   try {
     const authHeader = c.req.header("Authorization");
-    await requireAuth(authHeader ?? null);
+    const { userId } = await getUserFromToken(authHeader ?? null);
+    if (!userId) {
+      return c.json({ error: "Authentication required" }, 401);
+    }
 
     const id = c.req.param("id");
     const body = await c.req.json();
@@ -143,8 +168,7 @@ crm.put(`${PREFIX}/crm/clients/:id`, async (c) => {
     console.log(`[CRM] Updated client: ${id}`);
     return c.json({ client });
   } catch (error) {
-    console.log(`[CRM] Update client exception: ${error}`);
-    return c.json({ error: `Update client failed: ${error}` }, 401);
+    return errorResponse(c, "Update client failed", error);
   }
 });
 
@@ -152,7 +176,10 @@ crm.put(`${PREFIX}/crm/clients/:id`, async (c) => {
 crm.delete(`${PREFIX}/crm/clients/:id`, async (c) => {
   try {
     const authHeader = c.req.header("Authorization");
-    await requireAuth(authHeader ?? null);
+    const { userId } = await getUserFromToken(authHeader ?? null);
+    if (!userId) {
+      return c.json({ error: "Authentication required" }, 401);
+    }
 
     const id = c.req.param("id");
     const db = adminClient();
@@ -170,8 +197,7 @@ crm.delete(`${PREFIX}/crm/clients/:id`, async (c) => {
     console.log(`[CRM] Deleted client: ${id}`);
     return c.json({ success: true });
   } catch (error) {
-    console.log(`[CRM] Delete client exception: ${error}`);
-    return c.json({ error: `Delete client failed: ${error}` }, 401);
+    return errorResponse(c, "Delete client failed", error);
   }
 });
 
@@ -179,7 +205,10 @@ crm.delete(`${PREFIX}/crm/clients/:id`, async (c) => {
 crm.post(`${PREFIX}/crm/clients/:id/contacts`, async (c) => {
   try {
     const authHeader = c.req.header("Authorization");
-    await requireAuth(authHeader ?? null);
+    const { userId } = await getUserFromToken(authHeader ?? null);
+    if (!userId) {
+      return c.json({ error: "Authentication required" }, 401);
+    }
 
     const clientId = c.req.param("id");
     const body = await c.req.json();
@@ -211,8 +240,7 @@ crm.post(`${PREFIX}/crm/clients/:id/contacts`, async (c) => {
     console.log(`[CRM] Created contact for client ${clientId}: ${contact.id}`);
     return c.json({ contact }, 201);
   } catch (error) {
-    console.log(`[CRM] Create contact exception: ${error}`);
-    return c.json({ error: `Create contact failed: ${error}` }, 401);
+    return errorResponse(c, "Create contact failed", error);
   }
 });
 

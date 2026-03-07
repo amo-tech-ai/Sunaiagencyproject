@@ -1,13 +1,20 @@
 // S00-SERVER — Main Hono server entry point
 // Mounts all route modules: health, wizard, AI, auth
+// All data persistence uses proper Supabase tables (no KV store)
+// Runs auto-migration on startup to ensure AI tables have correct columns
 
-import { Hono } from "jsr:@hono/hono@4";
-import { cors } from "jsr:@hono/hono@4/cors";
-import { logger } from "jsr:@hono/hono@4/logger";
+import { Hono } from "npm:hono";
+import { cors } from "npm:hono/cors";
+import { logger } from "npm:hono/logger";
 import { wizard } from "./wizard-routes.tsx";
 import { ai } from "./ai-routes.tsx";
 import { crm } from "./crm-routes.tsx";
+import { pipeline } from "./pipeline-routes.tsx";
+import { documents } from "./document-routes.tsx";
+import { workflows } from "./workflow-routes.tsx";
+import { financial } from "./financial-routes.tsx";
 import { createUser } from "./auth.tsx";
+import { ensureAISchema } from "./ensure-schema.tsx";
 
 const app = new Hono();
 const PREFIX = "/make-server-283466b6";
@@ -28,8 +35,13 @@ app.use(
 );
 
 // ── Health check ──
-app.get(`${PREFIX}/health`, (c) => {
-  return c.json({ status: "ok", timestamp: new Date().toISOString() });
+app.get(`${PREFIX}/health`, async (c) => {
+  const schema = await ensureAISchema();
+  return c.json({
+    status: "ok",
+    timestamp: new Date().toISOString(),
+    schema: schema.ok ? "migrated" : schema.error,
+  });
 });
 
 // ── Signup ──
@@ -61,10 +73,27 @@ app.post(`${PREFIX}/signup`, async (c) => {
 app.route("/", wizard);
 
 // ── Mount AI routes ──
+// Run auto-migration before first AI request
+app.use(`${PREFIX}/ai/*`, async (c, next) => {
+  await ensureAISchema();
+  await next();
+});
 app.route("/", ai);
 
 // ── Mount CRM routes ──
 app.route("/", crm);
+
+// ── Mount Pipeline routes (Phase 7) ──
+app.route("/", pipeline);
+
+// ── Mount Document routes (Phase 8) ──
+app.route("/", documents);
+
+// ── Mount Workflow routes (Phase 11) ──
+app.route("/", workflows);
+
+// ── Mount Financial routes (Phase 13) ──
+app.route("/", financial);
 
 // ── 404 handler ──
 app.notFound((c) => {

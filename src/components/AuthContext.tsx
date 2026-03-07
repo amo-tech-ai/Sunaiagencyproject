@@ -173,7 +173,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signOut = useCallback(async () => {
     setState(s => ({ ...s, loading: true }));
-    await authApi.signOut();
+    const { error } = await authApi.signOut();
+    if (error) {
+      console.error('[Auth] Sign out error (clearing local state anyway):', error);
+    }
+    // Always clear local state even if Supabase signOut fails (e.g. network error).
+    // A failed signOut just means the server session may linger until it expires,
+    // but the user's local session is gone — they'll need to re-authenticate.
     setState({ user: null, accessToken: null, loading: false, error: null });
   }, []);
 

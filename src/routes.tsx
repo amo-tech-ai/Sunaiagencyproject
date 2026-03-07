@@ -35,12 +35,6 @@ import SupabaseArchitecturePage from './components/SupabaseArchitecturePage';
 import AuthPage from './components/AuthPage';
 import AuthCallbackPage from './components/AuthCallbackPage';
 
-// Auth pages (alternate layout)
-import AuthLayout from './components/auth/AuthLayout';
-import LoginPage from './components/auth/LoginPage';
-import SignupPage from './components/auth/SignupPage';
-import ProtectedRoute from './components/auth/ProtectedRoute';
-
 // Dashboard imports — Phase 1 (shell) + Phase 2-5 (production pages)
 import DashboardLayout from './components/dashboard/DashboardLayout';
 import DashboardHome from './components/dashboard/DashboardHome';
@@ -52,10 +46,10 @@ import InsightsPage from './components/dashboard/insights/InsightsPage';
 import DashAgentsPage from './components/dashboard/agents/AgentsPage';
 import ClientsListPage from './components/dashboard/clients/ClientsListPage';
 import ClientDetailPage from './components/dashboard/clients/ClientDetailPage';
-import {
-  CRMPipelinePage,
-  DocumentsPage, FinancialPage as DashFinancialPage, WorkflowsPage,
-} from './components/dashboard/PlaceholderPage';
+import CRMPipelinePage from './components/dashboard/crm/CRMPipelinePage';
+import DocumentManagementPage from './components/dashboard/documents/DocumentManagementPage';
+import WorkflowAutomationPage from './components/dashboard/workflows/WorkflowAutomationPage';
+import FinancialDashboardPage from './components/dashboard/financial/FinancialDashboardPage';
 
 function NotFound() {
   return (
@@ -94,46 +88,35 @@ export const router = createBrowserRouter([
     path: '/auth/callback',
     Component: AuthCallbackPage,
   },
-  // Auth routes — split-screen layout with login/signup children
-  {
-    path: '/auth',
-    Component: AuthLayout,
-    children: [
-      { path: 'login', Component: LoginPage },
-      { path: 'signup', Component: SignupPage },
-    ],
-  },
   // Dashboard — authenticated area with sidebar layout
   {
     path: '/app',
-    Component: ProtectedRoute,
+    Component: DashboardLayout,
     children: [
-      {
-        Component: DashboardLayout,
-        children: [
-          { index: true, element: <Navigate to="/app/dashboard" replace /> },
-          { path: 'dashboard', Component: DashboardHome },
-          // Phase 4: Projects — production pages
-          { path: 'projects', Component: ProjectsList },
-          { path: 'projects/:id', Component: ProjectDetail },
-          // Phase 2: Roadmap — production page
-          { path: 'roadmap', Component: RoadmapPage },
-          // Phase 5: Settings — production page
-          { path: 'settings', Component: SettingsPageComponent },
-          // Phase 9: AI Insights — production page
-          { path: 'insights', Component: InsightsPage },
-          // Phase 6: Client Management CRM — production pages
-          { path: 'clients', Component: ClientsListPage },
-          { path: 'clients/:id', Component: ClientDetailPage },
-          // Placeholder stubs — remaining phases
-          { path: 'crm/pipelines', Component: CRMPipelinePage },
-          { path: 'documents', Component: DocumentsPage },
-          { path: 'financial', Component: DashFinancialPage },
-          { path: 'workflows', Component: WorkflowsPage },
-          // Phase 10: AI Agent Management — production page
-          { path: 'agents', Component: DashAgentsPage },
-        ],
-      },
+      { index: true, element: <Navigate to="/app/dashboard" replace /> },
+      { path: 'dashboard', Component: DashboardHome },
+      // Phase 4: Projects — production pages
+      { path: 'projects', Component: ProjectsList },
+      { path: 'projects/:id', Component: ProjectDetail },
+      // Phase 2: Roadmap — production page
+      { path: 'roadmap', Component: RoadmapPage },
+      // Phase 5: Settings — production page
+      { path: 'settings', Component: SettingsPageComponent },
+      // Phase 9: AI Insights — production page
+      { path: 'insights', Component: InsightsPage },
+      // Phase 6: Client Management CRM — production pages
+      { path: 'clients', Component: ClientsListPage },
+      { path: 'clients/:id', Component: ClientDetailPage },
+      // Phase 7: CRM Pipeline — production page
+      { path: 'crm/pipelines', Component: CRMPipelinePage },
+      // Phase 8: Document Management — production page
+      { path: 'documents', Component: DocumentManagementPage },
+      // Phase 11: Workflow Automation — production page
+      { path: 'workflows', Component: WorkflowAutomationPage },
+      // Phase 13: Financial Dashboard — production page
+      { path: 'financial', Component: FinancialDashboardPage },
+      // Phase 10: AI Agent Management — production page
+      { path: 'agents', Component: DashAgentsPage },
     ],
   },
   {

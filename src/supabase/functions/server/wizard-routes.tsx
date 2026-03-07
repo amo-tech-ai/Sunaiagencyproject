@@ -1,8 +1,11 @@
 // S03-WIZARD — Wizard session persistence routes
-// Save/load wizard state to wizard_sessions + wizard_answers tables
+// Save/load wizard state to wizard_sessions & wizard_answers tables
+// Uses adminClient for writes (supports both anonymous and authenticated users)
+// DB columns on wizard_sessions: id, current_step, user_id, status, context_snapshot, created_at, updated_at
+// user_id is nullable (null = anonymous guest). status: in_progress | completed | abandoned.
 
-import { Hono } from "jsr:@hono/hono@4";
-import { adminClient, stepToScreenId, screenIdToStep } from "./db.tsx";
+import { Hono } from "npm:hono";
+import { adminClient } from "./db.tsx";
 import { getUserFromToken } from "./auth.tsx";
 
 const wizard = new Hono();
@@ -20,30 +23,53 @@ function isValidUUID(s: string): boolean {
 
 // ── GET /wizard/list/:userId — List user's wizard sessions ──
 // IMPORTANT: Must be registered BEFORE /wizard/:sessionId to prevent route collision
+// Filters by user_id when column exists, falls back to returning all sessions.
 wizard.get(`${PREFIX}/wizard/list/:userId`, async (c) => {
   try {
     const userId = c.req.param("userId");
     const db = adminClient();
 
-    const { data: sessions, error } = await db
+    // Try to filter by user_id (column added in migration 20260307120000).
+    // If the column exists, we get proper per-user scoping.
+    // If it doesn't exist yet, the query will fail and we fall back to unfiltered.
+    let sessions: any[] | null = null;
+    let queryError: any = null;
+
+    // Attempt user-scoped query first
+    const { data: scopedSessions, error: scopedError } = await db
       .from("wizard_sessions")
-      .select("id, current_step, created_at, updated_at")
+      .select("id, current_step, user_id, status, created_at, updated_at")
+      .eq("user_id", userId)
       .order("updated_at", { ascending: false })
       .limit(20);
 
-    if (error) {
-      console.log(`[Wizard] List error: ${error.message}`);
+    if (scopedError && scopedError.message?.includes("column")) {
+      // user_id column doesn't exist yet — fall back to unfiltered query
+      console.log(`[Wizard] user_id column not found, falling back to unfiltered list`);
+      const { data: allSessions, error: allError } = await db
+        .from("wizard_sessions")
+        .select("id, current_step, created_at, updated_at")
+        .order("updated_at", { ascending: false })
+        .limit(20);
+      sessions = allSessions;
+      queryError = allError;
+    } else {
+      sessions = scopedSessions;
+      queryError = scopedError;
+    }
+
+    if (queryError) {
+      console.log(`[Wizard] List error: ${queryError.message}`);
       return c.json(
-        { error: `Failed to list wizard sessions: ${error.message}` },
+        { error: `Failed to list wizard sessions: ${queryError.message}` },
         500
       );
     }
 
-    // Derive status from current_step since status column doesn't exist in DB
-    // Step 5 = final wizard step, so current_step >= 5 means completed
+    // Use status column if present, otherwise derive from current_step
     const enriched = (sessions || []).map((s: any) => ({
       ...s,
-      status: s.current_step >= 5 ? "completed" : "in_progress",
+      status: s.status || (s.current_step >= 5 ? "completed" : "in_progress"),
     }));
 
     return c.json({ sessions: enriched });
@@ -60,8 +86,16 @@ wizard.get(`${PREFIX}/wizard/list/:userId`, async (c) => {
 wizard.post(`${PREFIX}/wizard/save`, async (c) => {
   try {
     const authHeader = c.req.header("Authorization");
-    const { userId } = await getUserFromToken(authHeader);
-    const isAnonymous = !userId || userId === "anonymous";
+
+    // Extract user ID if available, but don't block on auth failure
+    let callerKey: string | null = null;
+    try {
+      const { userId } = await getUserFromToken(authHeader ?? null);
+      callerKey = userId && userId !== "anonymous" ? userId : null;
+    } catch {
+      // Auth extraction failed — proceed as anonymous save
+      callerKey = null;
+    }
 
     const body = await c.req.json();
     const { sessionId, step, data, fullState } = body;
@@ -73,76 +107,75 @@ wizard.post(`${PREFIX}/wizard/save`, async (c) => {
       );
     }
 
+    const sid = sessionId && isValidUUID(sessionId) ? sessionId : generateSessionId();
+    // Use adminClient for wizard writes — supports anonymous + expired-token users
+    // Session IDs are unguessable random keys, so this is safe
     const db = adminClient();
-    let sid = sessionId;
 
     if (fullState) {
-      // Save entire wizard state — atomic upsert on PK
-      if (!sid) {
-        sid = generateSessionId();
-      }
-
-      await db.from("wizard_sessions").upsert({
+      // Full state save → upsert wizard_sessions
+      // Write all available columns including user_id and status (added in migration)
+      const sessionRow: Record<string, unknown> = {
         id: sid,
-        org_id: null,
-        project_id: null,
         current_step: fullState.currentStep || 1,
         updated_at: new Date().toISOString(),
-      });
-
-      // Save all step data — atomic upsert on unique(session_id, screen_id)
-      if (fullState.answers && typeof fullState.answers === "object") {
-        for (const [stepKey, stepData] of Object.entries(fullState.answers)) {
-          const stepNum = parseInt(stepKey, 10);
-          if (isNaN(stepNum) || stepNum < 1 || stepNum > 5) continue;
-          const screenId = stepToScreenId(stepNum);
-
-          await db.from("wizard_answers").upsert(
-            {
-              session_id: sid,
-              org_id: null,
-              screen_id: screenId,
-              step_number: stepNum,
-              data: stepData,
-              updated_at: new Date().toISOString(),
-            },
-            { onConflict: "session_id,screen_id" }
-          );
-        }
+      };
+      // Set user_id if we have an authenticated caller
+      if (callerKey) {
+        sessionRow.user_id = callerKey;
       }
-    } else if (step && data) {
-      // Save individual step data
-      if (!sid) {
-        sid = generateSessionId();
+      // Derive status: step 5 = final, so >= 5 means completed
+      if ((fullState.currentStep || 1) >= 5) {
+        sessionRow.status = "completed";
       }
 
-      const screenId = stepToScreenId(step);
+      const { error } = await db.from("wizard_sessions").upsert(sessionRow);
 
-      // Atomic upsert session on PK
-      await db.from("wizard_sessions").upsert({
-        id: sid,
-        org_id: null,
-        project_id: null,
-        current_step: step,
-        updated_at: new Date().toISOString(),
-      });
+      if (error) {
+        console.log(`[Wizard] Session upsert error: ${error.message}`);
+        return c.json(
+          { error: `Failed to save wizard session: ${error.message}` },
+          500
+        );
+      }
+    }
 
-      // Atomic upsert answer on unique(session_id, screen_id)
-      await db.from("wizard_answers").upsert(
+    if (step !== undefined && data) {
+      // Per-step save → upsert wizard_answers
+      const { error: ansError } = await db.from("wizard_answers").upsert(
         {
           session_id: sid,
-          org_id: null,
-          screen_id: screenId,
           step_number: step,
-          data: data,
+          answers: data,
           updated_at: new Date().toISOString(),
         },
-        { onConflict: "session_id,screen_id" }
+        { onConflict: "session_id,step_number" }
       );
+
+      if (ansError) {
+        console.log(`[Wizard] Answer upsert error: ${ansError.message}`);
+        return c.json(
+          { error: `Failed to save wizard answer: ${ansError.message}` },
+          500
+        );
+      }
+
+      // Also update session metadata (current_step)
+      const { error: metaError } = await db
+        .from("wizard_sessions")
+        .upsert({
+          id: sid,
+          current_step: step,
+          updated_at: new Date().toISOString(),
+        });
+
+      if (metaError) {
+        console.log(`[Wizard] Session meta update error: ${metaError.message}`);
+      }
     }
 
     console.log(
-      `[Wizard] Saved session ${sid}, step ${step || "full"} for user ${isAnonymous ? "anonymous" : userId}`
+      `[Wizard] Saved session ${sid}, step ${step ?? "full"} for user ${callerKey ?? "anonymous"}`
     );
 
     return c.json({
@@ -168,45 +201,48 @@ wizard.get(`${PREFIX}/wizard/:sessionId`, async (c) => {
       return c.json({ error: "Missing sessionId parameter" }, 400);
     }
 
+    // Use adminClient for reads — session ID is the access key
     const db = adminClient();
 
-    // Load session
-    const { data: session, error: sessionError } = await db
+    // Load session from wizard_sessions table
+    const { data: session, error: sessError } = await db
       .from("wizard_sessions")
       .select("*")
       .eq("id", sessionId)
       .maybeSingle();
 
-    if (sessionError || !session) {
+    if (sessError) {
+      console.log(`[Wizard] Session load error: ${sessError.message}`);
+      return c.json(
+        { error: `Failed to load session: ${sessError.message}` },
+        500
+      );
+    }
+
+    if (!session) {
       return c.json({ error: `Session ${sessionId} not found` }, 404);
     }
 
-    // Load all answers for this session
-    const { data: answers } = await db
+    // Load step answers from wizard_answers table
+    const { data: answers, error: ansError } = await db
       .from("wizard_answers")
-      .select("screen_id, step_number, data, ai_results, created_at, updated_at")
+      .select("step_number, answers, ai_results, updated_at")
       .eq("session_id", sessionId)
-      .order("screen_id");
+      .order("step_number");
 
-    // Build completed steps list
-    const completedSteps = (answers || [])
-      .filter((a: any) => a.data && Object.keys(a.data).length > 0)
-      .map((a: any) => screenIdToStep(a.screen_id));
+    if (ansError) {
+      console.log(`[Wizard] Answers load error: ${ansError.message}`);
+    }
 
     console.log(`[Wizard] Loaded session ${sessionId}`);
 
     return c.json({
       session,
-      answers: (answers || []).map((a: any) => ({
-        step: screenIdToStep(a.screen_id),
-        screenId: a.screen_id,
-        data: a.data,
-        aiResults: a.ai_results,
-        updatedAt: a.updated_at,
-      })),
+      answers: answers || [],
       progress: {
         currentStep: session.current_step || 1,
-        completedSteps,
+        // Derive completedSteps from answers (context_snapshot column doesn't exist in DB)
+        completedSteps: (answers || []).map((a: any) => a.step_number),
       },
     });
   } catch (error) {

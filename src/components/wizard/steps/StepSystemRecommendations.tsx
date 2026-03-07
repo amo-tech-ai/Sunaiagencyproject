@@ -4,13 +4,12 @@
 // Expandable "See details & trade-offs" accordion per card
 // Validation error shown when attemptedAdvance + no systems selected
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useWizard } from '../WizardContext';
 import { WizardLayout } from '../WizardLayout';
 import { AI_SYSTEMS, getIndustryPrioritizedSystems, type AISystem } from '../data/wizardData';
 import { motion, AnimatePresence } from 'motion/react';
-import { Check, ChevronDown, ExternalLink, RefreshCw } from 'lucide-react';
-import { aiApi } from '../../../lib/supabase';
+import { Check, ChevronDown, ExternalLink } from 'lucide-react';
 import { Link } from 'react-router';
 
 type SortMode = 'recommended' | 'impact' | 'effort';
@@ -20,67 +19,28 @@ const EFFORT_ORDER: Record<string, number> = { Small: 0, Medium: 1, Large: 2 };
 const INITIAL_VISIBLE_COUNT = 3;
 
 export function StepSystemRecommendations() {
-  const { state, updateStep3, attemptedAdvance, currentErrors, sessionId } = useWizard();
+  const { state, updateStep3, attemptedAdvance, currentErrors } = useWizard();
   const selected = state.step3.selectedSystems;
   const [sortMode, setSortMode] = useState<SortMode>('recommended');
   const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
   const [showAll, setShowAll] = useState(false);
-  const [aiRanking, setAiRanking] = useState<string[] | null>(null);
-  const [aiLoading, setAiLoading] = useState(false);
 
-  useEffect(() => {
-    let cancelled = false;
-    setAiLoading(true);
-
-    aiApi.systemRecommendations({
-      sessionId: sessionId || undefined,
-      wizardAnswers: state.step2.answers as Record<string, unknown>,
-      industry: state.step1.industry || undefined,
-      signals: state.diagnosticSignals,
-    }).then(({ data, error }) => {
-      if (cancelled) return;
-      if (data?.ranking && !error) {
-        // data.ranking is expected to be an array of system IDs in recommended order
-        setAiRanking(data.ranking);
-      }
-    }).catch((e) => {
-      console.warn('[StepSystemRecommendations] AI ranking failed, using local ranking:', e);
-    }).finally(() => {
-      if (!cancelled) setAiLoading(false);
-    });
-
-    return () => { cancelled = true; };
-  }, [sessionId]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Default recommended ranking: AI-enhanced when available, otherwise industry-prioritized + signal-boosted
+  // Default recommended ranking: industry-prioritized first, then signal-boosted
   const recommendedOrder = useMemo(() => {
-    // Use AI ranking if available
-    if (aiRanking) {
-      const ranked: typeof AI_SYSTEMS = [];
-      for (const id of aiRanking) {
-        const sys = AI_SYSTEMS.find(s => s.id === id);
-        if (sys) ranked.push(sys);
-      }
-      // Append any systems not in AI ranking
-      for (const sys of AI_SYSTEMS) {
-        if (!ranked.find(r => r.id === sys.id)) ranked.push(sys);
-      }
-      return ranked;
-    }
-
-    // Fallback: local industry-prioritized + signal-boosted ranking
     const industryId = state.step1.industry || '';
     const industryPrioritized = getIndustryPrioritizedSystems(industryId);
     const signalIds = state.diagnosticSignals.map(s => s.id);
+    // Boost signal-matching systems within each priority tier
     return [...industryPrioritized].sort((a, b) => {
       const aIdx = industryPrioritized.indexOf(a);
       const bIdx = industryPrioritized.indexOf(b);
       const aMatch = a.triggerSignals.filter(s => signalIds.includes(s)).length;
       const bMatch = b.triggerSignals.filter(s => signalIds.includes(s)).length;
+      // If signal match difference is significant (2+), boost by signal; otherwise keep industry order
       if (Math.abs(aMatch - bMatch) >= 2) return bMatch - aMatch;
       return aIdx - bIdx;
     });
-  }, [state.diagnosticSignals, state.step1.industry, aiRanking]);
+  }, [state.diagnosticSignals, state.step1.industry]);
 
   // Sort based on current mode
   const sortedSystems = useMemo(() => {
@@ -194,18 +154,6 @@ export function StepSystemRecommendations() {
           <p className="text-sm" style={{ color: '#6B6B63' }}>
             Based on your industry, goals, and diagnostic results. Select the ones you'd like to pursue.
           </p>
-          {aiLoading && (
-            <p className="text-xs mt-2 flex items-center gap-1.5" style={{ color: '#00875A' }}>
-              <RefreshCw className="w-3 h-3 animate-spin" />
-              AI personalizing recommendations...
-            </p>
-          )}
-          {!aiLoading && aiRanking && (
-            <p className="text-xs mt-2 flex items-center gap-1.5" style={{ color: '#00875A' }}>
-              <Check className="w-3 h-3" />
-              AI-personalized ranking
-            </p>
-          )}
         </div>
 
         {/* Sort Controls */}

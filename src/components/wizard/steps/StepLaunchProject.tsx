@@ -1,20 +1,39 @@
 // C34 — Step 5: Launch Project & Dashboard Entry
 // Single-column centered layout (breaks from three-panel)
 // Celebration + confirmation screen with staggered animations
+// NOW WIRED: Calls /generate-roadmap for live AI-generated implementation roadmap
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useWizard } from '../WizardContext';
 import { AI_SYSTEMS, ROADMAP_PHASES, DASHBOARD_PREVIEW_CARDS, STEPS } from '../data/wizardData';
 import { WizardLayout } from '../WizardLayout';
 import { motion } from 'motion/react';
-import { Check, ArrowRight } from 'lucide-react';
+import { Check, ArrowRight, Loader2, AlertCircle, RefreshCw } from 'lucide-react';
 import { Link } from 'react-router';
 import { aiApi } from '../../../lib/supabase';
 
-const CHECKLIST = [
+interface RoadmapPhase {
+  phaseNumber: number;
+  title: string;
+  weekRange: string;
+  systems: string[];
+  deliverables: string[];
+  milestones: string[];
+  estimatedCost: string;
+}
+
+interface AIRoadmap {
+  title: string;
+  totalWeeks: number;
+  totalInvestment: string;
+  phases: RoadmapPhase[];
+  quickWins: string[];
+  riskFactors: { risk: string; mitigation: string }[];
+  successMetrics: { metric: string; target: string; timeframe: string }[];
+}
+
+const CHECKLIST_BASE = [
   'Project created with all wizard data',
-  'Roadmap with 3 phases set',
-  '12 initial tasks generated',
   'Strategy brief attached',
   'Dashboard ready for you',
 ];
@@ -25,38 +44,83 @@ export function StepLaunchProject() {
   const selectedSystems = AI_SYSTEMS.filter(s => step3.selectedSystems.includes(s.id));
   const projectName = `${step1.companyName || 'Your Company'} — AI Transformation`;
 
-  // AI-generated roadmap
-  const [aiRoadmap, setAiRoadmap] = useState<{
-    phases?: { number: number; title: string; weeks: string }[];
-    totalWeeks?: number;
-    quickWins?: string[];
-  } | null>(null);
+  // ── AI Roadmap State ──
+  const [roadmap, setRoadmap] = useState<AIRoadmap | null>(null);
+  const [roadmapLoading, setRoadmapLoading] = useState(false);
+  const [roadmapError, setRoadmapError] = useState<string | null>(null);
+  const fetchedRef = useRef(false);
 
+  // Fetch roadmap on mount
   useEffect(() => {
-    if (!sessionId) return;
-    let cancelled = false;
+    if (fetchedRef.current) return;
+    if (step3.selectedSystems.length === 0) return;
+    fetchedRef.current = true;
 
-    aiApi.generateRoadmap({
-      sessionId,
-      selectedSystems: step3.selectedSystems,
-      industry: step1.industry || undefined,
-      companySize: step1.companySize || undefined,
-    }).then(({ data, error }) => {
-      if (cancelled) return;
-      if (data?.roadmap && !error) {
-        setAiRoadmap(data.roadmap);
+    async function fetchRoadmap() {
+      setRoadmapLoading(true);
+      setRoadmapError(null);
+      try {
+        const { data, error } = await aiApi.generateRoadmap({
+          sessionId: sessionId || undefined,
+          selectedSystems: step3.selectedSystems,
+          industry: step1.industry || undefined,
+          companySize: step1.companySize || undefined,
+        });
+        if (error) {
+          console.error('[Step5] Roadmap generation error:', error);
+          setRoadmapError(error);
+        } else if (data?.roadmap) {
+          setRoadmap(data.roadmap as AIRoadmap);
+        }
+      } catch (e) {
+        console.error('[Step5] Roadmap fetch exception:', e);
+        setRoadmapError(String(e));
+      } finally {
+        setRoadmapLoading(false);
       }
-    }).catch((e) => {
-      console.warn('[StepLaunchProject] AI roadmap failed, using static:', e);
-    });
+    }
+    fetchRoadmap();
+  }, [sessionId, step1.industry, step1.companySize, step3.selectedSystems]);
 
-    return () => { cancelled = true; };
-  }, [sessionId]); // eslint-disable-line react-hooks/exhaustive-deps
+  const retryRoadmap = useCallback(async () => {
+    fetchedRef.current = false;
+    setRoadmapLoading(true);
+    setRoadmapError(null);
+    try {
+      const { data, error } = await aiApi.generateRoadmap({
+        sessionId: sessionId || undefined,
+        selectedSystems: step3.selectedSystems,
+        industry: step1.industry || undefined,
+        companySize: step1.companySize || undefined,
+      });
+      if (error) {
+        setRoadmapError(error);
+      } else if (data?.roadmap) {
+        setRoadmap(data.roadmap as AIRoadmap);
+      }
+    } catch (e) {
+      setRoadmapError(String(e));
+    } finally {
+      setRoadmapLoading(false);
+    }
+  }, [sessionId, step1, step3.selectedSystems]);
 
-  const displayPhases = aiRoadmap?.phases || ROADMAP_PHASES;
-  const displayTimeline = aiRoadmap?.totalWeeks ? `${aiRoadmap.totalWeeks} weeks` : '12 weeks';
+  // Use AI roadmap phases or fallback to static
+  const displayPhases = roadmap?.phases?.length
+    ? roadmap.phases.map(p => ({
+        number: p.phaseNumber,
+        title: p.title,
+        weeks: p.weekRange,
+        outcomes: p.deliverables.slice(0, 3),
+      }))
+    : ROADMAP_PHASES;
 
-  // This renders inside WizardLayout which handles the single-column for step 5
+  const checklist = [
+    ...CHECKLIST_BASE,
+    `Roadmap with ${displayPhases.length} phases set`,
+    roadmap ? `${roadmap.quickWins?.length || 0} quick wins identified` : '12 initial tasks generated',
+  ];
+
   return (
     <WizardLayout>
       <div className="max-w-[1000px] mx-auto px-4 sm:px-6 py-10 sm:py-16">
@@ -118,7 +182,7 @@ export function StepLaunchProject() {
                   Project
                 </p>
                 <h2 className="text-xl sm:text-2xl" style={{ fontFamily: 'Georgia, serif', color: '#1A1A1A', fontWeight: 400 }}>
-                  {projectName}
+                  {roadmap?.title || projectName}
                 </h2>
               </div>
               <span className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded self-start" style={{ backgroundColor: '#E6F4ED', color: '#00875A', borderRadius: '2px' }}>
@@ -132,10 +196,10 @@ export function StepLaunchProject() {
               {[
                 ['Client', step1.companyName || '—'],
                 ['Industry', step1.industry?.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) || '—'],
-                ['Phase', 'Phase 1 — Foundation'],
-                ['Timeline', displayTimeline],
+                ['Phase', `Phase 1 — ${displayPhases[0]?.title || 'Foundation'}`],
+                ['Timeline', roadmap ? `${roadmap.totalWeeks} weeks` : '12 weeks'],
                 ['Systems', `${selectedSystems.length} selected`],
-                ['Tasks', '12 initial tasks generated'],
+                ['Investment', roadmap?.totalInvestment || 'Contact for quote'],
                 ['Brief', '✓ Approved'],
                 ['Dashboard', '✓ Ready'],
               ].map(([label, value]) => (
@@ -151,11 +215,37 @@ export function StepLaunchProject() {
 
             {/* Roadmap Preview */}
             <div>
-              <p className="text-xs tracking-widest uppercase mb-4" style={{ color: '#00875A', letterSpacing: '0.08em' }}>
-                Roadmap Preview
-              </p>
+              <div className="flex items-center justify-between mb-4">
+                <p className="text-xs tracking-widest uppercase" style={{ color: '#00875A', letterSpacing: '0.08em' }}>
+                  {roadmap ? 'AI-Generated Roadmap' : 'Roadmap Preview'}
+                </p>
+                {roadmapLoading && (
+                  <span className="flex items-center gap-1.5 text-xs" style={{ color: '#9CA39B' }}>
+                    <Loader2 className="w-3 h-3 animate-spin" /> Generating…
+                  </span>
+                )}
+              </div>
+
+              {roadmapError && !roadmapLoading && (
+                <div className="mb-4 flex items-start gap-2 px-3 py-2.5 border rounded" style={{ borderColor: '#E8E8E4', borderRadius: '4px', backgroundColor: '#FAFAF8' }}>
+                  <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" style={{ color: '#D97706' }} />
+                  <div className="flex-1">
+                    <p className="text-xs" style={{ color: '#6B6B63' }}>
+                      AI roadmap unavailable — showing default phases.
+                    </p>
+                  </div>
+                  <button
+                    onClick={retryRoadmap}
+                    className="flex items-center gap-1 text-xs px-2 py-1 border rounded transition-colors hover:bg-gray-50"
+                    style={{ borderColor: '#E8E8E4', borderRadius: '4px', color: '#00875A' }}
+                  >
+                    <RefreshCw className="w-3 h-3" /> Retry
+                  </button>
+                </div>
+              )}
+
               <div className="flex flex-col sm:flex-row gap-3">
-                {displayPhases.map((phase, idx) => (
+                {displayPhases.slice(0, 3).map((phase, idx) => (
                   <div key={phase.number} className="flex-1 flex items-stretch">
                     <motion.div
                       className="flex-1 border rounded p-4"
@@ -180,13 +270,22 @@ export function StepLaunchProject() {
                         {phase.title}
                       </p>
                       <p className="text-xs mt-0.5" style={{ color: '#9CA39B' }}>{phase.weeks}</p>
+                      {phase.outcomes && phase.outcomes.length > 0 && (
+                        <ul className="mt-2 space-y-1">
+                          {phase.outcomes.slice(0, 3).map(o => (
+                            <li key={o} className="text-xs flex items-center gap-1" style={{ color: '#6B6B63' }}>
+                              <span style={{ color: '#00875A' }}>&#8226;</span> {o}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
                       {idx === 0 && (
                         <span className="inline-block mt-2 text-xs px-2 py-0.5 rounded" style={{ backgroundColor: '#E6F4ED', color: '#00875A', borderRadius: '2px' }}>
                           Current
                         </span>
                       )}
                     </motion.div>
-                    {idx < displayPhases.length - 1 && (
+                    {idx < Math.min(displayPhases.length, 3) - 1 && (
                       <div className="hidden sm:flex items-center px-1">
                         <ArrowRight className="w-4 h-4" style={{ color: '#E8E8E4' }} />
                       </div>
@@ -195,6 +294,51 @@ export function StepLaunchProject() {
                 ))}
               </div>
             </div>
+
+            {/* Quick Wins (from AI) */}
+            {roadmap?.quickWins && roadmap.quickWins.length > 0 && (
+              <>
+                <div className="border-t" style={{ borderColor: '#F0F0EC' }} />
+                <div>
+                  <p className="text-xs tracking-widest uppercase mb-3" style={{ color: '#00875A', letterSpacing: '0.08em' }}>
+                    Quick Wins
+                  </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {roadmap.quickWins.map((win, i) => (
+                      <div key={i} className="flex items-start gap-2 text-sm" style={{ color: '#1A1A1A' }}>
+                        <Check className="w-4 h-4 shrink-0 mt-0.5" style={{ color: '#00875A' }} />
+                        <span>{win}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* Success Metrics (from AI) */}
+            {roadmap?.successMetrics && roadmap.successMetrics.length > 0 && (
+              <>
+                <div className="border-t" style={{ borderColor: '#F0F0EC' }} />
+                <div>
+                  <p className="text-xs tracking-widest uppercase mb-3" style={{ color: '#00875A', letterSpacing: '0.08em' }}>
+                    Success Metrics
+                  </p>
+                  <div className="space-y-2">
+                    {roadmap.successMetrics.map((m, i) => (
+                      <div key={i} className="flex justify-between items-center py-1.5 border-b text-sm" style={{ borderColor: '#F0F0EC' }}>
+                        <span style={{ color: '#1A1A1A' }}>{m.metric}</span>
+                        <div className="text-right">
+                          <span className="text-xs px-2 py-0.5 rounded" style={{ backgroundColor: '#E6F4ED', color: '#00875A', borderRadius: '2px' }}>
+                            {m.target}
+                          </span>
+                          <span className="text-xs ml-2" style={{ color: '#9CA39B' }}>{m.timeframe}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
 
             {/* Divider */}
             <div className="border-t" style={{ borderColor: '#F0F0EC' }} />
@@ -205,7 +349,7 @@ export function StepLaunchProject() {
                 What's been created
               </p>
               <div className="space-y-2">
-                {CHECKLIST.map((item, idx) => (
+                {checklist.map((item, idx) => (
                   <motion.div
                     key={item}
                     className="flex items-center gap-3"
@@ -224,20 +368,6 @@ export function StepLaunchProject() {
                   </motion.div>
                 ))}
               </div>
-              {aiRoadmap?.quickWins && aiRoadmap.quickWins.length > 0 && (
-                <div className="mt-4">
-                  <p className="text-xs tracking-widest uppercase mb-2" style={{ color: '#00875A', letterSpacing: '0.08em' }}>
-                    Quick Wins
-                  </p>
-                  <div className="space-y-1.5">
-                    {aiRoadmap.quickWins.map((win, idx) => (
-                      <div key={idx} className="flex items-center gap-2 text-sm" style={{ color: '#1A1A1A' }}>
-                        <span style={{ color: '#00875A' }}>&#8226;</span> {win}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
           </div>
         </motion.div>

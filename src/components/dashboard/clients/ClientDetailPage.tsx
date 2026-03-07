@@ -68,9 +68,19 @@ export default function ClientDetailPage() {
   }
 
   if (error || !client) {
+    const isTableMissing = error?.includes('relation') && error?.includes('does not exist');
     return (
       <div className="bg-white rounded border border-[#E8E8E4] p-6 text-center">
-        <p className="text-[#DC2626] text-sm mb-3">{error || 'Client not found'}</p>
+        {isTableMissing ? (
+          <>
+            <p className="text-[#D97706] text-sm font-medium mb-2">CRM Tables Not Created Yet</p>
+            <p className="text-xs text-[#6B6B63] mb-3 max-w-md mx-auto">
+              Create the <code className="font-mono bg-[#F5F5F0] px-1 rounded">clients</code> table in Supabase SQL Editor to use this page.
+            </p>
+          </>
+        ) : (
+          <p className="text-[#DC2626] text-sm mb-3">{error || 'Client not found'}</p>
+        )}
         <Link to="/app/clients" className="text-sm text-[#00875A] hover:underline">Back to Clients</Link>
       </div>
     );

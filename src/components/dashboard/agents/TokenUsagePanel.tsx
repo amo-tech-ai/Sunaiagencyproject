@@ -42,7 +42,7 @@ export default function TokenUsagePanel({ stats, loading }: TokenUsagePanelProps
     );
   }
 
-  if (!stats || stats.totalTokens === 0) {
+  if (!stats || !stats.totalTokens) {
     return (
       <div className="bg-white rounded border border-[#E8E8E4] p-6 text-center">
         <p className="text-sm text-[#6B6B63]">No token usage data yet.</p>
@@ -50,8 +50,8 @@ export default function TokenUsagePanel({ stats, loading }: TokenUsagePanelProps
     );
   }
 
-  const typeEntries = Object.entries(stats.byType)
-    .sort((a, b) => b[1].tokens - a[1].tokens);
+  const typeEntries = Object.entries(stats.byType || {})
+    .sort((a, b) => (b[1].tokens ?? 0) - (a[1].tokens ?? 0));
 
   return (
     <div className="bg-white rounded border border-[#E8E8E4] p-4 sm:p-6">
@@ -59,18 +59,18 @@ export default function TokenUsagePanel({ stats, loading }: TokenUsagePanelProps
         <h3 className="font-[Georgia,serif] text-sm sm:text-base font-semibold text-[#1A1A1A]">
           Token Usage
         </h3>
-        <span className="text-xs text-[#9CA39B] font-mono">{stats.totalTokens.toLocaleString()} total</span>
+        <span className="text-xs text-[#9CA39B] font-mono">{(stats.totalTokens ?? 0).toLocaleString()} total</span>
       </div>
 
       <div className="space-y-3">
         {typeEntries.map(([type, data], i) => {
-          const pct = Math.round((data.tokens / stats.totalTokens) * 100);
+          const pct = stats.totalTokens ? Math.round(((data.tokens ?? 0) / stats.totalTokens) * 100) : 0;
           const color = TYPE_COLORS[type] || '#6B6B63';
           return (
             <div key={type}>
               <div className="flex items-center justify-between text-xs mb-1">
                 <span className="text-[#1A1A1A]">{PROMPT_LABELS[type] || type}</span>
-                <span className="text-[#6B6B63] font-mono">{data.tokens.toLocaleString()} ({pct}%)</span>
+                <span className="text-[#6B6B63] font-mono">{(data.tokens ?? 0).toLocaleString()} ({pct}%)</span>
               </div>
               <div className="h-2 rounded-full bg-[#F5F5F0] overflow-hidden">
                 <motion.div

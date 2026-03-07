@@ -10,13 +10,6 @@ function getServiceClient() {
   );
 }
 
-function getAnonClient() {
-  return createClient(
-    Deno.env.get("SUPABASE_URL")!,
-    Deno.env.get("SUPABASE_ANON_KEY")!
-  );
-}
-
 /** Create a new user account with auto-confirmed email */
 export async function createUser(params: {
   email: string;
@@ -46,12 +39,31 @@ export async function getUserFromToken(
     return { userId: null, error: "No Authorization header provided" };
   }
 
-  const token = authHeader.replace("Bearer ", "");
+  // Case-insensitive "Bearer " prefix removal (HTTP headers are case-insensitive)
+  const token = authHeader.replace(/^Bearer\s+/i, "");
+
+  if (!token) {
+    return { userId: null, error: "Empty token in Authorization header" };
+  }
   
   // Check if this is the anon key (public unauthenticated access)
-  const anonKey = Deno.env.get("SUPABASE_ANON_KEY");
-  if (token === anonKey) {
-    // Public access — return a session-based ID
+  // Primary: decode JWT payload and check for role === "anon" (reliable
+  // regardless of env-var whitespace / encoding differences).
+  // Fallback: exact string comparison with trimmed SUPABASE_ANON_KEY env var.
+  try {
+    const parts = token.split(".");
+    if (parts.length === 3) {
+      const payload = JSON.parse(atob(parts[1]));
+      if (payload.role === "anon") {
+        return { userId: "anonymous", error: null };
+      }
+    }
+  } catch {
+    // Not a decodable JWT — fall through to other checks
+  }
+
+  const anonKey = Deno.env.get("SUPABASE_ANON_KEY")?.trim();
+  if (anonKey && token.trim() === anonKey) {
     return { userId: "anonymous", error: null };
   }
 

@@ -1,9 +1,8 @@
-// C103-PERFORMANCE-CHART — Bar chart of AI runs grouped by prompt_type
-// Uses recharts BarChart. BCG design: #00875A bars, #F5F5F0 bg, Georgia labels.
-// Mobile-first: responsive, horizontal scroll on xs if needed.
+// C103-PERFORMANCE-CHART — Horizontal bar chart of AI runs grouped by prompt_type
+// Uses pure CSS bars to avoid recharts duplicate-key warnings in vertical layout.
+// BCG design: #00875A bars, #F5F5F0 bg, Georgia labels.
 
 import type { AggregateStats } from '../../../lib/supabase';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 
 interface PerformanceChartProps {
   stats: AggregateStats | null;
@@ -29,7 +28,7 @@ export default function PerformanceChart({ stats, loading }: PerformanceChartPro
     );
   }
 
-  if (!stats || Object.keys(stats.byType).length === 0) {
+  if (!stats || !stats.byType || Object.keys(stats.byType).length === 0) {
     return (
       <div className="bg-white rounded border border-[#E8E8E4] p-6 text-center">
         <p className="text-sm text-[#6B6B63]">No AI run data available yet.</p>
@@ -37,46 +36,58 @@ export default function PerformanceChart({ stats, loading }: PerformanceChartPro
     );
   }
 
-  const chartData = Object.entries(stats.byType).map(([type, data]) => ({
-    name: PROMPT_LABELS[type] || type.replace(/-/g, ' '),
-    runs: data.count,
-    tokens: data.tokens,
-    avgMs: data.avgMs,
-    successRate: data.successRate,
-  })).sort((a, b) => b.runs - a.runs);
+  const chartData = Object.entries(stats.byType || {})
+    .filter(([type]) => type != null && type !== '' && type !== 'null' && type !== 'undefined')
+    .map(([type, data], index) => ({
+      id: type || `unknown-${index}`,
+      name: PROMPT_LABELS[type] || (type ? type.replace(/-/g, ' ') : `Unknown ${index + 1}`),
+      runs: data.count ?? 0,
+      tokens: data.tokens ?? 0,
+      avgMs: data.avgMs ?? 0,
+      successRate: data.successRate ?? 0,
+    }))
+    .sort((a, b) => b.runs - a.runs);
+
+  const maxRuns = Math.max(...chartData.map((d) => d.runs), 1);
 
   return (
     <div className="bg-white rounded border border-[#E8E8E4] p-4 sm:p-6">
       <h3 className="font-[Georgia,serif] text-sm sm:text-base font-semibold text-[#1A1A1A] mb-4">
         Runs by Agent Type
       </h3>
-      <div style={{ height: 260 }}>
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={chartData} layout="vertical" margin={{ left: 8, right: 16 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#E8E8E4" horizontal={false} />
-            <XAxis type="number" tick={{ fontSize: 11, fill: '#9CA39B' }} />
-            <YAxis
-              type="category"
-              dataKey="name"
-              tick={{ fontSize: 11, fill: '#6B6B63' }}
-              width={120}
-            />
-            <Tooltip
-              content={({ payload }) => {
-                if (!payload?.length) return null;
-                const d = payload[0].payload;
-                return (
-                  <div className="bg-white border border-[#E8E8E4] rounded px-3 py-2 shadow-sm text-xs">
-                    <p className="font-medium text-[#1A1A1A] mb-1">{d.name}</p>
-                    <p className="text-[#6B6B63]">{d.runs} runs &middot; {d.tokens.toLocaleString()} tokens</p>
-                    <p className="text-[#6B6B63]">{d.avgMs}ms avg &middot; {d.successRate}% success</p>
-                  </div>
-                );
-              }}
-            />
-            <Bar dataKey="runs" fill="#00875A" radius={[0, 4, 4, 0]} barSize={20} />
-          </BarChart>
-        </ResponsiveContainer>
+      <div className="space-y-3">
+        {chartData.map((entry) => (
+          <div key={entry.id} className="group relative">
+            {/* Label row */}
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-xs text-[#6B6B63] truncate max-w-[60%]">
+                {entry.name}
+              </span>
+              <span className="text-xs font-medium text-[#1A1A1A] tabular-nums">
+                {entry.runs} {entry.runs === 1 ? 'run' : 'runs'}
+              </span>
+            </div>
+            {/* Bar */}
+            <div className="h-5 w-full bg-[#F5F5F0] rounded overflow-hidden">
+              <div
+                className="h-full bg-[#00875A] rounded transition-all duration-500 ease-out"
+                style={{ width: `${(entry.runs / maxRuns) * 100}%`, minWidth: entry.runs > 0 ? 4 : 0 }}
+              />
+            </div>
+            {/* Tooltip on hover */}
+            <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-1 hidden group-hover:block z-10 pointer-events-none">
+              <div className="bg-white border border-[#E8E8E4] rounded px-3 py-2 shadow-md text-xs whitespace-nowrap">
+                <p className="font-medium text-[#1A1A1A] mb-1">{entry.name}</p>
+                <p className="text-[#6B6B63]">
+                  {entry.runs} runs &middot; {(entry.tokens ?? 0).toLocaleString()} tokens
+                </p>
+                <p className="text-[#6B6B63]">
+                  {entry.avgMs ?? 0}ms avg &middot; {entry.successRate ?? 0}% success
+                </p>
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
