@@ -3,7 +3,38 @@
 **Project:** Sun AI Agency — AI Consulting & Solutions Website
 **Stack:** Vite + React + Tailwind CSS v4 + Supabase + Vercel
 **Design System:** BCG Consulting-Inspired (Calm Luxury Editorial)
-**Last Updated:** 2026-03-07
+**Last Updated:** 2026-03-08
+
+---
+
+## [0.22.2] — 2026-03-08 — Hono Sub-Router 404 Fix for Dashboard Insights
+
+### Summary
+
+Fixed a Hono sub-router 404 issue where the `/dashboard-insights` route returned 404 when mounted via `app.route("/", ai)` in the AI sub-router. The root cause is that Hono's sub-router mounting can silently fail to register certain route patterns. The fix moves the `/dashboard-insights` route handler from `ai-routes.tsx` to direct registration on the main `app` in `/supabase/functions/server/index.tsx`. This is a known Hono pattern issue — other AI routes may need the same direct-registration treatment if they also 404 after deployment.
+
+### Fixed — Hono Sub-Router 404
+
+- **S00-SERVER** `index.tsx` — Moved `/dashboard-insights` route handler from `ai-routes.tsx` sub-router to direct registration on the main Hono `app` instance. Hono's `app.route("/", subRouter)` can silently drop certain route registrations, causing 404s. Direct registration on the main app is the reliable workaround.
+- **S04-AI** `ai-routes.tsx` — Removed `/dashboard-insights` handler (now registered directly in `index.tsx`)
+
+### Known Issue — Other AI Routes
+
+Other routes mounted via the AI sub-router (`app.route("/", ai)`) may also exhibit 404 behavior. If additional AI routes return 404 after deployment, apply the same fix: move their handlers from `ai-routes.tsx` to direct registration in `index.tsx`.
+
+### Files Modified
+
+```
+/supabase/functions/server/index.tsx — Direct registration of /dashboard-insights route
+/supabase/functions/server/ai-routes.tsx — Removed /dashboard-insights handler
+```
+
+### Production Status
+
+- Dashboard components: 43 production + 0 placeholder stubs (ALL PHASES COMPLETE)
+- Edge function routes: 49 (6 wizard/AI + 3 agent stats + 6 CRM CRUD + 9 pipeline + 7 documents + 8 workflows + 10 financial)
+- Supabase Storage: 1 private bucket (make-283466b6-documents)
+- Project completion: ~85% (All 13 dashboard phases complete; remaining work is enhancements + infrastructure)
 
 ---
 
