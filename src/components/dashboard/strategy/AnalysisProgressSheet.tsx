@@ -164,7 +164,7 @@ export default function AnalysisProgressSheet({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+            className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-0 sm:p-4"
             onClick={isComplete ? onClose : undefined}
           >
             {/* Sheet */}
@@ -173,7 +173,7 @@ export default function AnalysisProgressSheet({
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               transition={{ duration: 0.2 }}
-              className="bg-white rounded-xl shadow-xl max-w-[500px] w-full p-6 relative max-h-[90vh] overflow-y-auto"
+              className="bg-white shadow-xl w-full h-full sm:h-auto sm:rounded-xl sm:max-w-[500px] p-6 relative sm:max-h-[90vh] overflow-y-auto"
               onClick={e => e.stopPropagation()}
             >
               {/* Close button — only when complete */}

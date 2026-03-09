@@ -9,14 +9,21 @@ import {
   FileText, DollarSign, Bot, Workflow, Settings, Wand2, X, Brain,
 } from 'lucide-react';
 
-const NAV_ITEMS = [
+interface NavItem {
+  to: string;
+  label: string;
+  icon: typeof LayoutDashboard;
+  badgeKey?: string; // key into badges prop
+}
+
+const NAV_ITEMS: NavItem[] = [
   { to: '/app/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { to: '/app/strategy', label: 'Strategy', icon: Brain },
   { to: '/app/projects', label: 'Projects', icon: FolderKanban },
   { to: '/app/roadmap', label: 'Roadmap', icon: Map },
   { to: '/app/clients', label: 'Clients', icon: Users },
   { to: '/app/crm/pipelines', label: 'CRM Pipeline', icon: GitBranch },
   { to: '/app/insights', label: 'AI Insights', icon: Lightbulb },
+  { to: '/app/strategy', label: 'Strategy', icon: Brain, badgeKey: 'strategyPending' },
   { to: '/app/documents', label: 'Documents', icon: FileText },
   { to: '/app/financial', label: 'Financial', icon: DollarSign },
   { to: '/app/workflows', label: 'Workflows', icon: Workflow },
@@ -27,9 +34,10 @@ const NAV_ITEMS = [
 interface DashboardSidebarProps {
   open: boolean;
   onClose: () => void;
+  badges?: Record<string, number>;
 }
 
-export default function DashboardSidebar({ open, onClose }: DashboardSidebarProps) {
+export default function DashboardSidebar({ open, onClose, badges = {} }: DashboardSidebarProps) {
   const location = useLocation();
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
@@ -95,10 +103,11 @@ export default function DashboardSidebar({ open, onClose }: DashboardSidebarProp
 
         <nav className="flex-1 overflow-y-auto py-3 px-2 lg:px-3">
           <ul className="space-y-0.5">
-            {NAV_ITEMS.map(({ to, label, icon: Icon }) => {
+            {NAV_ITEMS.map(({ to, label, icon: Icon, badgeKey }) => {
               const isActive = location.pathname === to || location.pathname.startsWith(to + '/');
+              const badgeCount = badgeKey ? (badges[badgeKey] || 0) : 0;
               return (
-                <li key={to}>
+                <li key={to} className="relative">
                   <NavLink
                     to={to}
                     onClick={onClose}
@@ -110,15 +119,21 @@ export default function DashboardSidebar({ open, onClose }: DashboardSidebarProp
                       md:justify-center md:px-0 md:py-2.5
                       lg:justify-start lg:px-3 lg:py-2
                       ${isActive
-                        ? 'bg-white/10 text-[#F5F5F0]'
-                        : 'text-[#F5F5F0]/60 hover:text-[#F5F5F0] hover:bg-white/5'
+                        ? 'bg-[#00875A]/10 text-[#00875A] font-medium border-l-[3px] border-[#00875A]'
+                        : 'text-[#F5F5F0]/60 hover:text-[#F5F5F0] hover:bg-white/8 border-l-[3px] border-transparent'
                       }
                     `}
                   >
                     <Icon className="w-[18px] h-[18px] shrink-0" />
-                    <span className="md:hidden lg:inline">{label}</span>
-                    {isActive && (
-                      <span className="ml-auto w-1.5 h-1.5 rounded-full bg-[#00875A] md:hidden lg:inline-block" />
+                    <span className="md:hidden lg:inline flex-1">{label}</span>
+                    {badgeCount > 0 && (
+                      <span className="bg-[#D97706] text-white text-xs font-bold rounded-full min-w-[20px] h-5 flex items-center justify-center px-1.5 md:hidden lg:flex">
+                        {badgeCount}
+                      </span>
+                    )}
+                    {/* Icon-only badge dot for tablet */}
+                    {badgeCount > 0 && (
+                      <span className="hidden md:block lg:hidden absolute top-1 right-1 w-2 h-2 bg-[#D97706] rounded-full" />
                     )}
                   </NavLink>
                 </li>

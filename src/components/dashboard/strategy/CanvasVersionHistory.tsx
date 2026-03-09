@@ -212,13 +212,13 @@ export default function CanvasVersionHistory({
             onClick={onClose}
           />
 
-          {/* Side sheet */}
+          {/* Side sheet — full screen on mobile, right side-sheet on sm+ */}
           <motion.div
             initial={{ x: '100%' }}
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="fixed top-0 right-0 h-full w-full sm:w-[400px] bg-white shadow-xl z-50 flex flex-col"
+            className="fixed inset-0 sm:inset-auto sm:top-0 sm:right-0 sm:h-full sm:w-[400px] bg-white shadow-xl z-50 flex flex-col"
           >
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b border-[#E8E8E4] shrink-0">

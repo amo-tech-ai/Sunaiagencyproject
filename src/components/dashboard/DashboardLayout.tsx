@@ -7,16 +7,41 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../AuthContext';
 import DashboardSidebar from './DashboardSidebar';
 import DashboardHeader from './DashboardHeader';
+import { strategyApi } from '../../lib/supabase';
 
 export default function DashboardLayout() {
   const { user, loading } = useAuth();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarBadges, setSidebarBadges] = useState<Record<string, number>>({});
 
   // Close sidebar on route change (mobile)
   useEffect(() => {
     setSidebarOpen(false);
   }, [location.pathname]);
+
+  // Fetch strategy pending approvals count for sidebar badge
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    const fetchBadges = async () => {
+      try {
+        const res = await strategyApi.getMetrics('use-fresh-token');
+        if (!cancelled && res.data) {
+          setSidebarBadges(prev => ({
+            ...prev,
+            strategyPending: res.data!.pendingApprovals || 0,
+          }));
+        }
+      } catch {
+        // Silent — badge is non-critical
+      }
+    };
+    fetchBadges();
+    // Refresh every 60s
+    const interval = setInterval(fetchBadges, 60_000);
+    return () => { cancelled = true; clearInterval(interval); };
+  }, [user]);
 
   // Auth guard — redirect to login if not authenticated
   if (loading) {
@@ -45,7 +70,7 @@ export default function DashboardLayout() {
       </a>
 
       {/* Sidebar */}
-      <DashboardSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <DashboardSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} badges={sidebarBadges} />
 
       {/* Main area — flex-1 takes remaining space after sidebar */}
       <div className="flex-1 flex flex-col min-w-0">

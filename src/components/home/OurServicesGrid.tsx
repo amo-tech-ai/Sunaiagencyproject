@@ -29,7 +29,7 @@ const SERVICE_CARDS = [
     title: 'WhatsApp AI Automation',
     desc: 'Turn WhatsApp into a sales and support channel with AI agents and CRM sync.',
     extended: 'Transform WhatsApp from a simple messaging app into a powerful revenue engine. Our AI-powered automation handles lead capture, appointment booking, product recommendations, and customer support — all within the WhatsApp interface your customers already use. Fully integrated with your CRM and payment systems.',
-    image: 'https://images.unsplash.com/photo-1768695089167-293dd344cc87?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxuaWdodCUyMGhpZ2h3YXklMjBsaWdodCUyMHRyYWlscyUyMG1vdW50YWlufGVufDF8fHx8MTc3MjAxODI3OXww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
+    image: 'https://res.cloudinary.com/ddysyn5rr/image/upload/v1773097147/whatsapp-1_oqovpm.jpg',
     to: '/whatsapp-ai',
   },
   {

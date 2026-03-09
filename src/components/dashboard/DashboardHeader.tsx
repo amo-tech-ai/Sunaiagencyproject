@@ -13,6 +13,7 @@ const ROUTE_LABELS: Record<string, string> = {
   '/app/clients': 'Clients',
   '/app/crm/pipelines': 'CRM Pipeline',
   '/app/insights': 'AI Insights',
+  '/app/strategy': 'Strategy Engine',
   '/app/documents': 'Documents',
   '/app/financial': 'Financial',
   '/app/workflows': 'Workflows',
