@@ -34,7 +34,7 @@ const HERO_IMG =
   'https://res.cloudinary.com/ddysyn5rr/image/upload/v1772367392/screens11_fgr95v.jpg';
 
 const STORY_IMG =
-  'https://images.unsplash.com/photo-1765371513765-d2b624850162?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtaW5pbWFsJTIwYm9va3NoZWxmJTIwbW9kZXJuJTIwaW50ZXJpb3IlMjBkZXNpZ24lMjB3YXJtfGVufDF8fHx8MTc3MjAxMzc5MHww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral';
+  'https://images.unsplash.com/photo-1765371513765-d2b624850162?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtaW5pbWFsJTIwYm9va3NoZWxmJTIwbW9kZXJuJTIbWludGVyaW9uJTIwZGVzaWduJTIwYXJ0JTIwbmF0dXJhbCUyMGxpZ2h0fGVufDF8fHx8MTc3MjAxMzc5MHww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral';
 
 const TESTIMONIAL_IMG =
   'https://images.unsplash.com/photo-1635366898830-b5d48950e4f6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwcm9mZXNzaW9uYWwlMjB3b21hbiUyMGV4ZWN1dGl2ZSUyMHBvcnRyYWl0JTIwbmF0dXJhbCUyMGxpZ2h0fGVufDF8fHx8MTc3MjAxMzc5MXww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral';
@@ -536,10 +536,10 @@ const SERVICE_CARDS = [
     to: '/services',
   },
   {
-    title: 'Industry Chatbot Packages',
-    desc: 'Pre-configured chatbot solutions for Healthcare, Real Estate, Automotive, Tourism, and E-commerce.',
-    extended: 'Skip the long development cycle with our industry-specific chatbot packages. Each solution comes pre-configured with domain knowledge, compliance frameworks, and integration templates — ready to deploy for Healthcare patient intake, Real Estate lead nurturing, Automotive service booking, Tourism concierge, and E-commerce support.',
-    image: 'https://images.unsplash.com/photo-1746468659043-9eeda39bb2ea?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhYnN0cmFjdCUyMGdyZWVuJTIwY2lyY2xlcyUyMGRhcmslMjBnZW9tZXRyaWMlMjBkZXNpZ258ZW58MXx8fHwxNzcyMDE4MjgxfDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
+    title: 'AI Automations',
+    desc: 'Industry-specific AI-powered workflows that automate repetitive business processes, connect your tools, and run operations automatically.',
+    extended: 'AI solutions designed to automate operations, customer communication, and workflows across Healthcare, Real Estate, Automotive, Tourism, and E-commerce.',
+    image: 'https://res.cloudinary.com/ddysyn5rr/image/upload/v1773099619/automation_coppbc.jpg',
     to: '/industries',
   },
   {

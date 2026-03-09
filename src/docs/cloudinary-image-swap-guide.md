@@ -93,5 +93,6 @@ No imports needed — Cloudinary URLs work as plain strings, just like Unsplash 
 | Custom AI Development | `screens16_b9nxog.jpg` |
 | AI-Powered Web Development | `screens9_uyjzie.jpg` |
 | E-commerce AI | `ecommerceai-001_juurhy.jpg` |
+| AI Automations | `automation_coppbc.jpg` |
 
 Cards still using Unsplash: **Industry Chatbot Packages**, **Story section**, **Testimonial**, **Specialized Services (all 3)**.
