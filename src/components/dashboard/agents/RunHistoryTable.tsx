@@ -128,13 +128,13 @@ export default function RunHistoryTable({
                       }
                     </td>
                     <td className="px-4 py-2.5 text-[#1A1A1A]">
-                      {PROMPT_LABELS[log.prompt_type] || log.prompt_type}
+                      {PROMPT_LABELS[log.prompt_type] || log.prompt_type || '—'}
                     </td>
-                    <td className="px-4 py-2.5 font-mono text-[#6B6B63]">{log.model}</td>
-                    <td className="px-4 py-2.5 text-right font-mono text-[#6B6B63]">{log.tokens_used.toLocaleString()}</td>
-                    <td className="px-4 py-2.5 text-right font-mono text-[#6B6B63]">{(log.duration_ms / 1000).toFixed(1)}s</td>
+                    <td className="px-4 py-2.5 font-mono text-[#6B6B63]">{log.model || '—'}</td>
+                    <td className="px-4 py-2.5 text-right font-mono text-[#6B6B63]">{(log.tokens_used ?? 0).toLocaleString()}</td>
+                    <td className="px-4 py-2.5 text-right font-mono text-[#6B6B63]">{((log.duration_ms ?? 0) / 1000).toFixed(1)}s</td>
                     <td className="px-4 py-2.5 text-[#9CA39B]">
-                      {new Date(log.created_at).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                      {log.created_at ? new Date(log.created_at).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—'}
                     </td>
                   </tr>
                 ))}
@@ -153,16 +153,16 @@ export default function RunHistoryTable({
                   }
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm text-[#1A1A1A]">{PROMPT_LABELS[log.prompt_type] || log.prompt_type}</p>
+                  <p className="text-sm text-[#1A1A1A]">{PROMPT_LABELS[log.prompt_type] || log.prompt_type || '—'}</p>
                   <p className="text-xs text-[#6B6B63] mt-0.5">
-                    {log.tokens_used.toLocaleString()} tokens &middot; {(log.duration_ms / 1000).toFixed(1)}s
+                    {(log.tokens_used ?? 0).toLocaleString()} tokens &middot; {((log.duration_ms ?? 0) / 1000).toFixed(1)}s
                   </p>
                   {log.error_message && (
                     <p className="text-xs text-[#DC2626] mt-0.5 line-clamp-1">{log.error_message}</p>
                   )}
                 </div>
                 <span className="text-[10px] text-[#9CA39B] shrink-0">
-                  {new Date(log.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                  {log.created_at ? new Date(log.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—'}
                 </span>
               </div>
             ))}

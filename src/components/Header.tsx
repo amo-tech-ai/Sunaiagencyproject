@@ -2,30 +2,40 @@
 // BCG design system: charcoal text, green accents, Georgia serif logo
 // 4px border radius, no glassmorphism, no rounded-full pills
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router';
-import { Menu, X, Sun, ArrowRight } from 'lucide-react';
+import { Menu, X, Sun, ArrowRight, User, LogOut, ChevronDown } from 'lucide-react';
+import { useAuth } from './AuthContext';
 
 export default function Header() {
   const location = useLocation();
+  const { user, signOut } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement>(null);
 
   // Close mobile menu on route change
   useEffect(() => {
     setMobileMenuOpen(false);
+    setUserMenuOpen(false);
   }, [location.pathname]);
 
   // Prevent body scroll when menu is open
   useEffect(() => {
-    if (mobileMenuOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    return () => {
-      document.body.style.overflow = '';
-    };
+    document.body.style.overflow = mobileMenuOpen ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
   }, [mobileMenuOpen]);
+
+  // Close user menu on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+        setUserMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
 
   const navItems = [
     { path: '/', label: 'Home' },
@@ -40,6 +50,11 @@ export default function Header() {
   const isActive = (path: string) => {
     if (path === '/') return location.pathname === '/';
     return location.pathname.startsWith(path);
+  };
+
+  const handleSignOut = async () => {
+    setUserMenuOpen(false);
+    await signOut();
   };
 
   return (
@@ -95,6 +110,64 @@ export default function Header() {
                 </Link>
               ))}
               <div className="ml-3 flex items-center gap-2">
+                {/* User menu or Login link */}
+                {user ? (
+                  <div className="relative" ref={userMenuRef}>
+                    <button
+                      onClick={() => setUserMenuOpen(!userMenuOpen)}
+                      className="flex items-center gap-1.5 px-3 py-2 text-sm border rounded transition-colors hover:bg-gray-50"
+                      style={{ borderColor: '#E8E8E4', borderRadius: '4px', color: '#1A1A1A' }}
+                    >
+                      <div
+                        className="w-6 h-6 rounded-full flex items-center justify-center text-xs"
+                        style={{ backgroundColor: '#E6F4ED', color: '#00875A' }}
+                      >
+                        {(user.name || user.email).charAt(0).toUpperCase()}
+                      </div>
+                      <span className="max-w-[100px] truncate">{user.name || user.email.split('@')[0]}</span>
+                      <ChevronDown className="w-3 h-3" style={{ color: '#9CA39B' }} />
+                    </button>
+
+                    {userMenuOpen && (
+                      <div
+                        className="absolute right-0 mt-1.5 w-56 border rounded shadow-lg overflow-hidden"
+                        style={{ backgroundColor: '#FFFFFF', borderColor: '#E8E8E4', borderRadius: '4px', zIndex: 60 }}
+                      >
+                        <div className="px-4 py-3 border-b" style={{ borderColor: '#F0F0EC' }}>
+                          <p className="text-sm truncate" style={{ color: '#1A1A1A' }}>{user.name || 'User'}</p>
+                          <p className="text-xs truncate" style={{ color: '#9CA39B' }}>{user.email}</p>
+                        </div>
+                        <Link
+                          to="/wizard"
+                          className="flex items-center gap-2 px-4 py-2.5 text-sm transition-colors hover:bg-gray-50"
+                          style={{ color: '#1A1A1A' }}
+                          onClick={() => setUserMenuOpen(false)}
+                        >
+                          <User className="w-3.5 h-3.5" style={{ color: '#6B6B63' }} />
+                          My Wizard Sessions
+                        </Link>
+                        <button
+                          onClick={handleSignOut}
+                          className="flex items-center gap-2 px-4 py-2.5 text-sm w-full text-left transition-colors hover:bg-gray-50"
+                          style={{ color: '#DC2626' }}
+                        >
+                          <LogOut className="w-3.5 h-3.5" />
+                          Sign Out
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <Link
+                    to="/login"
+                    className="flex items-center gap-1.5 px-3.5 py-2 text-sm border rounded transition-colors hover:bg-gray-50"
+                    style={{ borderColor: '#E8E8E4', borderRadius: '4px', color: '#1A1A1A' }}
+                  >
+                    <User className="w-3.5 h-3.5" />
+                    Sign In
+                  </Link>
+                )}
+
                 <Link
                   to="/wizard"
                   className="flex items-center gap-1.5 px-5 py-2 text-sm transition-colors"
@@ -202,8 +275,47 @@ export default function Header() {
               ))}
             </div>
 
+            {/* Account section */}
+            <div className="my-4 border-t" style={{ borderColor: '#E8E8E4' }} />
+            {user ? (
+              <div className="px-4 space-y-2">
+                <div className="flex items-center gap-2 py-2">
+                  <div
+                    className="w-7 h-7 rounded-full flex items-center justify-center text-xs"
+                    style={{ backgroundColor: '#E6F4ED', color: '#00875A' }}
+                  >
+                    {(user.name || user.email).charAt(0).toUpperCase()}
+                  </div>
+                  <div>
+                    <p className="text-sm" style={{ color: '#1A1A1A' }}>{user.name || 'User'}</p>
+                    <p className="text-xs" style={{ color: '#9CA39B' }}>{user.email}</p>
+                  </div>
+                </div>
+                <button
+                  onClick={async () => { setMobileMenuOpen(false); await signOut(); }}
+                  className="flex items-center gap-2 px-4 py-2.5 text-sm rounded w-full transition-colors hover:bg-red-50"
+                  style={{ color: '#DC2626', borderRadius: '4px' }}
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                  Sign Out
+                </button>
+              </div>
+            ) : (
+              <div className="px-4">
+                <Link
+                  to="/login"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center justify-center gap-2 w-full py-2.5 text-sm border rounded transition-colors hover:bg-gray-50"
+                  style={{ borderColor: '#E8E8E4', borderRadius: '4px', color: '#1A1A1A' }}
+                >
+                  <User className="w-3.5 h-3.5" />
+                  Sign In
+                </Link>
+              </div>
+            )}
+
             {/* CTA Buttons */}
-            <div className="mt-6 space-y-2 px-4">
+            <div className="mt-4 space-y-2 px-4">
               <Link
                 to="/wizard"
                 onClick={() => setMobileMenuOpen(false)}

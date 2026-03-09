@@ -154,15 +154,50 @@ export default function ClientsListPage() {
       )}
 
       {/* Error */}
-      {!loading && error && (
-        <div className="bg-white rounded border border-[#E8E8E4] p-6 text-center">
-          <p className="text-[#DC2626] text-sm mb-2">Failed to load clients</p>
-          <p className="text-xs text-[#6B6B63] mb-4 max-w-md mx-auto">{error}</p>
-          <p className="text-xs text-[#9CA39B]">
-            If you see a table error, you may need to create the <code className="font-mono bg-[#F5F5F0] px-1 rounded">clients</code> table in your Supabase dashboard first.
-          </p>
-        </div>
-      )}
+      {!loading && error && (() => {
+        const isTableMissing = error.includes('relation') && error.includes('does not exist');
+        return (
+          <div className="bg-white rounded border border-[#E8E8E4] p-6 text-center">
+            {isTableMissing ? (
+              <>
+                <div className="w-10 h-10 bg-[#FFFBEB] border border-[#F59E0B]/20 rounded flex items-center justify-center mx-auto mb-3">
+                  <Users className="w-5 h-5 text-[#D97706]" />
+                </div>
+                <h3 className="font-[Georgia,serif] text-base font-semibold text-[#1A1A1A] mb-1.5">
+                  CRM Tables Not Created Yet
+                </h3>
+                <p className="text-sm text-[#6B6B63] mb-3 max-w-md mx-auto leading-relaxed">
+                  The <code className="font-mono text-xs bg-[#F5F5F0] px-1.5 py-0.5 rounded">clients</code> and{' '}
+                  <code className="font-mono text-xs bg-[#F5F5F0] px-1.5 py-0.5 rounded">crm_contacts</code> tables
+                  need to be created in your Supabase SQL Editor.
+                </p>
+                <p className="text-xs text-[#9CA39B] mb-4">
+                  The edge function routes are ready — once tables are created, this page will work immediately.
+                </p>
+                <div className="flex justify-center gap-2">
+                  <button
+                    onClick={fetchClients}
+                    className="inline-flex items-center gap-1.5 text-xs px-3 py-2 rounded border border-[#E8E8E4] text-[#6B6B63] hover:bg-[#F5F5F0] min-h-[36px]"
+                  >
+                    <RefreshCw className="w-3.5 h-3.5" /> Retry
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <p className="text-[#DC2626] text-sm mb-2">Failed to load clients</p>
+                <p className="text-xs text-[#6B6B63] mb-4 max-w-md mx-auto">{error}</p>
+                <button
+                  onClick={fetchClients}
+                  className="inline-flex items-center gap-1.5 text-xs px-3 py-2 rounded border border-[#E8E8E4] text-[#6B6B63] hover:bg-[#F5F5F0] min-h-[36px]"
+                >
+                  <RefreshCw className="w-3.5 h-3.5" /> Retry
+                </button>
+              </>
+            )}
+          </div>
+        );
+      })()}
 
       {/* Empty */}
       {!loading && !error && clients.length === 0 && (

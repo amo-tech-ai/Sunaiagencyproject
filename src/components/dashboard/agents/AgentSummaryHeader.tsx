@@ -42,11 +42,11 @@ export default function AgentSummaryHeader({ stats, loading }: AgentSummaryHeade
 
   return (
     <div className="grid grid-cols-2 lg:grid-cols-5 gap-2.5 sm:gap-3">
-      <StatCard icon={Bot} label="Total Runs" value={stats.totalRuns} sub={`Model: ${stats.model}`} color="text-[#00875A]" />
-      <StatCard icon={CheckCircle} label="Success Rate" value={`${stats.successRate}%`} sub={`${stats.successRuns} ok / ${stats.failedRuns} failed`} color="text-[#00875A]" />
-      <StatCard icon={Zap} label="Total Tokens" value={stats.totalTokens.toLocaleString()} sub="Prompt + response" />
-      <StatCard icon={Clock} label="Avg Latency" value={`${(stats.avgDuration / 1000).toFixed(1)}s`} sub={`${stats.avgDuration}ms avg`} />
-      <StatCard icon={Database} label="Cache Entries" value={stats.activeCacheEntries} sub="Active (non-expired)" color="text-[#D97706]" />
+      <StatCard icon={Bot} label="Total Runs" value={stats.totalRuns ?? 0} sub={`Model: ${stats.model || 'N/A'}`} color="text-[#00875A]" />
+      <StatCard icon={CheckCircle} label="Success Rate" value={`${stats.successRate ?? 0}%`} sub={`${stats.successRuns ?? 0} ok / ${stats.failedRuns ?? 0} failed`} color="text-[#00875A]" />
+      <StatCard icon={Zap} label="Total Tokens" value={(stats.totalTokens ?? 0).toLocaleString()} sub="Prompt + response" />
+      <StatCard icon={Clock} label="Avg Latency" value={`${((stats.avgDuration ?? 0) / 1000).toFixed(1)}s`} sub={`${stats.avgDuration ?? 0}ms avg`} />
+      <StatCard icon={Database} label="Cache Entries" value={stats.activeCacheEntries ?? 0} sub="Active (non-expired)" color="text-[#D97706]" />
     </div>
   );
 }

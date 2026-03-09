@@ -416,10 +416,10 @@ export default function AuthPage() {
                     if (!isDisabled) e.currentTarget.style.backgroundColor = '#1A1A1A';
                   }}
                 >
-                  {loading && !googleRedirecting && !linkedinRedirecting ? (
-                    <><Loader2 className="w-4 h-4 animate-spin" /> Processing…</>
-                  ) : success ? (
+                  {success ? (
                     <><Check className="w-4 h-4" /> Success</>
+                  ) : loading && !googleRedirecting && !linkedinRedirecting ? (
+                    <><Loader2 className="w-4 h-4 animate-spin" /> Processing…</>
                   ) : (
                     <>
                       {mode === 'login' ? 'Sign In' : 'Create Account'}
