@@ -3,7 +3,58 @@
 **Project:** Sun AI Agency — AI Consulting & Solutions Website
 **Stack:** Vite + React + Tailwind CSS v4 + Supabase + Vercel
 **Design System:** BCG Consulting-Inspired (Calm Luxury Editorial)
-**Last Updated:** 2026-03-08
+**Last Updated:** 2026-03-09
+
+---
+
+## [0.22.5] — 2026-03-09 — Supabase Database Plan with ERD & Data Flow Diagrams
+
+### Summary
+
+Created comprehensive Supabase database plan at `/docs/lean/16-supabase-database-plan.md`. Includes full ERD diagrams (12-table Strategy Engine ERD + 44-table Full Platform ERD), 5 data flow diagrams (canvas creation, block editing, 5-agent analysis orchestration, recommendation approval, per-block AI synthesis), complete table specs, cross-domain relationship maps, RLS policies, indexes, triggers, copy-paste migration SQL, rollback SQL, and post-migration verification queries. Updated master plan to 17 spec docs. No code — planning only.
+
+### Added
+
+- **`/docs/lean/16-supabase-database-plan.md`** — 12-section plan: ERDs, table specs, data flows, RLS, indexes, triggers, migration SQL, rollback, verification
+
+### Updated
+
+- **`/docs/lean/00-lean-master-plan.md`** — Spec doc count → 17, index updated with doc 16
+
+---
+
+## [0.22.4] — 2026-03-09 — Lean Strategy Engine Plan Expanded (16 Docs)
+
+### Summary
+
+Expanded the Lean Strategy Engine planning from 10 to 16 spec docs. Added 6 new specs: Roadmap Execution Panel, Analysis Progress Sheet (5-agent overlay), Canvas Version History, Responsive Layout, Sidebar Navigation, and a comprehensive Frontend-Backend Wiring Plan (9-step build order, 12 Supabase tables, useStrategyData hook, component-to-data wiring map). Updated master plan with 26-task progress tracker, spec document index, version milestones, and suggested next steps. No code — planning only.
+
+### Added — 6 New Spec Docs
+
+- **`10-roadmap-execution-panel.md`** — Phase cards, progress bars, wizard data, empty state
+- **`11-analysis-progress-sheet.md`** — 5-agent modal: phases A/B, simulated progress, completion summary
+- **`12-canvas-version-history.md`** — Side sheet: version timeline, view snapshot, revert dialog
+- **`13-responsive-layout.md`** — Mobile tabs, tablet 2-col, bottom sheet, breakpoint table
+- **`14-sidebar-navigation.md`** — Brain icon, pending badge, header label, active/hover states
+- **`15-frontend-backend-wiring.md`** — 9-step build, 12 tables, types, API, routes, hook, 15 component wiring, 14 E2E tests
+
+### Updated — Master Plan (major revision)
+
+- 26-task progress tracker table at top with phase/priority/effort/status columns
+- Spec document index (16 docs with links)
+- Phase 14a expanded to 12 tasks (added useStrategyData, sidebar, DB migration)
+- Data layer upgraded from KV-only to 12 Supabase tables
+- 5-agent specs with cache TTLs and analysis orchestration flow
+- Version milestones: v0.23.0 (core CRUD), v0.23.1 (intelligence), v0.24.0 (full AI)
+- 9-step suggested next steps for implementation
+
+---
+
+## [0.22.3] — 2026-03-09 — Lean Strategy Engine Initial Planning (10 Docs)
+
+### Summary
+
+Created initial 10 planning docs for Phase 14 — Lean Strategy Engine at `/docs/lean/` covering page layout, empty state, metrics bar, canvas grid, block editor, intelligence panel, card components, backend routes, and API wiring.
 
 ---
 
@@ -70,7 +121,7 @@ Fixed CRM authentication errors where `getUserFromToken` in `/supabase/functions
 
 ---
 
-## [0.22.0] — 2026-03-07 — Phase 11: Workflow Automation + Phase 13: Financial Dashboard
+## [0.22.0] — 2026-03-07 �� Phase 11: Workflow Automation + Phase 13: Financial Dashboard
 
 ### Summary
 

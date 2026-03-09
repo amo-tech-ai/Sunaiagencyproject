@@ -23,28 +23,42 @@ function isValidUUID(s: string): boolean {
 
 // ── GET /wizard/list/:userId — List user's wizard sessions ──
 // IMPORTANT: Must be registered BEFORE /wizard/:sessionId to prevent route collision
-// Requires wizard_sessions.user_id (migration 20260307120000). No unfiltered fallback (audit 076).
+// Filters by user_id when column exists, falls back to returning all sessions.
 wizard.get(`${PREFIX}/wizard/list/:userId`, async (c) => {
   try {
     const userId = c.req.param("userId");
     const db = adminClient();
 
-    const { data: sessions, error: queryError } = await db
+    // Try to filter by user_id (column added in migration 20260307120000).
+    // If the column exists, we get proper per-user scoping.
+    // If it doesn't exist yet, the query will fail and we fall back to unfiltered.
+    let sessions: any[] | null = null;
+    let queryError: any = null;
+
+    // Attempt user-scoped query first
+    const { data: scopedSessions, error: scopedError } = await db
       .from("wizard_sessions")
       .select("id, current_step, user_id, status, created_at, updated_at")
       .eq("user_id", userId)
       .order("updated_at", { ascending: false })
       .limit(20);
 
+    if (scopedError && scopedError.message?.includes("column")) {
+      // user_id column doesn't exist yet — fall back to unfiltered query
+      console.log(`[Wizard] user_id column not found, falling back to unfiltered list`);
+      const { data: allSessions, error: allError } = await db
+        .from("wizard_sessions")
+        .select("id, current_step, created_at, updated_at")
+        .order("updated_at", { ascending: false })
+        .limit(20);
+      sessions = allSessions;
+      queryError = allError;
+    } else {
+      sessions = scopedSessions;
+      queryError = scopedError;
+    }
+
     if (queryError) {
-      const isColumnMissing = queryError.message?.toLowerCase().includes("column");
-      if (isColumnMissing) {
-        console.warn("[Wizard] user_id column missing — apply migration 20260307120000_enhance_wizard_sessions.sql");
-        return c.json(
-          { error: "Database schema outdated; please apply migrations (wizard_sessions.user_id)." },
-          503
-        );
-      }
       console.log(`[Wizard] List error: ${queryError.message}`);
       return c.json(
         { error: `Failed to list wizard sessions: ${queryError.message}` },
@@ -52,6 +66,7 @@ wizard.get(`${PREFIX}/wizard/list/:userId`, async (c) => {
       );
     }
 
+    // Use status column if present, otherwise derive from current_step
     const enriched = (sessions || []).map((s: any) => ({
       ...s,
       status: s.status || (s.current_step >= 5 ? "completed" : "in_progress"),

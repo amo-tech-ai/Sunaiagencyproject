@@ -1,31 +1,22 @@
 # TODO — Sun AI Agency Website
 
 **Project:** Sun AI Agency — AI Consulting & Solutions Website
-**Current Version:** v0.22.2
-**Last Updated:** 2026-03-08
-
----
-
-## SUGGESTED NEXT STEPS (from CHANGELOG review)
-
-1. **Deploy & verify (P0)** — Deploy edge function (49 routes incl. 0.22.2 Hono fix), run CRM migrations, then run smoke + verification checks below.
-2. **Confirm dashboard-insights (0.22.2)** — After deploy, hit `POST /dashboard-insights` (or the dashboard home AI panel); if 404, other AI sub-routes may need the same direct-registration fix as in `index.tsx`.
-3. **Pick one enhancement track** — Phase 11b (workflow execution engine), Phase 13b (financial intelligence), or Infrastructure (CI/CD, monitoring, OAuth). Avoid starting all in parallel.
-4. **Then** — E2E/integration tests, performance audit, StyleGuidePage BCG tokens.
+**Current Version:** v0.22.5
+**Last Updated:** 2026-03-09
 
 ---
 
 ## IMMEDIATE PRIORITIES (This Sprint)
 
 ### Deployment Steps
-- [ ] **Deploy Edge Function** — Deploy updated server with all 49 routes (incl. v0.22.2 Hono fix: `/dashboard-insights` on main app) to Supabase Edge Functions
+- [ ] **Deploy Edge Function** — Deploy updated server with all 49 routes (Phase 8 documents + Phase 11 workflows + Phase 13 financial + CRM auth fix + dashboard-insights 404 fix) to Supabase Edge Functions
 - [ ] **Run CRM Pipeline Migrations** — Execute `20260307120300_create_crm_pipeline_tables.sql` and `20260307120400_seed_default_pipeline_and_verify.sql` in Supabase SQL Editor to create `crm_pipelines`, `crm_stages`, `crm_deals`, `crm_interactions` tables and seed default pipelines
-- [ ] **Verify Dashboard Insights (0.22.2)** — After deploy, confirm dashboard home AI insights load (no 404 on `/dashboard-insights`). If other AI routes 404, move their handlers to direct registration in `index.tsx`.
 - [ ] **Verify CRM Auth Fix** — Test `GET /crm/clients` and `GET /crm/pipelines` with both anonymous and authenticated tokens after deploy; confirm JWT decode anon detection works
 - [ ] **Verify Document Storage** — The `make-283466b6-documents` bucket auto-creates on first upload; verify in Supabase Dashboard > Storage
+- [ ] **Watch for Hono Sub-Router 404s** — After deploy, test all AI routes (`/ai/generate`, `/ai/cache`, `/agent-stats/*`, etc.) for 404s caused by Hono sub-router mounting. If any 404, move route handler from `ai-routes.tsx` to direct registration in `index.tsx` (same fix applied to `/dashboard-insights` in v0.22.2)
 
 ### Smoke Testing — All Dashboard Phases
-- [ ] Dashboard home loads at `/app/dashboard` with metrics and **live AI insights** (no 404 on dashboard-insights; v0.22.2)
+- [ ] Dashboard home loads at `/app/dashboard` with metrics
 - [ ] Projects & Tasks page loads at `/app/projects`
 - [ ] AI Insights page loads at `/app/ai-insights`
 - [ ] AI Agent Management page loads at `/app/agents`
@@ -78,7 +69,50 @@
 | 12 | (Merged into Phase 8) | — | — |
 | 13 | Financial Dashboard | Done | v0.22.0 |
 
-**ALL 13 DASHBOARD PHASES COMPLETE** | CRM Auth v0.22.1 | Dashboard Insights 404 fix v0.22.2
+**ALL 13 DASHBOARD PHASES COMPLETE** | CRM Auth Hardened in v0.22.1 | Hono 404 Fix in v0.22.2 | Lean Strategy Plan in v0.22.3
+
+---
+
+## NEXT PHASE — Phase 14: Lean Strategy Engine (Planned)
+
+> Full plan at `/docs/lean/00-lean-master-plan.md` (16 spec documents in `/docs/lean/`)
+> Progress: **0 / 26 tasks** (0%)
+
+### Pre-Requisite
+- [ ] **Database Migration** — Run `20260308120000_create_strategy_engine_tables.sql` in Supabase SQL Editor (12 tables: lean_canvases, lean_canvas_versions, strategy_insights, automation_opportunities, strategy_recommendations, strategy_actions + 6 advanced tables)
+
+### Phase 14a — Core Canvas & Infrastructure (P0, ~4 days)
+- [ ] **Types** — Create `/lib/types/strategy.ts` (full types from doc 15 §2)
+- [ ] **Backend** — Create `strategy-routes.tsx` with 14+ route handlers (doc 08, 15 §4-5)
+- [ ] **Mount Routes** — Register strategy routes in `index.tsx` (sub-router first, direct if 404s)
+- [ ] **API Layer** — Add `strategyApi` module to `lib/supabase.ts` (16 methods, doc 15 §3)
+- [ ] **Data Hook** — Create `useStrategyData` hook in `lib/hooks/` (doc 15 §7)
+- [ ] **Page Shell** — Create `StrategyEnginePage.tsx` at `/app/strategy` (doc 01, 15 §8)
+- [ ] **Empty State** — Create `StrategyEmptyState.tsx` with wizard/fresh CTAs (doc 02)
+- [ ] **Sidebar Nav** — Add Strategy item with Brain icon + pending badge (doc 14)
+- [ ] **Metrics Bar** — Create `StrategyMetricsBar.tsx` + `MetricCard.tsx` (doc 03)
+- [ ] **Canvas Grid** — Create `LeanCanvasPanel.tsx` + `CanvasBlock.tsx` (doc 04)
+- [ ] **Block Editor** — Create `CanvasBlockEditor.tsx` (doc 05)
+
+### Phase 14b — Intelligence Layer (P0, ~2 days)
+- [ ] **Intelligence Panel** — Create `IntelligencePanel.tsx` (doc 06)
+- [ ] **Recommendation Cards** — Create `RecommendationCard.tsx` (doc 07 §1)
+- [ ] **Insight Cards** — Create `InsightCard.tsx` (doc 07 §2)
+- [ ] **Opportunity Cards** — Create `OpportunityCard.tsx` (doc 07 §3)
+- [ ] **Card Animations** — Motion animations for approve/reject/dismiss (doc 07)
+
+### Phase 14c — AI Integration (P1, ~2 days)
+- [ ] **Ask AI** — Per-block Gemini synthesis via 5 agents (doc 05, 08)
+- [ ] **Run Analysis** — Full-canvas 5-agent orchestration A/B phases (doc 08, 15 §5)
+- [ ] **Create from Wizard** — Auto-populate canvas from wizard session (doc 02, 15 §4)
+- [ ] **Analysis Progress** — 5-agent progress sheet with simulated phases (doc 11)
+
+### Phase 14d — Enhancements & Polish (P2, ~2 days)
+- [ ] **Roadmap Panel** — Phase cards with progress bars from wizard data (doc 10)
+- [ ] **Version History** — Side sheet with timeline, view snapshot, revert (doc 12)
+- [ ] **Mobile Polish** — Tab nav, bottom sheet editor, responsive breakpoints (doc 13)
+- [ ] **Skeleton States** — Loading skeletons for all components
+- [ ] **E2E Verification** — 14-point test checklist (doc 15 §9)
 
 ---
 

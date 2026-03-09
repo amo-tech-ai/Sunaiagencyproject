@@ -62,7 +62,6 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
-    "supabase:sync-functions": "cp -r src/supabase/functions/server/* supabase/functions/server/"
+    "build": "vite build"
   }
 }

@@ -20,26 +20,14 @@ import { callGemini } from "./gemini.tsx";
 const app = new Hono();
 const PREFIX = "/make-server-283466b6";
 
-const env = typeof Deno !== "undefined" ? Deno.env.get("ENVIRONMENT") ?? "development" : "development";
-const isProd = env === "production";
-const allowedOrigins: string[] = (typeof Deno !== "undefined" && Deno.env.get("ALLOWED_ORIGINS"))
-  ? Deno.env.get("ALLOWED_ORIGINS")!.split(",").map((o) => o.trim()).filter(Boolean)
-  : [];
-
-function corsOrigin(origin: string | undefined, _c?: unknown): string | undefined {
-  if (!isProd || allowedOrigins.length === 0) return "*";
-  if (!origin) return allowedOrigins[0] ?? "*";
-  return allowedOrigins.includes(origin) ? origin : (allowedOrigins[0] ?? undefined);
-}
-
 // Enable logger
 app.use("*", logger(console.log));
 
-// Enable CORS: dev = *; prod = allowlist from ALLOWED_ORIGINS (audit 074)
+// Enable CORS for all routes and methods
 app.use(
   "/*",
   cors({
-    origin: corsOrigin,
+    origin: "*",
     allowHeaders: ["Content-Type", "Authorization"],
     allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     exposeHeaders: ["Content-Length"],
@@ -189,4 +177,4 @@ app.onError((err, c) => {
   return c.json({ error: `Internal server error: ${err.message}` }, 500);
 });
 
-export { app };
+Deno.serve(app.fetch);

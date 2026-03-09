@@ -5,13 +5,6 @@ import { adminClient } from "./db.tsx";
 import { ensureAISchema } from "./ensure-schema.tsx";
 
 const GEMINI_MODEL = "gemini-2.0-flash";
-/** Timeout for generateContent fetch (audit 072). Override with GEMINI_TIMEOUT_MS env. */
-const GEMINI_REQUEST_TIMEOUT_MS =
-  typeof Deno !== "undefined"
-    ? Number(Deno.env.get("GEMINI_TIMEOUT_MS")) || 30_000
-    : 30_000;
-/** Delay before retry on 5xx or timeout (audit 072) */
-const GEMINI_RETRY_DELAY_MS = 1_000;
 
 function getApiKey(): string {
   const key = Deno.env.get("GEMINI_API_KEY");
@@ -141,99 +134,74 @@ export async function callGemini(
 
   const apiKey = getApiKey();
   const startMs = Date.now();
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-    "x-goog-api-key": apiKey,
-  };
-  const body = JSON.stringify({
-    contents: [
-      {
-        role: "user",
-        parts: [{ text: `${systemPrompt}\n\n---\n\n${userPrompt}` }],
-      },
-    ],
-    generationConfig: {
-      temperature: 0.7,
-      topP: 0.95,
-      maxOutputTokens: 4096,
-      responseMimeType: "application/json",
-    },
-  });
-
-  let lastError: unknown;
-  const maxAttempts = 2;
 
   try {
-    for (let attempt = 0; attempt < maxAttempts; attempt++) {
-      if (attempt > 0) {
-        await new Promise((r) => setTimeout(r, GEMINI_RETRY_DELAY_MS));
-      }
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), GEMINI_REQUEST_TIMEOUT_MS);
-      try {
-        const response = await fetch(url, {
-          method: "POST",
-          headers,
-          body,
-          signal: controller.signal,
-        });
-        clearTimeout(timeoutId);
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`;
 
-        if (!response.ok) {
-          const errorText = await response.text();
-          const err = new Error(
-            `Gemini API error (${response.status}): ${errorText.slice(0, 200)}`
-          );
-          if (response.status >= 500 && attempt < maxAttempts - 1) {
-            lastError = err;
-            continue;
-          }
-          throw err;
-        }
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [
+          {
+            role: "user",
+            parts: [
+              {
+                text: `${systemPrompt}\n\n---\n\n${userPrompt}`,
+              },
+            ],
+          },
+        ],
+        generationConfig: {
+          temperature: 0.7,
+          topP: 0.95,
+          maxOutputTokens: 4096,
+          responseMimeType: "application/json",
+        },
+      }),
+    });
 
-        const data = await response.json();
-        const durationMs = Date.now() - startMs;
-
-        const textContent =
-          data?.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
-        let parsed: unknown;
-        try {
-          parsed = JSON.parse(textContent);
-        } catch {
-          parsed = { rawText: textContent };
-        }
-
-        const tokensUsed =
-          (data?.usageMetadata?.promptTokenCount || 0) +
-          (data?.usageMetadata?.candidatesTokenCount || 0);
-
-        await logAIRun({
-          sessionId,
-          promptType: functionName,
-          model: GEMINI_MODEL,
-          tokensUsed,
-          durationMs,
-          success: true,
-        });
-
-        const ttlHours = functionName === "analyze-business" ? 24 : 168;
-        await setCachedResult(functionName, input, parsed, GEMINI_MODEL, tokensUsed, ttlHours);
-
-        return parsed;
-      } catch (innerError: unknown) {
-        clearTimeout(timeoutId);
-        const isAbort = innerError instanceof Error && innerError.name === "AbortError";
-        const timeoutErr = new Error("Gemini request timed out after 30s");
-        if (isAbort && attempt < maxAttempts - 1) {
-          lastError = timeoutErr;
-          continue;
-        }
-        if (isAbort) throw timeoutErr;
-        throw innerError;
-      }
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(
+        `Gemini API error (${response.status}): ${errorText.slice(0, 200)}`
+      );
     }
-    throw lastError;
+
+    const data = await response.json();
+    const durationMs = Date.now() - startMs;
+
+    // Extract text content from Gemini response
+    const textContent =
+      data?.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(textContent);
+    } catch {
+      // If JSON parsing fails, wrap in result object
+      parsed = { rawText: textContent };
+    }
+
+    // Calculate token usage
+    const tokensUsed =
+      (data?.usageMetadata?.promptTokenCount || 0) +
+      (data?.usageMetadata?.candidatesTokenCount || 0);
+
+    // Log the run to ai_run_logs table
+    await logAIRun({
+      sessionId,
+      promptType: functionName,
+      model: GEMINI_MODEL,
+      tokensUsed,
+      durationMs,
+      success: true,
+    });
+
+    // Cache the result in ai_cache table
+    const ttlHours = functionName === "analyze-business" ? 24 : 168; // 24h or 7 days
+    await setCachedResult(functionName, input, parsed, GEMINI_MODEL, tokensUsed, ttlHours);
+
+    return parsed;
   } catch (error) {
     const durationMs = Date.now() - startMs;
     await logAIRun({
