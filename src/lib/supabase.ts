@@ -672,3 +672,109 @@ export const financialApi = {
   getProfitability: (token?: string) =>
     api<{ profitability: ProjectProfitability[] }>('/dashboard/financial/profitability', { token }),
 };
+
+// ── Strategy API (Phase 14 — Lean Strategy Engine) ──
+import type {
+  LeanCanvas, CanvasVersion, StrategyInsight, AutomationOpportunity,
+  StrategyRecommendation, StrategyAction, StrategyMetrics,
+  StrategyAnalysisResponse, BlockSynthesisResponse, CanvasBlockKey,
+  CanvasBlockItem,
+} from './types/strategy';
+export type {
+  LeanCanvas, CanvasVersion, StrategyInsight, AutomationOpportunity,
+  StrategyRecommendation, StrategyAction, StrategyMetrics,
+  StrategyAnalysisResponse, BlockSynthesisResponse,
+};
+
+export const strategyApi = {
+  // Canvas CRUD
+  getCanvas: (params?: { session_id?: string; project_id?: string }, token?: string) => {
+    const qs = new URLSearchParams();
+    if (params?.session_id) qs.set('session_id', params.session_id);
+    if (params?.project_id) qs.set('project_id', params.project_id);
+    const query = qs.toString();
+    return api<{ canvas: LeanCanvas | null }>(`/strategy/canvas${query ? `?${query}` : ''}`, { token });
+  },
+
+  createCanvas: (data: { session_id?: string; project_id?: string }, token?: string) =>
+    api<{ canvas: LeanCanvas }>('/strategy/canvas', { method: 'POST', body: data, token }),
+
+  updateCanvasBlocks: (
+    id: string,
+    blocks: Partial<Record<CanvasBlockKey, CanvasBlockItem[]>>,
+    changeSummary?: string,
+    token?: string
+  ) => api<{ canvas: LeanCanvas; version: CanvasVersion }>(
+    `/strategy/canvas/${id}`,
+    { method: 'PUT', body: { blocks, change_summary: changeSummary } as Record<string, unknown>, token }
+  ),
+
+  getCanvasVersions: (canvasId: string, token?: string) =>
+    api<{ versions: CanvasVersion[] }>(`/strategy/canvas/${canvasId}/versions`, { token }),
+
+  // Insights
+  listInsights: (params?: { status?: string; type?: string; limit?: number }, token?: string) => {
+    const qs = new URLSearchParams();
+    if (params?.status) qs.set('status', params.status);
+    if (params?.type) qs.set('type', params.type);
+    if (params?.limit) qs.set('limit', String(params.limit));
+    const query = qs.toString();
+    return api<{ insights: StrategyInsight[] }>(`/strategy/insights${query ? `?${query}` : ''}`, { token });
+  },
+
+  updateInsight: (id: string, updates: { status?: string; action_taken?: string }, token?: string) =>
+    api<{ insight: StrategyInsight }>(`/strategy/insights/${id}`, { method: 'PUT', body: updates, token }),
+
+  // Opportunities
+  listOpportunities: (token?: string) =>
+    api<{ opportunities: AutomationOpportunity[] }>('/strategy/opportunities', { token }),
+
+  updateOpportunity: (id: string, updates: Partial<AutomationOpportunity>, token?: string) =>
+    api<{ opportunity: AutomationOpportunity }>(
+      `/strategy/opportunities/${id}`,
+      { method: 'PUT', body: updates as Record<string, unknown>, token }
+    ),
+
+  // Recommendations
+  listRecommendations: (params?: { status?: string }, token?: string) => {
+    const qs = new URLSearchParams();
+    if (params?.status) qs.set('status', params.status);
+    const query = qs.toString();
+    return api<{ recommendations: StrategyRecommendation[] }>(
+      `/strategy/recommendations${query ? `?${query}` : ''}`, { token }
+    );
+  },
+
+  approveRecommendation: (id: string, approved: boolean, comment?: string, token?: string) =>
+    api<{ recommendation: StrategyRecommendation; canvas?: LeanCanvas; version?: CanvasVersion }>(
+      `/strategy/recommendations/${id}/approve`,
+      { method: 'POST', body: { approved, comment }, token }
+    ),
+
+  // Actions (audit log)
+  getActions: (params?: { limit?: number }, token?: string) => {
+    const qs = new URLSearchParams();
+    if (params?.limit) qs.set('limit', String(params.limit));
+    const query = qs.toString();
+    return api<{ actions: StrategyAction[] }>(`/strategy/actions${query ? `?${query}` : ''}`, { token });
+  },
+
+  // Metrics
+  getMetrics: (token?: string) =>
+    api<StrategyMetrics>('/strategy/metrics', { token }),
+
+  // AI endpoints
+  runAnalysis: (canvasId: string, sessionId?: string, token?: string) =>
+    api<StrategyAnalysisResponse>('/strategy/analyze', {
+      method: 'POST',
+      body: { canvas_id: canvasId, session_id: sessionId },
+      token,
+    }),
+
+  synthesizeBlock: (canvasId: string, block: CanvasBlockKey, context?: string, token?: string) =>
+    api<BlockSynthesisResponse>('/strategy/synthesize-block', {
+      method: 'POST',
+      body: { canvas_id: canvasId, block, context },
+      token,
+    }),
+};

@@ -1,7 +1,7 @@
 # TODO — Sun AI Agency Website
 
 **Project:** Sun AI Agency — AI Consulting & Solutions Website
-**Current Version:** v0.22.5
+**Current Version:** v0.23.0
 **Last Updated:** 2026-03-09
 
 ---

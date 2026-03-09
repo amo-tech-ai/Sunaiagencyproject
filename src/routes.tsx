@@ -50,6 +50,7 @@ import CRMPipelinePage from './components/dashboard/crm/CRMPipelinePage';
 import DocumentManagementPage from './components/dashboard/documents/DocumentManagementPage';
 import WorkflowAutomationPage from './components/dashboard/workflows/WorkflowAutomationPage';
 import FinancialDashboardPage from './components/dashboard/financial/FinancialDashboardPage';
+import StrategyEnginePage from './components/dashboard/strategy/StrategyEnginePage';
 
 function NotFound() {
   return (
@@ -115,6 +116,8 @@ export const router = createBrowserRouter([
       { path: 'workflows', Component: WorkflowAutomationPage },
       // Phase 13: Financial Dashboard — production page
       { path: 'financial', Component: FinancialDashboardPage },
+      // Phase 14: Strategy Engine — production page
+      { path: 'strategy', Component: StrategyEnginePage },
       // Phase 10: AI Agent Management — production page
       { path: 'agents', Component: DashAgentsPage },
     ],

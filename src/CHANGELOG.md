@@ -7,6 +7,29 @@
 
 ---
 
+## [0.23.0] — 2026-03-09 — Lean Strategy Engine: Full Data Pipeline + UI (Phase 14a)
+
+### Summary
+
+Complete implementation of the Strategy Engine data pipeline (Tasks 1-8): TypeScript types, backend CRUD + AI routes, frontend API, data hook, production page with 3x3 Lean Canvas grid, 5-metric bar, intelligence panel, AI synthesis per block, "Run Analysis" 3-agent orchestration, wizard-to-canvas seeding, sidebar nav, and route registration. All 14+ edge function routes wired to 12 Supabase tables.
+
+### Added
+
+- **`/lib/types/strategy.ts`** — 20+ TypeScript interfaces/types matching all 12 strategy tables
+- **`/supabase/functions/server/strategy-routes.tsx`** — 14 Hono routes: canvas CRUD, versions, insights, opportunities, recommendations, actions, metrics, analyze, synthesize-block
+- **`/lib/hooks/useStrategyData.ts`** — Data hook with 8 action methods
+- **`/components/dashboard/strategy/StrategyEnginePage.tsx`** — Full production page
+
+### Updated
+
+- **`/supabase/functions/server/index.tsx`** — Mounted strategy routes
+- **`/lib/supabase.ts`** — Added `strategyApi` with 14 typed methods
+- **`/lib/hooks/index.ts`** — Exported `useStrategyData`
+- **`/routes.tsx`** — Added `/app/strategy` route
+- **`/components/dashboard/DashboardSidebar.tsx`** — Added Strategy nav item (Brain icon), version bumped to v0.23.0
+
+---
+
 ## [0.22.5] — 2026-03-09 — Supabase Database Plan with ERD & Data Flow Diagrams
 
 ### Summary

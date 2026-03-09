@@ -13,6 +13,7 @@ import { pipeline } from "./pipeline-routes.tsx";
 import { documents } from "./document-routes.tsx";
 import { workflows } from "./workflow-routes.tsx";
 import { financial } from "./financial-routes.tsx";
+import { strategy } from "./strategy-routes.tsx";
 import { createUser } from "./auth.tsx";
 import { ensureAISchema } from "./ensure-schema.tsx";
 import { callGemini } from "./gemini.tsx";
@@ -164,6 +165,9 @@ app.route("/", workflows);
 
 // ── Mount Financial routes (Phase 13) ──
 app.route("/", financial);
+
+// ── Mount Strategy routes (Phase 14 — Lean Strategy Engine) ──
+app.route("/", strategy);
 
 // ── 404 handler ──
 app.notFound((c) => {

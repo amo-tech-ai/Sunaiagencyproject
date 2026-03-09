@@ -6,11 +6,12 @@ import { NavLink, useLocation } from 'react-router';
 import { useEffect, useCallback } from 'react';
 import {
   LayoutDashboard, FolderKanban, Map, Users, GitBranch, Lightbulb,
-  FileText, DollarSign, Bot, Workflow, Settings, Wand2, X,
+  FileText, DollarSign, Bot, Workflow, Settings, Wand2, X, Brain,
 } from 'lucide-react';
 
 const NAV_ITEMS = [
   { to: '/app/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { to: '/app/strategy', label: 'Strategy', icon: Brain },
   { to: '/app/projects', label: 'Projects', icon: FolderKanban },
   { to: '/app/roadmap', label: 'Roadmap', icon: Map },
   { to: '/app/clients', label: 'Clients', icon: Users },
@@ -138,8 +139,8 @@ export default function DashboardSidebar({ open, onClose }: DashboardSidebarProp
             <span className="ml-auto text-xs md:hidden lg:inline">→</span>
           </NavLink>
           <div className="px-3 text-xs text-[#F5F5F0]/30 md:text-center lg:text-left">
-            <span className="md:hidden lg:inline">v0.22.0</span>
-            <span className="hidden md:inline lg:hidden">v22</span>
+            <span className="md:hidden lg:inline">v0.23.0</span>
+            <span className="hidden md:inline lg:hidden">v23</span>
           </div>
         </div>
       </aside>

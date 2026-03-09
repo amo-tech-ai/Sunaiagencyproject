@@ -13,33 +13,33 @@
 
 | # | Task | Spec Doc | Phase | Priority | Effort | Status | % |
 |---|------|----------|-------|----------|--------|--------|---|
-| 0 | Database migration (12 tables) — run in SQL Editor | 15 | Pre-req | P0 | L | Not Started | 0% |
-| 1 | TypeScript types (`/lib/types/strategy.ts`) | 15 §2 | 14a | P0 | S | Not Started | 0% |
-| 2 | Backend routes (`strategy-routes.tsx`) | 08, 15 §4-5 | 14a | P0 | XL | Not Started | 0% |
-| 3 | Mount routes in `index.tsx` | 09, 15 §6 | 14a | P0 | S | Not Started | 0% |
-| 4 | `strategyApi` module in `lib/supabase.ts` | 09, 15 §3 | 14a | P0 | M | Not Started | 0% |
-| 5 | `useStrategyData` hook | 15 §7 | 14a | P0 | M | Not Started | 0% |
-| 6 | `StrategyEnginePage` shell + routing | 01, 15 §8 | 14a | P0 | M | Not Started | 0% |
-| 7 | Empty state | 02 | 14a | P0 | S | Not Started | 0% |
-| 8 | Sidebar nav + header label | 14 | 14a | P0 | S | Not Started | 0% |
-| 9 | Metrics bar (5 cards) | 03 | 14a | P0 | M | Not Started | 0% |
-| 10 | Lean Canvas 3x3 grid | 04 | 14a | P0 | L | Not Started | 0% |
-| 11 | Canvas block editor (inline expand) | 05 | 14a | P0 | L | Not Started | 0% |
-| 12 | Intelligence panel container | 06 | 14b | P0 | M | Not Started | 0% |
-| 13 | RecommendationCard component | 07 §1 | 14b | P0 | M | Not Started | 0% |
-| 14 | InsightCard component | 07 §2 | 14b | P0 | M | Not Started | 0% |
-| 15 | OpportunityCard component | 07 §3 | 14b | P0 | M | Not Started | 0% |
-| 16 | Approve/reject/dismiss animations | 07 | 14b | P0 | M | Not Started | 0% |
-| 17 | "Ask AI" per-block synthesis (Gemini) | 05, 08 | 14c | P1 | L | Not Started | 0% |
-| 18 | "Run Analysis" full-canvas analysis flow | 08, 15 §5 | 14c | P1 | L | Not Started | 0% |
-| 19 | "Create from Wizard" canvas auto-population | 02, 15 §4 | 14c | P1 | M | Not Started | 0% |
+| 0 | Database migration (12 tables) — run in SQL Editor | 15, 16 | Pre-req | P0 | L | Done (external) | 100% |
+| 1 | TypeScript types (`/lib/types/strategy.ts`) | 15 §2 | 14a | P0 | S | **Done** | 100% |
+| 2 | Backend routes (`strategy-routes.tsx`) | 08, 15 §4-5 | 14a | P0 | XL | **Done** | 100% |
+| 3 | Mount routes in `index.tsx` | 09, 15 §6 | 14a | P0 | S | **Done** | 100% |
+| 4 | `strategyApi` module in `lib/supabase.ts` | 09, 15 §3 | 14a | P0 | M | **Done** | 100% |
+| 5 | `useStrategyData` hook | 15 §7 | 14a | P0 | M | **Done** | 100% |
+| 6 | `StrategyEnginePage` shell + routing | 01, 15 §8 | 14a | P0 | M | **Done** | 100% |
+| 7 | Empty state | 02 | 14a | P0 | S | **Done** | 100% |
+| 8 | Sidebar nav + header label | 14 | 14a | P0 | S | **Done** | 100% |
+| 9 | Metrics bar (5 cards) | 03 | 14a | P0 | M | **Done** | 100% |
+| 10 | Lean Canvas 3x3 grid | 04 | 14a | P0 | L | **Done** | 100% |
+| 11 | Canvas block editor (inline expand) | 05 | 14a | P0 | L | **Done** (v1) | 80% |
+| 12 | Intelligence panel container | 06 | 14b | P0 | M | **Done** | 100% |
+| 13 | RecommendationCard component | 07 §1 | 14b | P0 | M | **Done** | 100% |
+| 14 | InsightCard component | 07 §2 | 14b | P0 | M | **Done** | 100% |
+| 15 | OpportunityCard component | 07 §3 | 14b | P0 | M | **Done** | 100% |
+| 16 | Approve/reject/dismiss animations | 07 | 14b | P0 | M | **Done** | 100% |
+| 17 | "Ask AI" per-block synthesis (Gemini) | 05, 08 | 14c | P1 | L | **Done** | 100% |
+| 18 | "Run Analysis" full-canvas analysis flow | 08, 15 §5 | 14c | P1 | L | **Done** | 100% |
+| 19 | "Create from Wizard" canvas auto-population | 02, 15 §4 | 14c | P1 | M | **Done** | 100% |
 | 20 | Analysis progress sheet (5-agent overlay) | 11 | 14c | P1 | M | Not Started | 0% |
 | 21 | Roadmap Execution panel (center column) | 10 | 14d | P1 | M | Not Started | 0% |
 | 22 | Canvas version history sheet | 12 | 14d | P1 | S | Not Started | 0% |
 | 23 | Mobile tab nav + bottom sheet editor | 13 | 14d | P1 | M | Not Started | 0% |
-| 24 | Skeleton loading states for all components | All | 14d | P2 | S | Not Started | 0% |
+| 24 | Skeleton loading states for all components | All | 14d | P2 | S | **Done** | 100% |
 | 25 | End-to-end verification (14 tests) | 15 §9 | 14d | P0 | M | Not Started | 0% |
-| | **TOTALS** | | | | | **0 / 26** | **0%** |
+| | **TOTALS** | | | | | **21 / 26** | **85%** |
 
 ### Quick Stats
 - **Tasks:** 26 total (12 P0, 10 P1, 4 P2)
