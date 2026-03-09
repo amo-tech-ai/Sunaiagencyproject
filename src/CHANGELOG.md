@@ -7,6 +7,22 @@
 
 ---
 
+## [0.22.5] — 2026-03-09 — Supabase Database Plan with ERD & Data Flow Diagrams
+
+### Summary
+
+Created comprehensive Supabase database plan at `/docs/lean/16-supabase-database-plan.md`. Includes full ERD diagrams (12-table Strategy Engine ERD + 44-table Full Platform ERD), 5 data flow diagrams (canvas creation, block editing, 5-agent analysis orchestration, recommendation approval, per-block AI synthesis), complete table specs, cross-domain relationship maps, RLS policies, indexes, triggers, copy-paste migration SQL, rollback SQL, and post-migration verification queries. Updated master plan to 17 spec docs. No code — planning only.
+
+### Added
+
+- **`/docs/lean/16-supabase-database-plan.md`** — 12-section plan: ERDs, table specs, data flows, RLS, indexes, triggers, migration SQL, rollback, verification
+
+### Updated
+
+- **`/docs/lean/00-lean-master-plan.md`** — Spec doc count → 17, index updated with doc 16
+
+---
+
 ## [0.22.4] — 2026-03-09 — Lean Strategy Engine Plan Expanded (16 Docs)
 
 ### Summary
@@ -105,7 +121,7 @@ Fixed CRM authentication errors where `getUserFromToken` in `/supabase/functions
 
 ---
 
-## [0.22.0] — 2026-03-07 — Phase 11: Workflow Automation + Phase 13: Financial Dashboard
+## [0.22.0] — 2026-03-07 �� Phase 11: Workflow Automation + Phase 13: Financial Dashboard
 
 ### Summary
 

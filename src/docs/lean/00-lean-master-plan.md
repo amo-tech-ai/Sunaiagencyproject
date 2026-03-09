@@ -5,7 +5,7 @@
 **Status:** Planning
 **Last Updated:** 2026-03-09
 **Depends On:** All 13 dashboard phases complete (v0.22.2)
-**Spec Docs:** 16 files in `/docs/lean/`
+**Spec Docs:** 17 files in `/docs/lean/`
 
 ---
 
@@ -43,7 +43,7 @@
 
 ### Quick Stats
 - **Tasks:** 26 total (12 P0, 10 P1, 4 P2)
-- **Spec Docs:** 16 (`00`–`15`)
+- **Spec Docs:** 17 (`00`–`16`)
 - **New Files:** 19 CREATE + 5 MODIFY = 24 files touched
 - **New Components:** 15 React components
 - **New Routes:** 14+ backend routes
@@ -72,6 +72,7 @@
 | `13` | [Responsive Layout](13-responsive-layout.md) | 14d | Mobile tabs, tablet 2-col, bottom sheet, breakpoints |
 | `14` | [Sidebar Navigation](14-sidebar-navigation.md) | 14a | Nav item, Brain icon, pending badge, header label |
 | `15` | [Frontend ↔ Backend Wiring](15-frontend-backend-wiring.md) | All | 9-step build order, 12 tables, types, API, routes, hook, components |
+| `16` | [Supabase Database Plan](16-supabase-database-plan.md) | Pre-req | ERD, data flows, 12 tables, RLS, indexes, triggers, migration SQL, rollback, verification |
 
 ---
 
