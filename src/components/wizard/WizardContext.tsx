@@ -225,7 +225,7 @@ export function WizardProvider({ children }: { children: ReactNode }) {
   // ── Realtime: detect external changes to wizard session ──
   // Fires when another tab, backend processing, or admin updates the session.
   // Skips events within 3s of our own saves to avoid self-notification.
-  useRealtimeWizardSync({
+  const { markLocalSave } = useRealtimeWizardSync({
     sessionId,
     onExternalChange: useCallback((change) => {
       // If backend marked session as completed (AI processing done), notify user
@@ -294,6 +294,7 @@ export function WizardProvider({ children }: { children: ReactNode }) {
       if (cloudSaveRef.current) clearTimeout(cloudSaveRef.current);
       cloudSaveRef.current = setTimeout(async () => {
         try {
+          markLocalSave(); // Suppress own broadcast echo
           const stateForCloud = {
             ...state,
             _timestamp: Date.now(),

@@ -6,6 +6,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useAuth } from '../../AuthContext';
 import { useStrategyData } from '../../../lib/hooks/useStrategyData';
+import { useRealtimeCanvasSync } from '../../../lib/hooks/useRealtimeCanvasSync';
 import {
   Brain, Sparkles, Plus, RefreshCw, Lightbulb, Zap, CheckCircle2,
   XCircle, AlertTriangle, TrendingUp, Clock, ChevronDown, ChevronUp,
@@ -448,6 +449,17 @@ export default function StrategyEnginePage() {
   // Task 23: Mobile tab state
   const [mobileTab, setMobileTab] = useState<MobileTab>('canvas');
 
+  // ── Realtime: live collaborative canvas sync ──
+  const canvasId = hasCanvas && data?.canvas ? data.canvas.id : null;
+  const { isLive: isCanvasLive, liveEventCount: canvasEventCount, markLocalWrite: markCanvasWrite, reconnect: reconnectCanvas, status: canvasRealtimeStatus } =
+    useRealtimeCanvasSync({
+      canvasId,
+      onCanvasEvent: useCallback(() => {
+        // Full refetch — safest strategy since we need computed fields
+        refetch();
+      }, [refetch]),
+    });
+
   // Detect wizard session on mount
   useEffect(() => {
     if (!user?.id || !accessToken) return;
@@ -496,16 +508,18 @@ export default function StrategyEnginePage() {
   // ── Accept AI suggestions ──
   const handleAcceptSuggestions = useCallback(async (items: CanvasBlockItem[]) => {
     if (!suggestions || !data?.canvas) return;
+    markCanvasWrite(); // Suppress own broadcast echo
     const currentItems = (data.canvas[suggestions.block] as CanvasBlockItem[]) || [];
     const merged = [...currentItems, ...items];
     await updateBlocks({ [suggestions.block]: merged } as any, `Added ${items.length} AI suggestions to ${suggestions.block}`);
     setSuggestions(null);
-  }, [suggestions, data?.canvas, updateBlocks]);
+  }, [suggestions, data?.canvas, updateBlocks, markCanvasWrite]);
 
   // ── Revert handler (Task 22) ──
   const handleRevert = useCallback(async (blocks: Record<string, unknown>, summary: string) => {
+    markCanvasWrite(); // Suppress own broadcast echo
     return await updateBlocks(blocks as any, summary);
-  }, [updateBlocks]);
+  }, [updateBlocks, markCanvasWrite]);
 
   // ── Loading state ──
   if (loading) {
@@ -566,7 +580,24 @@ export default function StrategyEnginePage() {
           <Brain className="w-6 h-6 text-[#00875A]" />
           <div>
             <h1 className="text-xl font-semibold text-[#1A1A1A]">Strategy Engine</h1>
-            <p className="text-xs text-gray-500">v{canvas.version} &middot; Updated {new Date(canvas.updated_at).toLocaleDateString()}</p>
+            <p className="text-xs text-gray-500">
+              v{canvas.version} &middot; Updated {new Date(canvas.updated_at).toLocaleDateString()}
+              {isCanvasLive && (
+                <span className="inline-flex items-center gap-1 ml-2">
+                  <span className="relative flex h-1.5 w-1.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00875A] opacity-75" />
+                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#00875A]" />
+                  </span>
+                  <span className="text-[10px] text-[#9CA39B]">Live</span>
+                </span>
+              )}
+              {canvasRealtimeStatus === 'error' && (
+                <span className="inline-flex items-center gap-1 ml-2">
+                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-amber-400" />
+                  <button onClick={reconnectCanvas} className="text-[10px] text-[#9CA39B] underline hover:text-[#6B6B63]">retry live</button>
+                </span>
+              )}
+            </p>
           </div>
         </div>
         <div className="flex items-center gap-2">

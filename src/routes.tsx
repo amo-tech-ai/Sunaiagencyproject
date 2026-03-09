@@ -81,8 +81,13 @@ export const router = createBrowserRouter([
   },
   // Auth page — standalone layout (own brand panel)
   {
-    path: '/login',
+    path: '/auth',
     Component: AuthPage,
+  },
+  // Legacy /login alias — redirect to /auth
+  {
+    path: '/login',
+    element: <Navigate to="/auth" replace />,
   },
   // OAuth callback — handles redirect from Google/LinkedIn via Supabase
   {

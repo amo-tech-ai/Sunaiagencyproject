@@ -159,7 +159,7 @@ export default function Header() {
                   </div>
                 ) : (
                   <Link
-                    to="/login"
+                    to="/auth"
                     className="flex items-center gap-1.5 px-3.5 py-2 text-sm border rounded transition-colors hover:bg-gray-50"
                     style={{ borderColor: '#E8E8E4', borderRadius: '4px', color: '#1A1A1A' }}
                   >
@@ -303,7 +303,7 @@ export default function Header() {
             ) : (
               <div className="px-4">
                 <Link
-                  to="/login"
+                  to="/auth"
                   onClick={() => setMobileMenuOpen(false)}
                   className="flex items-center justify-center gap-2 w-full py-2.5 text-sm border rounded transition-colors hover:bg-gray-50"
                   style={{ borderColor: '#E8E8E4', borderRadius: '4px', color: '#1A1A1A' }}

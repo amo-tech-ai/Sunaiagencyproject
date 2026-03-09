@@ -123,23 +123,30 @@
 
 ## Realtime Channels
 
-| Channel | Table/Event | Component | Hook | Status |
-|---------|------------|-----------|------|--------|
-| `ai-runs` | `ai_run_logs` INSERT | AgentsPage | `useRealtimeAIRuns` | Wired (v0.24.1) |
-| `wizard-progress-{id}` | `wizard_sessions` UPDATE | WizardContext | `useRealtimeWizardSync` | Wired (v0.24.1) |
-| `pipeline:{id}:deals` | `crm_deals` INSERT/UPDATE/DELETE | CRMPipelinePage | `useRealtimeDealUpdates` | Wired (v0.24.2) |
+| Channel (Topic) | Table/Event | Component | Hook | Pattern | Status |
+|---------|------------|-----------|------|---------|--------|
+| `ai-runs:global` | `ai_run_logs` INSERT | AgentsPage | `useRealtimeAIRuns` | broadcast | Migrated (v0.24.4) |
+| `wizard:session:{id}` | `wizard_sessions` UPDATE | WizardContext | `useRealtimeWizardSync` | broadcast | Migrated (v0.24.4) |
+| `pipeline:{id}:deals` | `crm_deals` INSERT/UPDATE/DELETE | CRMPipelinePage | `useRealtimeDealUpdates` | broadcast | Wired (v0.24.3) |
+| `canvas:{id}:blocks` | `lean_canvases` UPDATE + `lean_canvas_versions` INSERT | StrategyEnginePage | `useRealtimeCanvasSync` | broadcast | New (v0.24.4) |
 
-**Prerequisites for Realtime:**
-1. Enable Realtime on `ai_run_logs` table: Supabase Dashboard > Database > Replication > Toggle on
-2. Enable Realtime on `wizard_sessions` table: Same process
-3. Run `/imports/crm-deals-realtime-trigger.sql` in SQL Editor — creates the `crm_deals_broadcast_trigger` and `pipeline_deals_read` RLS policy on `realtime.messages`
-4. All hooks degrade gracefully — if triggers/Realtime are not configured, pages fall back to manual Refresh
+**All 4 channels now use the broadcast pattern** per `supabase-realtime-guide.md`. The deprecated `postgres_changes` pattern is no longer used.
+
+**Prerequisites for Realtime (run in Supabase SQL Editor):**
+1. `/imports/ai-runs-broadcast-trigger.sql` — trigger on `ai_run_logs` + RLS policy `ai_runs_read`
+2. `/imports/wizard-sessions-broadcast-trigger.sql` — conditional trigger on `wizard_sessions` + RLS policy `wizard_sessions_read`
+3. `/imports/crm-deals-realtime-trigger.sql` — trigger on `crm_deals` + RLS policy `pipeline_deals_read`
+4. `/imports/lean-canvases-broadcast-trigger.sql` — triggers on `lean_canvases` + `lean_canvas_versions` + RLS policy `canvas_blocks_read`
+5. (Recommended) Enable "Private-only channels" in Supabase Dashboard > Project Settings > Realtime Settings
+6. All hooks degrade gracefully — if triggers are not installed, pages fall back to manual Refresh
 
 **Realtime Architecture:**
-- Base hooks: `useSupabaseRealtime` (postgres_changes, legacy) and `useSupabaseBroadcast` (broadcast, recommended)
-- `useRealtimeAIRuns` — throttled (3s) auto-refresh on new AI runs, live indicator with event count (uses postgres_changes)
-- `useRealtimeWizardSync` — session-scoped UPDATE listener with self-write filtering (3s window) (uses postgres_changes)
-- `useRealtimeDealUpdates` — pipeline-scoped broadcast listener with `markLocalWrite()` self-write suppression, private channel, database trigger (uses broadcast — **recommended pattern per supabase-realtime-guide.md**)
+- Base hook: `useSupabaseBroadcast` — manages private channel lifecycle, auth, status tracking, reconnection
+- Legacy base: `useSupabaseRealtime` — still exported but no longer used by any domain hook
+- `useRealtimeAIRuns` — global topic `ai-runs:global`, throttled (3s) auto-refresh, live indicator
+- `useRealtimeWizardSync` — per-session topic `wizard:session:{id}`, conditional trigger (step/status/form_data), `markLocalSave()` self-write suppression (3s)
+- `useRealtimeDealUpdates` — per-pipeline topic `pipeline:{id}:deals`, `markLocalWrite()` self-write suppression (2s), re-subscribes on pipeline tab change
+- `useRealtimeCanvasSync` — per-canvas topic `canvas:{id}:blocks`, dual-trigger (UPDATE on canvas + INSERT on versions via `realtime.send`), `markLocalWrite()` (2s), live indicator with retry
 
 ---
 
@@ -222,6 +229,7 @@ flowchart TD
     DA -.->|useRealtimeAIRuns| RT1[Realtime: ai_run_logs INSERT]
     WZ -.->|useRealtimeWizardSync| RT2[Realtime: wizard_sessions UPDATE]
     DP -.->|useRealtimeDealUpdates| RT3[Realtime: crm_deals INSERT/UPDATE/DELETE]
+    DS -.->|useRealtimeCanvasSync| RT4[Realtime: lean_canvases UPDATE + lean_canvas_versions INSERT]
 ```
 
 ---

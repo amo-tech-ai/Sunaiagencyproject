@@ -1469,6 +1469,10 @@
     height: 100px;
   }
 
+  .h-\[120px\] {
+    height: 120px;
+  }
+
   .h-\[140px\] {
     height: 140px;
   }
@@ -1817,10 +1821,6 @@
     width: 400px;
   }
 
-  .w-\[480px\] {
-    width: 480px;
-  }
-
   .w-\[500px\] {
     width: 500px;
   }
@@ -1903,6 +1903,10 @@
 
   .max-w-\[300px\] {
     max-width: 300px;
+  }
+
+  .max-w-\[320px\] {
+    max-width: 320px;
   }
 
   .max-w-\[380px\] {
@@ -2432,6 +2436,12 @@
     --tw-space-y-reverse: 0;
     margin-block-start: calc(calc(var(--spacing) * 3) * var(--tw-space-y-reverse));
     margin-block-end: calc(calc(var(--spacing) * 3) * calc(1 - var(--tw-space-y-reverse)));
+  }
+
+  :where(.space-y-3\.5 > :not(:last-child)) {
+    --tw-space-y-reverse: 0;
+    margin-block-start: calc(calc(var(--spacing) * 3.5) * var(--tw-space-y-reverse));
+    margin-block-end: calc(calc(var(--spacing) * 3.5) * calc(1 - var(--tw-space-y-reverse)));
   }
 
   :where(.space-y-4 > :not(:last-child)) {
@@ -5274,6 +5284,10 @@
     opacity: .03;
   }
 
+  .opacity-\[0\.04\] {
+    opacity: .04;
+  }
+
   .opacity-\[0\.06\] {
     opacity: .06;
   }
@@ -7074,6 +7088,24 @@
   }
 
   @media (width >= 48rem) {
+    .md\:h-6 {
+      height: calc(var(--spacing) * 6);
+    }
+  }
+
+  @media (width >= 48rem) {
+    .md\:h-auto {
+      height: auto;
+    }
+  }
+
+  @media (width >= 48rem) {
+    .md\:w-6 {
+      width: calc(var(--spacing) * 6);
+    }
+  }
+
+  @media (width >= 48rem) {
     .md\:w-16 {
       width: calc(var(--spacing) * 16);
     }
@@ -7082,6 +7114,12 @@
   @media (width >= 48rem) {
     .md\:w-56 {
       width: calc(var(--spacing) * 56);
+    }
+  }
+
+  @media (width >= 48rem) {
+    .md\:w-\[40\%\] {
+      width: 40%;
     }
   }
 
@@ -7360,6 +7398,13 @@
   }
 
   @media (width >= 48rem) {
+    .md\:text-lg {
+      font-size: var(--text-lg);
+      line-height: var(--tw-leading, var(--text-lg--line-height));
+    }
+  }
+
+  @media (width >= 48rem) {
     .md\:text-sm {
       font-size: var(--text-sm);
       line-height: var(--tw-leading, var(--text-sm--line-height));
@@ -7544,6 +7589,12 @@
   @media (width >= 64rem) {
     .lg\:min-h-\[320px\] {
       min-height: 320px;
+    }
+  }
+
+  @media (width >= 64rem) {
+    .lg\:w-1\/2 {
+      width: 50%;
     }
   }
 

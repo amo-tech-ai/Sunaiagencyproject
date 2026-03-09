@@ -1,13 +1,13 @@
 // C92-AUTH-CALLBACK — OAuth Callback Handler
 // Handles redirect from Supabase after OAuth consent (Google, LinkedIn, etc.)
 // Provider-agnostic: works with any Supabase OAuth provider via onAuthStateChange
-// Restores session, then redirects to /app/dashboard or /login on error
+// Restores session, then redirects to /app/dashboard or /auth on error
 //
 // Flow:
 // 1. Supabase client auto-detects access_token in URL hash fragment
 // 2. onAuthStateChange fires SIGNED_IN with the new session
 // 3. We navigate to /app/dashboard (or ?return= path)
-// 4. If nothing fires within 8s, fall back to /login
+// 4. If nothing fires within 8s, fall back to /auth
 
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
@@ -62,7 +62,7 @@ export default function AuthCallbackPage() {
             if (sessionError) {
               console.error('[AuthCallback] getSession error:', sessionError.message);
               setError(sessionError.message);
-              const errTimeout = setTimeout(() => navigateOnce('/login'), 3000);
+              const errTimeout = setTimeout(() => navigateOnce('/auth'), 3000);
               timeouts.push(errTimeout);
               return;
             }
@@ -79,16 +79,16 @@ export default function AuthCallbackPage() {
         // SAFETY NET: If nothing fires within 8 seconds, redirect to login
         const safetyTimeout = setTimeout(() => {
           if (handledRef.current) return;
-          console.warn('[AuthCallback] Timeout — no session after 8s, redirecting to /login');
+          console.warn('[AuthCallback] Timeout — no session after 8s, redirecting to /auth');
           setError('Authentication timed out. Please try again.');
-          const finalTimeout = setTimeout(() => navigateOnce('/login'), 2000);
+          const finalTimeout = setTimeout(() => navigateOnce('/auth'), 2000);
           timeouts.push(finalTimeout);
         }, 8000);
         timeouts.push(safetyTimeout);
       } catch (err) {
         console.error('[AuthCallback] Unexpected error:', err);
         setError(`Authentication error: ${err}`);
-        const errTimeout = setTimeout(() => navigateOnce('/login'), 3000);
+        const errTimeout = setTimeout(() => navigateOnce('/auth'), 3000);
         timeouts.push(errTimeout);
       }
     }

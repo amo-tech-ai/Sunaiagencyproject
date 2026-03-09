@@ -3,7 +3,95 @@
 **Project:** Sun AI Agency — AI Consulting & Solutions Website
 **Stack:** Vite + React + Tailwind CSS v4 + Supabase + Vercel
 **Design System:** BCG Consulting-Inspired (Calm Luxury Editorial)
+**Current Version:** v0.24.5
 **Last Updated:** 2026-03-09
+
+---
+
+## [0.24.5] — 2026-03-09 — Auth Split-Screen UI: Full Spec Alignment
+
+### Summary
+
+Complete rewrite of `AuthPage.tsx` to match spec `003-auth-ui-layout` (`/imports/auth-split-screen-ui.md`). All 15 spec deviations resolved: route changed from `/login` to `/auth`, left panel updated to `#0A211F` dark teal with subtle geometric pattern, right panel now white with 380px max-width form container, tab toggle UI replacing bottom text link, 48px input heights, per-field inline validation on blur, "Forgot password?" link, password strength indicator with 4-bar meter, Terms of Service/Privacy Policy links, Playfair Display headings, Lora body text, and responsive breakpoints (mobile 120px header band, tablet 40/60 split, desktop 50/50 split). All internal links updated from `/login` to `/auth` across Header, DashboardLayout, and AuthCallbackPage.
+
+### Changed — AuthPage Full Rewrite (15 spec items)
+
+- **Route** — `/login` → `/auth` (primary), `/login` now redirects to `/auth` via `<Navigate replace />`
+- **Left panel background** — `#1A1A1A` (charcoal) → `#0A211F` (dark teal per spec)
+- **Left panel pattern** — Added subtle geometric pattern overlay at 4% opacity
+- **Left panel layout** — Fixed 480px → responsive: mobile 120px band, tablet 40%, desktop 50%
+- **Right panel background** — `#F5F5F0` (off-white) → `#FFFFFF` (white per spec)
+- **Form max-width** — 420px → 380px per spec
+- **Tab toggle** — Replaced bottom text link ("Don't have an account? Sign up") with proper top tab toggle ("Sign In" | "Create Account") with animated green underline indicator
+- **Input height** — ~40px (`py-2.5`) → 48px explicit height per spec
+- **Per-field inline errors** — Replaced single error banner with per-field inline errors on blur (with AnimatePresence enter/exit). General error banner retained for server-side auth errors.
+- **Forgot password link** — Added "Forgot password?" link in Sign In mode (placeholder for future flow)
+- **Password strength indicator** — Added 4-bar strength meter (Weak/Fair/Good/Strong) with color coding on Create Account form
+- **Terms link** — Added "By creating an account you agree to our Terms of Service and Privacy Policy" with styled links on signup form
+- **Submit disabled** — Submit button now disabled until all fields validate (per spec: "disabled submit until valid")
+- **Typography** — All headings now use `Playfair Display`, all body/labels/inputs now use `Lora` (fonts already imported in globals.css)
+- **Text color** — Updated heading color references from `#1A1A1A` to `#0A211F` to match dark teal brand panel
+
+### Changed — Route References (4 files)
+
+- **`/routes.tsx`** — `/auth` is now primary route, `/login` redirects to `/auth`
+- **`/components/Header.tsx`** — Both desktop and mobile Sign In links now point to `/auth`
+- **`/components/dashboard/DashboardLayout.tsx`** — Auth guard redirect now uses `/auth?return=...`
+- **`/components/AuthCallbackPage.tsx`** — All error/timeout fallbacks now redirect to `/auth`
+
+### Files Modified
+
+```
+/components/AuthPage.tsx — Full rewrite (15 spec deviations resolved)
+/routes.tsx — /auth primary route, /login redirect alias
+/components/Header.tsx — 2 link updates (desktop + mobile)
+/components/dashboard/DashboardLayout.tsx — Auth guard redirect
+/components/AuthCallbackPage.tsx — 3 redirect + 2 comment updates
+```
+
+### Spec Compliance
+
+| # | Spec Requirement | Status |
+|---|---|---|
+| 1 | `/auth` route | Done |
+| 2 | Left panel `#0A211F` | Done |
+| 3 | Tab toggle UI | Done |
+| 4 | 48px input height | Done |
+| 5 | Forgot password link | Done |
+| 6 | Password strength indicator | Done |
+| 7 | Terms link | Done |
+| 8 | Per-field inline errors | Done |
+| 9 | White right panel | Done |
+| 10 | 380px max-width | Done |
+| 11 | Mobile 120px header band | Done |
+| 12 | Tablet 40/60 split | Done |
+| 13 | Desktop 50/50 split | Done |
+| 14 | Playfair Display + Lora fonts | Done |
+| 15 | Minimal pattern on left panel | Done |
+
+---
+
+## [0.24.4] — 2026-03-09 — Full Broadcast Migration + Canvas Realtime Sync
+
+### Summary
+
+Migrated all Realtime hooks from deprecated `postgres_changes` to `broadcast` + database triggers per `supabase-realtime-guide.md`. All 4 channels now use private broadcast channels with `useSupabaseBroadcast` as base. Added `useRealtimeCanvasSync` for collaborative strategy canvas editing.
+
+### Migrated
+
+- **`useRealtimeAIRuns`** — Switched to broadcast on `ai-runs:global` topic. Same public API, same 3s throttle.
+- **`useRealtimeWizardSync`** — Switched to broadcast on `wizard:session:{id}` topic. Now exposes `markLocalSave()`. Conditional trigger (step/status/form_data only).
+
+### Added
+
+- **`useRealtimeCanvasSync`** — Canvas-scoped broadcast for collaborative editing (`canvas:{id}:blocks`). Dual-trigger: `lean_canvases` UPDATE + `lean_canvas_versions` INSERT.
+- **3 SQL trigger files** — `ai-runs-broadcast-trigger.sql`, `wizard-sessions-broadcast-trigger.sql`, `lean-canvases-broadcast-trigger.sql`
+
+### Changed
+
+- **`WizardContext.tsx`** — Calls `markLocalSave()` before cloud saves.
+- **`StrategyEnginePage.tsx`** — Integrated canvas sync with live indicator and `markCanvasWrite()`.
+- **Wiring map** — Fully rewritten Realtime section: 4 broadcast channels, 4 SQL triggers.
 
 ---
 

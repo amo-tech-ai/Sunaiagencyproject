@@ -1,6 +1,9 @@
-// useRealtimeWizardSync — Live subscription to wizard_sessions table
-// Detects external updates to the current wizard session (other tabs,
-// backend AI processing, admin edits) and notifies the caller.
+// useRealtimeWizardSync — Live subscription to wizard_sessions via broadcast
+//
+// MIGRATED from postgres_changes to broadcast (v0.24.4)
+// Uses `broadcast` + database trigger (`realtime.broadcast_changes`)
+// per supabase-realtime-guide.md — scalable, multi-threaded, supports
+// private channels and conditional triggers.
 //
 // Use cases:
 //   1. Multi-tab sync — detect if another tab saved newer data
@@ -8,17 +11,21 @@
 //   3. Admin edits — another user modifies the session
 //
 // Prerequisites:
-//   - wizard_sessions table exists (base migration)
-//   - Realtime is enabled on wizard_sessions in Supabase Dashboard > Database > Replication
+//   1. Database trigger `wizard_sessions_broadcast_trigger` on `wizard_sessions`
+//      (see /imports/wizard-sessions-broadcast-trigger.sql)
+//   2. RLS policy on `realtime.messages` for `wizard:session:*` topics
+//   3. (Optional) Enable "Private-only channels" in Realtime Settings
 //
 // Graceful degradation:
-//   - If Realtime is not enabled, status will be 'error'
+//   - If trigger/Realtime not configured, status = 'error'
 //   - WizardContext continues using localStorage + cloud save as before
-//   - No user-facing errors — just misses live sync
 
 import { useCallback, useRef } from 'react';
-import { useSupabaseRealtime, type RealtimeStatus } from './useSupabaseRealtime';
-import type { RealtimePostgresChangesPayload } from '@supabase/supabase-js';
+import {
+  useSupabaseBroadcast,
+  type BroadcastStatus,
+  type BroadcastChangePayload,
+} from './useSupabaseBroadcast';
 
 export interface WizardSessionChange {
   /** The session ID that was updated */
@@ -29,7 +36,7 @@ export interface WizardSessionChange {
   status?: string;
   /** The updated_at timestamp */
   updatedAt?: string;
-  /** The raw payload from Supabase */
+  /** The raw record from broadcast payload */
   raw: Record<string, unknown>;
 }
 
@@ -40,15 +47,20 @@ export interface UseRealtimeWizardSyncOptions {
   onExternalChange: (change: WizardSessionChange) => void;
   /** Whether the subscription is active (default: true when sessionId is set) */
   enabled?: boolean;
+  /** Self-write suppression window in ms (default: 3000) */
+  selfWriteWindowMs?: number;
 }
 
 export interface UseRealtimeWizardSyncReturn {
   /** Connection status */
-  status: RealtimeStatus;
+  status: BroadcastStatus;
   /** Number of external change events received */
   changeCount: number;
   /** Whether we're receiving live sync */
   isSyncing: boolean;
+  /** Call this BEFORE performing a local save so the resulting broadcast
+   *  echo is ignored (avoids self-notification). */
+  markLocalSave: () => void;
   /** Manually reconnect */
   reconnect: () => void;
 }
@@ -56,7 +68,7 @@ export interface UseRealtimeWizardSyncReturn {
 export function useRealtimeWizardSync(
   options: UseRealtimeWizardSyncOptions
 ): UseRealtimeWizardSyncReturn {
-  const { sessionId, onExternalChange, enabled } = options;
+  const { sessionId, onExternalChange, enabled, selfWriteWindowMs = 3000 } = options;
 
   const onChangeRef = useRef(onExternalChange);
   onChangeRef.current = onExternalChange;
@@ -65,28 +77,27 @@ export function useRealtimeWizardSync(
   const lastLocalSaveRef = useRef(0);
 
   /** Mark a local save — call this from WizardContext when it saves */
-  // Exposed on the ref so WizardContext can access it
   const markLocalSave = useCallback(() => {
     lastLocalSaveRef.current = Date.now();
   }, []);
 
   const handleEvent = useCallback(
-    (payload: RealtimePostgresChangesPayload<Record<string, unknown>>) => {
-      const newRow = payload.new as Record<string, unknown> | undefined;
-      if (!newRow) return;
+    (_eventName: string, payload: BroadcastChangePayload) => {
+      const record = payload.record as Record<string, unknown> | null;
+      if (!record) return;
 
-      // Skip events that arrive within 3s of our own save — likely our own write
+      // Skip events that arrive within the suppression window of our own save
       const timeSinceLocalSave = Date.now() - lastLocalSaveRef.current;
-      if (timeSinceLocalSave < 3000) {
+      if (timeSinceLocalSave < selfWriteWindowMs) {
         return;
       }
 
       const change: WizardSessionChange = {
-        sessionId: (newRow.id as string) || '',
-        currentStep: newRow.current_step as number | undefined,
-        status: newRow.status as string | undefined,
-        updatedAt: newRow.updated_at as string | undefined,
-        raw: newRow,
+        sessionId: (record.id as string) || '',
+        currentStep: record.current_step as number | undefined,
+        status: record.status as string | undefined,
+        updatedAt: record.updated_at as string | undefined,
+        raw: record,
       };
 
       console.log(
@@ -95,25 +106,27 @@ export function useRealtimeWizardSync(
 
       onChangeRef.current(change);
     },
-    []
+    [selfWriteWindowMs]
   );
 
   // Only subscribe when we have a session ID
   const isEnabled = (enabled ?? true) && !!sessionId;
 
-  const { status, eventCount, reconnect } = useSupabaseRealtime({
-    channelName: sessionId ? `wizard-progress-${sessionId}` : 'wizard-progress-none',
-    table: 'wizard_sessions',
-    event: 'UPDATE',
-    filter: sessionId ? `id=eq.${sessionId}` : undefined,
+  // Topic per session — scoped so multi-tab sync only fires for the same session
+  const { status, eventCount, reconnect } = useSupabaseBroadcast({
+    topic: sessionId ? `wizard:session:${sessionId}` : 'wizard:session:none',
+    events: ['UPDATE'],
     onEvent: handleEvent,
     enabled: isEnabled,
+    isPrivate: true,
+    selfBroadcast: false,
   });
 
   return {
     status,
     changeCount: eventCount,
     isSyncing: status === 'connected',
+    markLocalSave,
     reconnect,
   };
 }

@@ -9,6 +9,7 @@ export { useSupabaseBroadcast } from './useSupabaseBroadcast';
 export { useRealtimeAIRuns } from './useRealtimeAIRuns';
 export { useRealtimeWizardSync } from './useRealtimeWizardSync';
 export { useRealtimeDealUpdates } from './useRealtimeDealUpdates';
+export { useRealtimeCanvasSync } from './useRealtimeCanvasSync';
 export type { BookingFormData } from './useBookingForm';
 export type { StrategyDashboardData } from './useStrategyData';
 export type { RealtimeStatus, UseSupabaseRealtimeOptions, UseSupabaseRealtimeReturn } from './useSupabaseRealtime';
@@ -16,3 +17,4 @@ export type { BroadcastStatus, BroadcastChangePayload, UseSupabaseBroadcastOptio
 export type { UseRealtimeAIRunsOptions, UseRealtimeAIRunsReturn } from './useRealtimeAIRuns';
 export type { WizardSessionChange, UseRealtimeWizardSyncOptions, UseRealtimeWizardSyncReturn } from './useRealtimeWizardSync';
 export type { DealRealtimeEvent, DealBroadcastRecord, UseRealtimeDealUpdatesOptions, UseRealtimeDealUpdatesReturn } from './useRealtimeDealUpdates';
+export type { CanvasRealtimeEvent, CanvasBroadcastRecord, UseRealtimeCanvasSyncOptions, UseRealtimeCanvasSyncReturn } from './useRealtimeCanvasSync';

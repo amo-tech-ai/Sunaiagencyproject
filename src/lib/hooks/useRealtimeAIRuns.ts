@@ -1,19 +1,26 @@
-// useRealtimeAIRuns — Live subscription to ai_run_logs table
-// Fires a refresh callback when new AI runs are inserted.
-// Shows event count and connection status for the live indicator.
+// useRealtimeAIRuns — Live subscription to ai_run_logs table via broadcast
+//
+// MIGRATED from postgres_changes to broadcast (v0.24.4)
+// Uses `broadcast` + database trigger (`realtime.broadcast_changes`)
+// per supabase-realtime-guide.md — scalable, multi-threaded, supports
+// private channels and conditional triggers.
 //
 // Prerequisites:
-//   - ai_run_logs table exists (migration 20260307120100)
-//   - Realtime is enabled on ai_run_logs in Supabase Dashboard > Database > Replication
+//   1. Database trigger `ai_run_logs_broadcast_trigger` on `ai_run_logs`
+//      (see /imports/ai-runs-broadcast-trigger.sql)
+//   2. RLS policy on `realtime.messages` for `ai-runs:*` topics
+//   3. (Optional) Enable "Private-only channels" in Realtime Settings
 //
 // Graceful degradation:
-//   - If Realtime is not enabled on the table, status will be 'error'
-//   - The AgentsPage already has manual Refresh — this just adds auto-refresh
-//   - Falls back silently; no user-facing errors
+//   - If trigger/Realtime not configured, status = 'error'
+//   - AgentsPage keeps manual Refresh as fallback
 
 import { useCallback, useRef } from 'react';
-import { useSupabaseRealtime, type RealtimeStatus } from './useSupabaseRealtime';
-import type { RealtimePostgresChangesPayload } from '@supabase/supabase-js';
+import {
+  useSupabaseBroadcast,
+  type BroadcastStatus,
+  type BroadcastChangePayload,
+} from './useSupabaseBroadcast';
 
 export interface UseRealtimeAIRunsOptions {
   /** Callback fired when a new AI run is inserted — typically triggers data refetch */
@@ -26,7 +33,7 @@ export interface UseRealtimeAIRunsOptions {
 
 export interface UseRealtimeAIRunsReturn {
   /** Connection status */
-  status: RealtimeStatus;
+  status: BroadcastStatus;
   /** Number of live events received since page load */
   liveEventCount: number;
   /** Whether we're receiving live updates */
@@ -44,15 +51,16 @@ export function useRealtimeAIRuns(options: UseRealtimeAIRunsOptions): UseRealtim
   onNewRunRef.current = onNewRun;
 
   const handleEvent = useCallback(
-    (payload: RealtimePostgresChangesPayload<Record<string, unknown>>) => {
+    (_eventName: string, payload: BroadcastChangePayload) => {
       const now = Date.now();
       if (now - lastRefreshRef.current < throttleMs) {
         return; // Skip — too soon after last refresh
       }
       lastRefreshRef.current = now;
 
+      const record = payload.record as Record<string, unknown> | null;
       console.log(
-        `[Realtime] New AI run detected: ${payload.new && typeof payload.new === 'object' ? (payload.new as any).prompt_type || 'unknown' : 'unknown'}`
+        `[Realtime] New AI run detected: ${record?.prompt_type || 'unknown'}`
       );
 
       onNewRunRef.current();
@@ -60,12 +68,14 @@ export function useRealtimeAIRuns(options: UseRealtimeAIRunsOptions): UseRealtim
     [throttleMs]
   );
 
-  const { status, eventCount, reconnect } = useSupabaseRealtime({
-    channelName: 'ai-runs',
-    table: 'ai_run_logs',
-    event: 'INSERT',
+  // Global topic — all AI runs broadcast here (not scoped to a specific entity)
+  const { status, eventCount, reconnect } = useSupabaseBroadcast({
+    topic: 'ai-runs:global',
+    events: ['INSERT'],
     onEvent: handleEvent,
     enabled,
+    isPrivate: true,
+    selfBroadcast: false,
   });
 
   return {
