@@ -1,18 +1,19 @@
 # TODO — Sun AI Agency Website
 
 **Project:** Sun AI Agency — AI Consulting & Solutions Website
-**Current Version:** v0.22.1
-**Last Updated:** 2026-03-07
+**Current Version:** v0.22.2
+**Last Updated:** 2026-03-08
 
 ---
 
 ## IMMEDIATE PRIORITIES (This Sprint)
 
 ### Deployment Steps
-- [ ] **Deploy Edge Function** — Deploy updated server with all 49 routes (Phase 8 documents + Phase 11 workflows + Phase 13 financial + CRM auth fix) to Supabase Edge Functions
+- [ ] **Deploy Edge Function** — Deploy updated server with all 49 routes (Phase 8 documents + Phase 11 workflows + Phase 13 financial + CRM auth fix + dashboard-insights 404 fix) to Supabase Edge Functions
 - [ ] **Run CRM Pipeline Migrations** — Execute `20260307120300_create_crm_pipeline_tables.sql` and `20260307120400_seed_default_pipeline_and_verify.sql` in Supabase SQL Editor to create `crm_pipelines`, `crm_stages`, `crm_deals`, `crm_interactions` tables and seed default pipelines
 - [ ] **Verify CRM Auth Fix** — Test `GET /crm/clients` and `GET /crm/pipelines` with both anonymous and authenticated tokens after deploy; confirm JWT decode anon detection works
 - [ ] **Verify Document Storage** — The `make-283466b6-documents` bucket auto-creates on first upload; verify in Supabase Dashboard > Storage
+- [ ] **Watch for Hono Sub-Router 404s** — After deploy, test all AI routes (`/ai/generate`, `/ai/cache`, `/agent-stats/*`, etc.) for 404s caused by Hono sub-router mounting. If any 404, move route handler from `ai-routes.tsx` to direct registration in `index.tsx` (same fix applied to `/dashboard-insights` in v0.22.2)
 
 ### Smoke Testing — All Dashboard Phases
 - [ ] Dashboard home loads at `/app/dashboard` with metrics
@@ -68,7 +69,7 @@
 | 12 | (Merged into Phase 8) | — | — |
 | 13 | Financial Dashboard | Done | v0.22.0 |
 
-**ALL 13 DASHBOARD PHASES COMPLETE** | CRM Auth Hardened in v0.22.1
+**ALL 13 DASHBOARD PHASES COMPLETE** | CRM Auth Hardened in v0.22.1 | Hono 404 Fix in v0.22.2
 
 ---
 
