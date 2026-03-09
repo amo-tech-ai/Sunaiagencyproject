@@ -165,7 +165,7 @@ function HeroSection() {
 
 /* ═══════════════════════════════════════════════════════════════
    2 — AI CAPABILITIES
-   ════════════════���════════════════════════════════════════════ */
+   ════════════════════════════════════════════════════════════ */
 
 const CAPABILITIES = [
   {
@@ -511,7 +511,7 @@ const SERVICE_CARDS = [
     title: 'WhatsApp AI Automation',
     desc: 'Turn WhatsApp into a sales and support channel with AI agents and CRM sync.',
     extended: 'Transform WhatsApp from a simple messaging app into a powerful revenue engine. Our AI-powered automation handles lead capture, appointment booking, product recommendations, and customer support — all within the WhatsApp interface your customers already use. Fully integrated with your CRM and payment systems.',
-    image: 'https://images.unsplash.com/photo-1768695089167-293dd344cc87?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxuaWdodCUyMGhpZ2h3YXklMjBsaWdodCUyMHRyYWlscyUyMG1vdW50YWlufGVufDF8fHx8MTc3MjAxODI3OXww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
+    image: 'https://res.cloudinary.com/ddysyn5rr/image/upload/v1773097147/whatsapp-1_oqovpm.jpg',
     to: '/whatsapp-ai',
   },
   {
@@ -532,7 +532,7 @@ const SERVICE_CARDS = [
     title: 'Custom AI Development',
     desc: 'RAG systems, personalization engines, predictive analytics, decision dashboards.',
     extended: 'Get bespoke AI solutions engineered for your exact business requirements. From retrieval-augmented generation systems and recommendation engines to predictive analytics platforms and executive decision dashboards — we build the intelligent infrastructure that gives you a competitive edge.',
-    image: 'https://images.unsplash.com/photo-1612539474154-02c9ff07b4a9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtaWxreSUyMHdheSUyMHN0YXJzJTIwbmlnaHQlMjBza3klMjBtb3VudGFpbnN8ZW58MXx8fHwxNzcyMDE4MjgwfDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
+    image: 'https://res.cloudinary.com/ddysyn5rr/image/upload/v1772367392/screens16_b9nxog.jpg',
     to: '/services',
   },
   {
@@ -546,7 +546,7 @@ const SERVICE_CARDS = [
     title: 'AI-Powered Web Development',
     desc: 'AI-accelerated websites with smart copy, embedded chatbots, and 90+ Lighthouse scores.',
     extended: 'Build blazing-fast websites powered by AI from the ground up. Our web development process uses AI to generate optimized copy, embed intelligent chatbots, and ensure every page scores 90+ on Lighthouse. The result: a high-performance digital presence that converts visitors into customers.',
-    image: 'https://images.unsplash.com/photo-1724940434686-c4df656fec53?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxpbmR1c3RyaWFsJTIwc2lsaG91ZXR0ZSUyMGdvbGRlbiUyMHN1bnNldCUyMGZhY3Rvcnl8ZW58MXx8fHwxNzcyMDE4MjgxfDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
+    image: 'https://res.cloudinary.com/ddysyn5rr/image/upload/v1772367392/screens9_uyjzie.jpg',
     to: '/web-apps',
     badge: '90+',
   },
@@ -992,7 +992,7 @@ function MetricsBand() {
   );
 }
 
-/* ═══════════════════════════════════════════════════════════════
+/* ══════════════════════════════════════════════════════════════
    11 — FINAL CTA
    ═══════════════════════════════════════════════════════════════ */
 
