@@ -1,7 +1,7 @@
 # TODO — Sun AI Agency Website
 
 **Project:** Sun AI Agency — AI Consulting & Solutions Website
-**Current Version:** v0.24.5
+**Current Version:** v0.24.6
 **Last Updated:** 2026-03-09
 
 ---
@@ -204,6 +204,32 @@
 
 ---
 
+## CLOUDINARY IMAGE MIGRATION
+
+> Guide: `/docs/cloudinary-image-swap-guide.md`
+
+| Card | File | Status |
+|---|---|---|
+| Hero | HomePageV3.tsx | ✅ Cloudinary |
+| AI Agent Systems | HomePageV3.tsx | ✅ Cloudinary |
+| AI Chatbots | HomePageV3.tsx | ✅ Cloudinary |
+| WhatsApp AI Automation | HomePageV3.tsx | ✅ Cloudinary (v0.24.5) |
+| AI Sales & Marketing CRM | HomePageV3.tsx | ✅ Cloudinary |
+| AI MVP Development | HomePageV3.tsx | ✅ Cloudinary |
+| Custom AI Development | HomePageV3.tsx | ✅ Cloudinary (v0.24.6) |
+| AI-Powered Web Development | HomePageV3.tsx | ✅ Cloudinary (v0.24.6) |
+| E-commerce AI | HomePageV3.tsx | ✅ Cloudinary |
+| AI Automations | HomePageV3.tsx | ✅ Cloudinary (v0.24.6) |
+| Story section | HomePageV3.tsx | ⬜ Unsplash |
+| Testimonial | HomePageV3.tsx | ⬜ Unsplash |
+| Specialized Service 1 | HomePageV3.tsx | ⬜ Unsplash |
+| Specialized Service 2 | HomePageV3.tsx | ⬜ Unsplash |
+| Specialized Service 3 | HomePageV3.tsx | ⬜ Unsplash |
+
+**Progress:** 10/15 migrated to Cloudinary
+
+---
+
 ## NEXT PRIORITIES — Enhancement Phases
 
 ### Realtime Enhancements (Medium Priority)
@@ -291,5 +317,5 @@
 - **SQL Trigger Files:** 4 (broadcast triggers for Realtime)
 - **RLS Policies on realtime.messages:** 4 (ai_runs_read, wizard_sessions_read, pipeline_deals_read, canvas_blocks_read)
 - **Planning Docs:** 17 spec documents in `/docs/lean/`
-- **Current Version:** v0.24.5
+- **Current Version:** v0.24.6
 - **Project Completion:** ~92% (all 14 dashboard phases complete; full Realtime system wired; enhancements + infrastructure remaining)

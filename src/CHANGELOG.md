@@ -3,8 +3,57 @@
 **Project:** Sun AI Agency — AI Consulting & Solutions Website
 **Stack:** Vite + React + Tailwind CSS v4 + Supabase + Vercel
 **Design System:** BCG Consulting-Inspired (Calm Luxury Editorial)
-**Current Version:** v0.24.5
+**Current Version:** v0.24.6
 **Last Updated:** 2026-03-09
+
+---
+
+## [0.24.6] — 2026-03-09 — Service Card Content & Cloudinary Image Migration
+
+### Summary
+
+Renamed "Industry Chatbot Packages" card to "AI Automations" with updated description and extended copy. Migrated 3 more service card images to Cloudinary (Custom AI Development, AI-Powered Web Development, AI Automations), bringing the total to 10 of 12 service grid cards on Cloudinary. Created `/docs/cloudinary-image-swap-guide.md` with a 5-step process for future image swaps.
+
+### Changed — HomePageV3.tsx (Service Cards)
+
+- **Industry Chatbot Packages → AI Automations** — Renamed card title, updated `desc` to "Industry-specific AI-powered workflows that automate repetitive business processes, connect your tools, and run operations automatically.", updated `extended` to "AI solutions designed to automate operations, customer communication, and workflows across Healthcare, Real Estate, Automotive, Tourism, and E-commerce." Route unchanged (`/industries`).
+- **Custom AI Development image** — Unsplash → `https://res.cloudinary.com/ddysyn5rr/image/upload/v1772367392/screens16_b9nxog.jpg`
+- **AI-Powered Web Development image** — Unsplash → `https://res.cloudinary.com/ddysyn5rr/image/upload/v1772367392/screens9_uyjzie.jpg`
+- **AI Automations image** — Unsplash → `https://res.cloudinary.com/ddysyn5rr/image/upload/v1773099619/automation_coppbc.jpg`
+
+### Added — Documentation
+
+- **`/docs/cloudinary-image-swap-guide.md`** — 5-step guide for swapping images to Cloudinary: file identification map, URL format, data array location, replacement instructions, verification steps. Includes common mistakes table and current Cloudinary image tracking table.
+
+### Cloudinary Migration Status
+
+| Card | Status |
+|---|---|
+| Hero | Cloudinary |
+| AI Agent Systems | Cloudinary |
+| AI Chatbots | Cloudinary |
+| WhatsApp AI Automation | Cloudinary (v0.24.5) |
+| AI Sales & Marketing CRM | Cloudinary |
+| AI MVP Development | Cloudinary |
+| Custom AI Development | Cloudinary (v0.24.6) |
+| AI-Powered Web Development | Cloudinary (v0.24.6) |
+| E-commerce AI | Cloudinary |
+| AI Automations | Cloudinary (v0.24.6) |
+| Story section | Unsplash |
+| Testimonial | Unsplash |
+| Specialized Services (×3) | Unsplash |
+
+### Files Modified
+
+```
+/components/HomePageV3.tsx — 3 image swaps + 1 card rename with new copy
+```
+
+### Files Created
+
+```
+/docs/cloudinary-image-swap-guide.md — Cloudinary image swap guide
+```
 
 ---
 
