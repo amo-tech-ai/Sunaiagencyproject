@@ -7,6 +7,64 @@
 
 ---
 
+## [0.24.2] — 2026-03-09 — Supabase Realtime Channels: ai-runs + wizard-progress
+
+### Summary
+
+Implemented the two missing Supabase Realtime channels identified in the frontend-backend wiring map audit. Created a 3-layer hook architecture: generic `useSupabaseRealtime` base hook, `useRealtimeAIRuns` for live AI agent monitoring, and `useRealtimeWizardSync` for multi-tab wizard session synchronization. Both hooks degrade gracefully when Realtime is not enabled on their tables — AgentsPage falls back to manual Refresh, wizard continues with localStorage + cloud save. Updated the wiring map from its early-snapshot state to reflect all 8 API modules (72 methods), 63 edge function routes, and 2 Realtime channels.
+
+### Added — Realtime Hooks (3 files)
+
+- **`/lib/hooks/useSupabaseRealtime.ts`** — Generic Supabase Realtime subscription hook. Manages channel lifecycle (subscribe, reconnect, cleanup), tracks connection status (`connecting | connected | disconnected | error`), counts events, uses callback refs to avoid re-subscriptions on handler changes, and cleans up on unmount.
+- **`/lib/hooks/useRealtimeAIRuns.ts`** — Subscribes to `ai_run_logs` INSERT events. Throttled (3s default) auto-refresh callback, live event counter, `isLive` boolean for UI indicator. Used by AgentsPage for real-time dashboard updates.
+- **`/lib/hooks/useRealtimeWizardSync.ts`** — Subscribes to `wizard_sessions` UPDATE filtered by session ID. Self-write filtering (3s window) to avoid notification from own saves. Detects backend status changes (e.g., AI processing completed) and multi-tab step changes.
+
+### Changed — Component Integration
+
+- **`/components/dashboard/agents/AgentsPage.tsx`** — Integrated `useRealtimeAIRuns` hook. Replaced static label with live connection indicator: green pulsing dot when connected, amber dot with "retry live" link on error, "Connecting..." during initial subscription. Auto-refreshes all panels (stats, cache, logs) on new AI run events.
+- **`/components/wizard/WizardContext.tsx`** — Integrated `useRealtimeWizardSync` hook. On external `status: completed`, shows toast "Your AI analysis is ready!". On external step change (multi-tab), shows toast with "Sync" action button to adopt the new step.
+- **`/lib/hooks/index.ts`** — Added exports for all 3 new hooks + their TypeScript types.
+
+### Updated — Documentation
+
+- **`/imports/frontend-backend-map-1.md`** — Complete rewrite from early-snapshot to current state. Now documents all 8 API modules (72+ methods), 63 edge function routes, 2 Realtime channels with prerequisites, dashboard data flow table, Mermaid route map, server route summary, and all 8 resolved blockers.
+
+### Prerequisites (Manual)
+
+To activate Realtime subscriptions, enable Realtime replication on the following tables in **Supabase Dashboard > Database > Replication**:
+1. `ai_run_logs` — for live AI agent monitoring
+2. `wizard_sessions` — for multi-tab wizard sync
+
+If Realtime is not enabled, both hooks degrade gracefully with no user-facing errors.
+
+### Files Created
+
+```
+/lib/hooks/useSupabaseRealtime.ts
+/lib/hooks/useRealtimeAIRuns.ts
+/lib/hooks/useRealtimeWizardSync.ts
+```
+
+### Files Modified
+
+```
+/components/dashboard/agents/AgentsPage.tsx — Realtime integration + live indicator
+/components/wizard/WizardContext.tsx — Realtime sync + multi-tab detection
+/lib/hooks/index.ts — 3 new hook exports + types
+/imports/frontend-backend-map-1.md — Complete rewrite to current state
+```
+
+### Production Status
+
+- Total routes: 51 (32 public + 16 authenticated + 3 aliases)
+- Dashboard pages: 43 production components
+- Edge function routes: 63
+- Realtime channels: 2 (ai-runs, wizard-progress)
+- Custom hooks: 8 (was 5)
+- Project completion: ~91%
+
+---
+
 ## [0.24.1] — 2026-03-09 — Sitemap v13 Update (51 Routes Documented)
 
 ### Updated

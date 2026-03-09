@@ -2,11 +2,13 @@
 // Orchestrates: summary header, performance chart, token usage,
 // cache stats, and paginated run history table.
 // Reads from ai_run_logs + ai_cache Supabase tables via Edge Functions.
+// Realtime: subscribes to ai_run_logs INSERT for live auto-refresh.
 // Mobile-first: single column → two columns on lg+.
 
 import { useAuth } from '../../AuthContext';
 import { agentApi } from '../../../lib/supabase';
 import type { AggregateStats, CacheStats, RunLogEntry } from '../../../lib/supabase';
+import { useRealtimeAIRuns } from '../../../lib/hooks/useRealtimeAIRuns';
 import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router';
 import { ArrowLeft, RefreshCw } from 'lucide-react';
@@ -38,6 +40,19 @@ export default function AgentsPage() {
   const [cacheLoading, setCacheLoading] = useState(true);
   const [logsLoading, setLogsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // ── Realtime: auto-refresh on new AI runs ──
+  const { status: realtimeStatus, liveEventCount, isLive, reconnect: reconnectRealtime } =
+    useRealtimeAIRuns({
+      onNewRun: () => {
+        // Auto-refresh all panels when a new AI run is inserted
+        fetchStats();
+        fetchCacheStats();
+        fetchLogs();
+      },
+      enabled: true,
+      throttleMs: 3000,
+    });
 
   // Fetch aggregate stats
   const fetchStats = useCallback(async () => {
@@ -134,7 +149,26 @@ export default function AgentsPage() {
       <div className="flex items-center justify-between">
         <div>
           <p className="text-xs text-[#9CA39B]">
-            Real-time data from <span className="font-mono">ai_run_logs</span> + <span className="font-mono">ai_cache</span> tables
+            {isLive ? (
+              <span className="inline-flex items-center gap-1.5">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00875A] opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-[#00875A]" />
+                </span>
+                <span>Live — {liveEventCount > 0 ? `${liveEventCount} event${liveEventCount !== 1 ? 's' : ''} received` : 'listening for new AI runs'}</span>
+              </span>
+            ) : realtimeStatus === 'error' ? (
+              <span className="inline-flex items-center gap-1.5">
+                <span className="relative flex h-2 w-2">
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-400" />
+                </span>
+                <span>Polling mode — <button onClick={reconnectRealtime} className="underline hover:text-[#1A1A1A] transition-colors">retry live</button></span>
+              </span>
+            ) : (
+              <span>
+                Connecting to <span className="font-mono">ai_run_logs</span> realtime...
+              </span>
+            )}
           </p>
         </div>
         <button

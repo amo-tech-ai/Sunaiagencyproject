@@ -1,7 +1,7 @@
 # TODO — Sun AI Agency Website
 
 **Project:** Sun AI Agency — AI Consulting & Solutions Website
-**Current Version:** v0.24.1
+**Current Version:** v0.24.2
 **Last Updated:** 2026-03-09
 
 ---
@@ -15,6 +15,7 @@
 - [ ] **Verify CRM Auth Fix** — Test `GET /crm/clients` and `GET /crm/pipelines` with both anonymous and authenticated tokens after deploy; confirm JWT decode anon detection works
 - [ ] **Verify Document Storage** — The `make-283466b6-documents` bucket auto-creates on first upload; verify in Supabase Dashboard > Storage
 - [ ] **Verify Strategy Engine** — Test `/app/strategy` page loads, canvas CRUD works, "Run Analysis" triggers 5-agent orchestration, version history saves/reverts
+- [ ] **Enable Realtime Replication** — In Supabase Dashboard > Database > Replication, toggle on `ai_run_logs` and `wizard_sessions` tables. This activates the `useRealtimeAIRuns` (live agent monitoring) and `useRealtimeWizardSync` (multi-tab wizard sync) hooks. Both degrade gracefully if not enabled.
 - [ ] **Watch for Hono Sub-Router 404s** — After deploy, test all AI routes (`/ai/generate`, `/ai/cache`, `/agent-stats/*`, etc.) for 404s caused by Hono sub-router mounting. If any 404, move route handler from `ai-routes.tsx` to direct registration in `index.tsx` (same fix applied to `/dashboard-insights` in v0.22.2 and all 14 strategy routes in v0.23.0)
 
 ### Smoke Testing — All Dashboard Phases
@@ -206,5 +207,5 @@
 - **Supabase Storage:** 1 private bucket (make-283466b6-documents)
 - **Database Tables:** 44 (32 prior + 12 strategy engine)
 - **Planning Docs:** 17 spec documents in `/docs/lean/`
-- **Current Version:** v0.24.1
+- **Current Version:** v0.24.2
 - **Project Completion:** ~90% (all 14 dashboard phases complete; enhancements + infrastructure remaining)

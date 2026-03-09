@@ -1,9 +1,11 @@
 // C29-STATE — Wizard State Management
 // React Context with localStorage persistence, draft resume toast,
-// per-field validation errors, save status, keyboard nav support
+// per-field validation errors, save status, keyboard nav support,
+// Realtime sync: detects external session changes (multi-tab, backend)
 
 import { createContext, useContext, useState, useEffect, useCallback, useRef, type ReactNode } from 'react';
 import { wizardApi } from '../../lib/supabase';
+import { useRealtimeWizardSync } from '../../lib/hooks/useRealtimeWizardSync';
 
 /* ────────────────── TYPES ────────────────── */
 
@@ -218,6 +220,35 @@ export function WizardProvider({ children }: { children: ReactNode }) {
       }
     } catch { /* ignore */ }
     return INITIAL_STATE;
+  });
+
+  // ── Realtime: detect external changes to wizard session ──
+  // Fires when another tab, backend processing, or admin updates the session.
+  // Skips events within 3s of our own saves to avoid self-notification.
+  useRealtimeWizardSync({
+    sessionId,
+    onExternalChange: useCallback((change) => {
+      // If backend marked session as completed (AI processing done), notify user
+      if (change.status === 'completed' && state.currentStep < 5) {
+        toast.info('Your AI analysis is ready!', {
+          description: 'The backend has finished processing your project brief.',
+          duration: 6000,
+        });
+      }
+      // If another tab advanced to a different step, offer to sync
+      if (change.currentStep && change.currentStep !== state.currentStep) {
+        toast('Session updated in another tab', {
+          description: `Step ${change.currentStep} is now active elsewhere.`,
+          action: {
+            label: 'Sync',
+            onClick: () => {
+              setState(s => ({ ...s, currentStep: change.currentStep! }));
+            },
+          },
+          duration: 8000,
+        });
+      }
+    }, [state.currentStep]),
   });
 
   // Compute current step errors on every render (cheap + safe)
