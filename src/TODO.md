@@ -1,8 +1,8 @@
 # TODO — Sun AI Agency Website
 
 **Project:** Sun AI Agency — AI Consulting & Solutions Website
-**Current Version:** v0.22.2
-**Last Updated:** 2026-03-08
+**Current Version:** v0.22.4
+**Last Updated:** 2026-03-09
 
 ---
 
@@ -69,7 +69,50 @@
 | 12 | (Merged into Phase 8) | — | — |
 | 13 | Financial Dashboard | Done | v0.22.0 |
 
-**ALL 13 DASHBOARD PHASES COMPLETE** | CRM Auth Hardened in v0.22.1 | Hono 404 Fix in v0.22.2
+**ALL 13 DASHBOARD PHASES COMPLETE** | CRM Auth Hardened in v0.22.1 | Hono 404 Fix in v0.22.2 | Lean Strategy Plan in v0.22.3
+
+---
+
+## NEXT PHASE — Phase 14: Lean Strategy Engine (Planned)
+
+> Full plan at `/docs/lean/00-lean-master-plan.md` (16 spec documents in `/docs/lean/`)
+> Progress: **0 / 26 tasks** (0%)
+
+### Pre-Requisite
+- [ ] **Database Migration** — Run `20260308120000_create_strategy_engine_tables.sql` in Supabase SQL Editor (12 tables: lean_canvases, lean_canvas_versions, strategy_insights, automation_opportunities, strategy_recommendations, strategy_actions + 6 advanced tables)
+
+### Phase 14a — Core Canvas & Infrastructure (P0, ~4 days)
+- [ ] **Types** — Create `/lib/types/strategy.ts` (full types from doc 15 §2)
+- [ ] **Backend** — Create `strategy-routes.tsx` with 14+ route handlers (doc 08, 15 §4-5)
+- [ ] **Mount Routes** — Register strategy routes in `index.tsx` (sub-router first, direct if 404s)
+- [ ] **API Layer** — Add `strategyApi` module to `lib/supabase.ts` (16 methods, doc 15 §3)
+- [ ] **Data Hook** — Create `useStrategyData` hook in `lib/hooks/` (doc 15 §7)
+- [ ] **Page Shell** — Create `StrategyEnginePage.tsx` at `/app/strategy` (doc 01, 15 §8)
+- [ ] **Empty State** — Create `StrategyEmptyState.tsx` with wizard/fresh CTAs (doc 02)
+- [ ] **Sidebar Nav** — Add Strategy item with Brain icon + pending badge (doc 14)
+- [ ] **Metrics Bar** — Create `StrategyMetricsBar.tsx` + `MetricCard.tsx` (doc 03)
+- [ ] **Canvas Grid** — Create `LeanCanvasPanel.tsx` + `CanvasBlock.tsx` (doc 04)
+- [ ] **Block Editor** — Create `CanvasBlockEditor.tsx` (doc 05)
+
+### Phase 14b — Intelligence Layer (P0, ~2 days)
+- [ ] **Intelligence Panel** — Create `IntelligencePanel.tsx` (doc 06)
+- [ ] **Recommendation Cards** — Create `RecommendationCard.tsx` (doc 07 §1)
+- [ ] **Insight Cards** — Create `InsightCard.tsx` (doc 07 §2)
+- [ ] **Opportunity Cards** — Create `OpportunityCard.tsx` (doc 07 §3)
+- [ ] **Card Animations** — Motion animations for approve/reject/dismiss (doc 07)
+
+### Phase 14c — AI Integration (P1, ~2 days)
+- [ ] **Ask AI** — Per-block Gemini synthesis via 5 agents (doc 05, 08)
+- [ ] **Run Analysis** — Full-canvas 5-agent orchestration A/B phases (doc 08, 15 §5)
+- [ ] **Create from Wizard** — Auto-populate canvas from wizard session (doc 02, 15 §4)
+- [ ] **Analysis Progress** — 5-agent progress sheet with simulated phases (doc 11)
+
+### Phase 14d — Enhancements & Polish (P2, ~2 days)
+- [ ] **Roadmap Panel** — Phase cards with progress bars from wizard data (doc 10)
+- [ ] **Version History** — Side sheet with timeline, view snapshot, revert (doc 12)
+- [ ] **Mobile Polish** — Tab nav, bottom sheet editor, responsive breakpoints (doc 13)
+- [ ] **Skeleton States** — Loading skeletons for all components
+- [ ] **E2E Verification** — 14-point test checklist (doc 15 §9)
 
 ---
 
