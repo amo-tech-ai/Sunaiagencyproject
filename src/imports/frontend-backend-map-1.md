@@ -127,16 +127,19 @@
 |---------|------------|-----------|------|--------|
 | `ai-runs` | `ai_run_logs` INSERT | AgentsPage | `useRealtimeAIRuns` | Wired (v0.24.1) |
 | `wizard-progress-{id}` | `wizard_sessions` UPDATE | WizardContext | `useRealtimeWizardSync` | Wired (v0.24.1) |
+| `pipeline:{id}:deals` | `crm_deals` INSERT/UPDATE/DELETE | CRMPipelinePage | `useRealtimeDealUpdates` | Wired (v0.24.2) |
 
 **Prerequisites for Realtime:**
 1. Enable Realtime on `ai_run_logs` table: Supabase Dashboard > Database > Replication > Toggle on
 2. Enable Realtime on `wizard_sessions` table: Same process
-3. Both hooks degrade gracefully — if Realtime is not enabled, AgentsPage falls back to manual Refresh and wizard continues with localStorage + cloud save
+3. Run `/imports/crm-deals-realtime-trigger.sql` in SQL Editor — creates the `crm_deals_broadcast_trigger` and `pipeline_deals_read` RLS policy on `realtime.messages`
+4. All hooks degrade gracefully — if triggers/Realtime are not configured, pages fall back to manual Refresh
 
 **Realtime Architecture:**
-- Generic hook: `useSupabaseRealtime` — manages channel lifecycle, status tracking, reconnection
-- `useRealtimeAIRuns` — throttled (3s) auto-refresh on new AI runs, live indicator with event count
-- `useRealtimeWizardSync` — session-scoped UPDATE listener with self-write filtering (3s window), multi-tab sync toast, backend completion notification
+- Base hooks: `useSupabaseRealtime` (postgres_changes, legacy) and `useSupabaseBroadcast` (broadcast, recommended)
+- `useRealtimeAIRuns` — throttled (3s) auto-refresh on new AI runs, live indicator with event count (uses postgres_changes)
+- `useRealtimeWizardSync` — session-scoped UPDATE listener with self-write filtering (3s window) (uses postgres_changes)
+- `useRealtimeDealUpdates` — pipeline-scoped broadcast listener with `markLocalWrite()` self-write suppression, private channel, database trigger (uses broadcast — **recommended pattern per supabase-realtime-guide.md**)
 
 ---
 
@@ -218,6 +221,7 @@ flowchart TD
 
     DA -.->|useRealtimeAIRuns| RT1[Realtime: ai_run_logs INSERT]
     WZ -.->|useRealtimeWizardSync| RT2[Realtime: wizard_sessions UPDATE]
+    DP -.->|useRealtimeDealUpdates| RT3[Realtime: crm_deals INSERT/UPDATE/DELETE]
 ```
 
 ---

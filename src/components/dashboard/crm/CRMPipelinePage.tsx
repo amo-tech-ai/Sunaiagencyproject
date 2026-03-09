@@ -1,6 +1,7 @@
 // C07-CRM-PIPELINE — Main CRM Pipeline page at /app/crm/pipelines
 // Kanban board with pipeline tabs, drag-and-drop deals, forecast chart.
 // Reads from crm_pipelines, crm_stages, crm_deals via Edge Functions.
+// Realtime: subscribes to deal broadcast events for live multi-user sync.
 // Mobile: stacked columns. Desktop: horizontal scroll kanban.
 
 import { useState, useEffect, useCallback, useRef } from 'react';
@@ -8,6 +9,7 @@ import { Plus, RefreshCw, GitBranch } from 'lucide-react';
 import { motion } from 'motion/react';
 import { pipelineApi } from '../../../lib/supabase';
 import { useAuth } from '../../AuthContext';
+import { useRealtimeDealUpdates } from '../../../lib/hooks/useRealtimeDealUpdates';
 import type { Pipeline, Stage, Deal, PipelineData, DealCreateInput } from '../../../lib/types/crm-pipeline';
 import StageColumn from './StageColumn';
 import DealDetailPanel from './DealDetailPanel';
@@ -83,6 +85,20 @@ export default function CRMPipelinePage() {
     }
   }, [token]);
 
+  // ── Realtime: live deal updates from other users ──
+  const { status: realtimeStatus, liveEventCount, isLive, markLocalWrite, reconnect: reconnectRealtime } =
+    useRealtimeDealUpdates({
+      pipelineId: activePipelineId,
+      onDealEvent: useCallback((event) => {
+        // Full refresh is the safest strategy — the server computes
+        // joined fields (contact_name, daysInStage, etc.) that we can't
+        // derive from the raw broadcast payload alone.
+        if (activePipelineId) {
+          fetchPipelineData(activePipelineId);
+        }
+      }, [activePipelineId, fetchPipelineData]),
+    });
+
   // Initial load
   useEffect(() => { fetchPipelines(); }, [fetchPipelines]);
 
@@ -106,6 +122,8 @@ export default function CRMPipelinePage() {
       draggedDealRef.current = null;
       return;
     }
+
+    markLocalWrite(); // Suppress own broadcast echo
 
     // Optimistic update
     setPipelineData(prev => {
@@ -139,6 +157,8 @@ export default function CRMPipelinePage() {
   };
 
   const handleMoveDealFromPanel = async (dealId: string, newStageId: string) => {
+    markLocalWrite(); // Suppress own broadcast echo
+
     // Optimistic
     setPipelineData(prev => {
       if (!prev) return prev;
@@ -170,6 +190,7 @@ export default function CRMPipelinePage() {
   };
 
   const handleCreateDeal = async (data: DealCreateInput) => {
+    markLocalWrite(); // Suppress own broadcast echo
     const res = await pipelineApi.createDeal(data, token);
     if (res.data?.deal) {
       // Refresh pipeline to get updated state
@@ -182,6 +203,8 @@ export default function CRMPipelinePage() {
   };
 
   const handleDeleteDeal = async (dealId: string) => {
+    markLocalWrite(); // Suppress own broadcast echo
+
     // Optimistic remove
     setPipelineData(prev => {
       if (!prev) return prev;
@@ -286,6 +309,23 @@ export default function CRMPipelinePage() {
             <p className="text-sm text-[#6B6B63] mt-0.5">
               Weighted pipeline: <span className="font-semibold text-[#00875A]">{formatCurrency(Math.round(totalWeightedPipeline))}</span>
               {' '}&middot; {activeDeals.length} active {activeDeals.length === 1 ? 'deal' : 'deals'}
+              {isLive && (
+                <span className="inline-flex items-center gap-1 ml-2">
+                  <span className="relative flex h-1.5 w-1.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00875A] opacity-75" />
+                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#00875A]" />
+                  </span>
+                  <span className="text-xs text-[#9CA39B]">Live</span>
+                </span>
+              )}
+              {realtimeStatus === 'error' && (
+                <span className="inline-flex items-center gap-1 ml-2">
+                  <span className="relative flex h-1.5 w-1.5">
+                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-amber-400" />
+                  </span>
+                  <button onClick={reconnectRealtime} className="text-xs text-[#9CA39B] underline hover:text-[#6B6B63]">retry live</button>
+                </span>
+              )}
             </p>
           )}
         </div>

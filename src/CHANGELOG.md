@@ -7,6 +7,29 @@
 
 ---
 
+## [0.24.3] — 2026-03-09 — CRM Pipeline Realtime: Live Multi-User Kanban
+
+### Summary
+
+Extended Supabase Realtime to the CRM Pipeline Kanban board using the **broadcast** pattern (per `supabase-realtime-guide.md`) instead of the deprecated `postgres_changes` pattern. Created `useRealtimeDealUpdates` hook built on top of the user-created `useSupabaseBroadcast` base hook. When another user creates, moves, or deletes a deal, the board auto-refreshes. Self-write suppression via `markLocalWrite()` prevents optimistic updates from being overwritten by the echo from the database trigger.
+
+### Added
+
+- **`/lib/hooks/useRealtimeDealUpdates.ts`** — Pipeline-scoped deal broadcast listener. Subscribes to `pipeline:{pipelineId}:deals` private channel for INSERT/UPDATE/DELETE events. Self-write suppression via `markLocalWrite()` (2s window). Re-subscribes on active pipeline change.
+- **`/imports/crm-deals-realtime-trigger.sql`** — Database trigger SQL for `crm_deals` table. Uses `realtime.broadcast_changes()` to scoped `pipeline:{pipeline_id}:deals` topics. Includes RLS policy, verification queries, and optional conditional-broadcast variant.
+
+### Changed
+
+- **`/components/dashboard/crm/CRMPipelinePage.tsx`** — Integrated `useRealtimeDealUpdates`. All 4 mutation handlers call `markLocalWrite()` before optimistic update. Live indicator (green pulsing dot / amber fallback). Full refresh on external deal events.
+- **`/lib/hooks/index.ts`** — Added exports for `useSupabaseBroadcast`, `useRealtimeDealUpdates`, and associated types.
+- **`/imports/frontend-backend-map-1.md`** — Added `pipeline:{id}:deals` channel, updated Realtime Architecture section.
+
+### Architecture Decision
+
+First hook to use the **broadcast** pattern per `supabase-realtime-guide.md` (replaces deprecated `postgres_changes`).
+
+---
+
 ## [0.24.2] — 2026-03-09 — Supabase Realtime Channels: ai-runs + wizard-progress
 
 ### Summary
