@@ -7,6 +7,45 @@
 
 ---
 
+## [0.24.1] — 2026-03-09 — Sitemap v13 Update (51 Routes Documented)
+
+### Updated
+
+- **`/docs/sitemap.md`** — Bumped to Version 13. Added 23 new routes across 4 sections:
+  - **Auth (2):** `/login`, `/auth/callback`
+  - **Wizard (3):** `/wizard`, `/wizard/processing`, `/wizard/proposal`
+  - **Additional Services (3):** `/services/chatbot`, `/whatsapp-ai`, `/docs/supabase`
+  - **App Dashboard (15):** `/app/dashboard`, `/app/strategy` (with 6 sub-features), `/app/projects`, `/app/projects/:id`, `/app/roadmap`, `/app/clients`, `/app/clients/:id`, `/app/crm/pipelines`, `/app/insights`, `/app/documents`, `/app/financial`, `/app/workflows`, `/app/agents`, `/app/settings`
+- Route-to-component mapping table expanded to 52 rows
+- Full URL list updated (51 entries)
+- All previously planned routes moved to ✅ Completed
+- Technical notes updated: Vite + React, `react-router` v7, Supabase Auth, Hono backend, Motion
+- Added document changelog table
+
+### Production Status
+
+- Total routes: 51 (32 public + 16 authenticated + 3 aliases)
+- Dashboard pages: 43 production components
+- Edge function routes: 63 (49 prior + 14 strategy)
+- Project completion: ~90% (All 14 dashboard phases complete)
+
+---
+
+## [0.24.0] — 2026-03-09 — Lean Strategy Engine: Complete (Phase 14 — 26/26 Tasks)
+
+### Added
+
+- **`AnalysisProgressSheet.tsx`** (Task 20) — 5-agent animated overlay with phase A/B simulation
+- **`RoadmapExecutionPanel.tsx`** (Task 21) — Phase cards with progress bars from wizard data
+- **`CanvasVersionHistory.tsx`** (Task 22) — Side-sheet with timeline, view snapshots, revert
+- **Mobile Tab Bar** (Task 23) — 3-tab responsive nav with pending badge
+
+### Updated
+
+- **`StrategyEnginePage.tsx`** — Integrated all 3 new components + mobile tabs + desktop 3-col grid
+
+---
+
 ## [0.23.0] — 2026-03-09 — Lean Strategy Engine: Full Data Pipeline + UI (Phase 14a)
 
 ### Summary

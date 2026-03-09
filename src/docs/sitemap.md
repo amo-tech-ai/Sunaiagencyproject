@@ -1,8 +1,8 @@
 # SITEMAP — SUN AI AGENCY WEBSITE
 
-**Version:** 12  
-**Last Updated:** 2026-03-07  
-**Status:** All routes implemented with React Router  
+**Version:** 13  
+**Last Updated:** 2026-03-09  
+**Status:** All routes implemented with React Router (`react-router`)  
 **Design System:** BCG Consulting-Inspired (Calm Luxury Editorial)  
 **Base URL:** `https://sunaiagency.com`
 
@@ -57,12 +57,51 @@ sunaiagency.com
 │   ├── /sections ─────────────── Component Sections Showcase     [SectionsPage]
 │   └── /sitemap ──────────────── Visual Sitemap                  [SitemapPage]
 │
+├── ADDITIONAL SERVICES
+│   ├── /services/chatbot ─────── Chatbot Service Page             [ChatbotServicePage]
+│   ├── /whatsapp-ai ──────────── WhatsApp AI Automation           [WhatsAppAIPage]
+│   └── /docs/supabase ────────── Supabase Architecture Docs       [SupabaseArchitecturePage]
+│
+├── AUTH (standalone layout)
+│   ├── /login ────────────────── Sign In / Sign Up (Google, LinkedIn, email) [AuthPage]
+│   └── /auth/callback ────────── OAuth Callback Handler           [AuthCallbackPage]
+│
+├── WIZARD (standalone layout, 5-step project brief)
+│   ├── /wizard ───────────────── Project Brief Wizard             [WizardPage]
+│   ├── /wizard/processing ────── AI Analysis Processing Screen    [ProcessingPage]
+│   └── /wizard/proposal ──────── Generated Proposal               [ProposalPage]
+│
+├── APP DASHBOARD (authenticated, sidebar layout — /app/*)
+│   ├── /app ──────────────────── Redirect → /app/dashboard
+│   ├── /app/dashboard ────────── Dashboard Home (KPIs, charts)    [DashboardHome]
+│   ├── /app/strategy ─────────── Lean Strategy Engine (v0.24)     [StrategyEnginePage]
+│   │   ├── Lean Canvas 3×3 grid with AI block synthesis
+│   │   ├── Roadmap Execution panel (phase cards + progress)
+│   │   ├── Intelligence panel (insights, recommendations, opportunities)
+│   │   ├── Analysis Progress sheet (5-agent animated overlay)
+│   │   ├── Canvas Version History side-sheet (view/revert)
+│   │   └── Mobile: 3-tab [Canvas|Roadmap|Intel] navigation
+│   ├── /app/projects ─────────── Project List                     [ProjectsList]
+│   ├── /app/projects/:id ─────── Project Detail                   [ProjectDetail]
+│   ├── /app/roadmap ──────────── Implementation Roadmap           [RoadmapPage]
+│   ├── /app/clients ──────────── Client Management CRM            [ClientsListPage]
+│   ├── /app/clients/:id ──────── Client Detail                    [ClientDetailPage]
+│   ├── /app/crm/pipelines ────── CRM Pipeline (Kanban board)     [CRMPipelinePage]
+│   ├── /app/insights ─────────── AI Insights Dashboard            [InsightsPage]
+│   ├── /app/documents ────────── Document Management              [DocumentManagementPage]
+│   ├── /app/financial ────────── Financial Dashboard              [FinancialDashboardPage]
+│   ├── /app/workflows ────────── Workflow Automation              [WorkflowAutomationPage]
+│   ├── /app/agents ───────────── AI Agent Management              [DashAgentsPage]
+│   └── /app/settings ─────────── User Settings                    [SettingsPageComponent]
+│
 └── /* ────────────────────────── 404 Not Found                   [NotFound]
 ```
 
-**Total:** 28 unique routes (excluding 404)  
-**Aliases:** 3 routes are aliases (ai-agents, services/crm, services/sales-crm)  
-**Unique pages:** 25
+**Total:** 51 unique routes (excluding 404)  
+**Public pages:** 32 (marketing site + resources)  
+**Authenticated pages:** 16 (dashboard + wizard + auth)  
+**Aliases:** 3 routes (ai-agents, services/crm, services/sales-crm)  
+**Unique pages:** 48
 
 ---
 
@@ -148,6 +187,29 @@ sunaiagency.com
 | 27 | `/style-guide` | `StyleGuidePage.tsx` | Resources | BCG ✅ |
 | 28 | `/sections` | `SectionsPage.tsx` | Resources | V1 |
 | 29 | `/sitemap` | `SitemapPage.tsx` | Resources | BCG ✅ |
+| 30 | `/services/chatbot` | `ChatbotServicePage.tsx` | Additional Services | V1 |
+| 31 | `/whatsapp-ai` | `WhatsAppAIPage.tsx` | Additional Services | V1 |
+| 32 | `/docs/supabase` | `SupabaseArchitecturePage.tsx` | Additional Services | V1 |
+| 33 | `/login` | `AuthPage.tsx` | Auth | V1 |
+| 34 | `/auth/callback` | `AuthCallbackPage.tsx` | Auth | V1 |
+| 35 | `/wizard` | `WizardPage.tsx` | Wizard | V1 |
+| 36 | `/wizard/processing` | `ProcessingPage.tsx` | Wizard | V1 |
+| 37 | `/wizard/proposal` | `ProposalPage.tsx` | Wizard | V1 |
+| 38 | `/app` | `DashboardHome.tsx` | App Dashboard | V1 |
+| 39 | `/app/dashboard` | `DashboardHome.tsx` | App Dashboard | V1 |
+| 40 | `/app/strategy` | `StrategyEnginePage.tsx` | App Dashboard | V1 |
+| 41 | `/app/projects` | `ProjectsList.tsx` | App Dashboard | V1 |
+| 42 | `/app/projects/:id` | `ProjectDetail.tsx` | App Dashboard | V1 |
+| 43 | `/app/roadmap` | `RoadmapPage.tsx` | App Dashboard | V1 |
+| 44 | `/app/clients` | `ClientsListPage.tsx` | App Dashboard | V1 |
+| 45 | `/app/clients/:id` | `ClientDetailPage.tsx` | App Dashboard | V1 |
+| 46 | `/app/crm/pipelines` | `CRMPipelinePage.tsx` | App Dashboard | V1 |
+| 47 | `/app/insights` | `InsightsPage.tsx` | App Dashboard | V1 |
+| 48 | `/app/documents` | `DocumentManagementPage.tsx` | App Dashboard | V1 |
+| 49 | `/app/financial` | `FinancialDashboardPage.tsx` | App Dashboard | V1 |
+| 50 | `/app/workflows` | `WorkflowAutomationPage.tsx` | App Dashboard | V1 |
+| 51 | `/app/agents` | `DashAgentsPage.tsx` | App Dashboard | V1 |
+| 52 | `/app/settings` | `SettingsPageComponent.tsx` | App Dashboard | V1 |
 
 ---
 
@@ -183,6 +245,29 @@ https://sunaiagency.com/booking
 https://sunaiagency.com/style-guide
 https://sunaiagency.com/sections
 https://sunaiagency.com/sitemap
+https://sunaiagency.com/services/chatbot
+https://sunaiagency.com/whatsapp-ai
+https://sunaiagency.com/docs/supabase
+https://sunaiagency.com/login
+https://sunaiagency.com/auth/callback
+https://sunaiagency.com/wizard
+https://sunaiagency.com/wizard/processing
+https://sunaiagency.com/wizard/proposal
+https://sunaiagency.com/app
+https://sunaiagency.com/app/dashboard
+https://sunaiagency.com/app/strategy
+https://sunaiagency.com/app/projects
+https://sunaiagency.com/app/projects/:id
+https://sunaiagency.com/app/roadmap
+https://sunaiagency.com/app/clients
+https://sunaiagency.com/app/clients/:id
+https://sunaiagency.com/app/crm/pipelines
+https://sunaiagency.com/app/insights
+https://sunaiagency.com/app/documents
+https://sunaiagency.com/app/financial
+https://sunaiagency.com/app/workflows
+https://sunaiagency.com/app/agents
+https://sunaiagency.com/app/settings
 ```
 
 ---
@@ -222,6 +307,29 @@ https://sunaiagency.com/sitemap
 | `/style-guide` | StyleGuidePage | BCG ✅ | ✅ Complete |
 | `/sections` | SectionsPage | V1 | ✅ Complete |
 | `/sitemap` | SitemapPage | BCG ✅ | ✅ Complete |
+| `/services/chatbot` | ChatbotServicePage | V1 | ✅ Complete |
+| `/whatsapp-ai` | WhatsAppAIPage | V1 | ✅ Complete |
+| `/docs/supabase` | SupabaseArchitecturePage | V1 | ✅ Complete |
+| `/login` | AuthPage | V1 | ✅ Complete |
+| `/auth/callback` | AuthCallbackPage | V1 | ✅ Complete |
+| `/wizard` | WizardPage | V1 | ✅ Complete |
+| `/wizard/processing` | ProcessingPage | V1 | ✅ Complete |
+| `/wizard/proposal` | ProposalPage | V1 | ✅ Complete |
+| `/app` | DashboardHome | V1 | ✅ Complete |
+| `/app/dashboard` | DashboardHome | V1 | ✅ Complete |
+| `/app/strategy` | StrategyEnginePage | V1 | ✅ Complete |
+| `/app/projects` | ProjectsList | V1 | ✅ Complete |
+| `/app/projects/:id` | ProjectDetail | V1 | ✅ Complete |
+| `/app/roadmap` | RoadmapPage | V1 | ✅ Complete |
+| `/app/clients` | ClientsListPage | V1 | ✅ Complete |
+| `/app/clients/:id` | ClientDetailPage | V1 | ✅ Complete |
+| `/app/crm/pipelines` | CRMPipelinePage | V1 | ✅ Complete |
+| `/app/insights` | InsightsPage | V1 | ✅ Complete |
+| `/app/documents` | DocumentManagementPage | V1 | ✅ Complete |
+| `/app/financial` | FinancialDashboardPage | V1 | ✅ Complete |
+| `/app/workflows` | WorkflowAutomationPage | V1 | ✅ Complete |
+| `/app/agents` | DashAgentsPage | V1 | ✅ Complete |
+| `/app/settings` | SettingsPageComponent | V1 | ✅ Complete |
 
 ### 🚧 IN DEVELOPMENT
 
@@ -233,13 +341,7 @@ https://sunaiagency.com/sitemap
 
 ### 📋 PLANNED
 
-| Route | Component | Design System | Priority |
-|-------|-----------|---------------|----------|
-| `/wizard` | Project Brief Wizard | V11 | High |
-| `/processing` | AI Analysis Screen | V11 | High |
-| `/proposal` | Proposal Page | V11 | High |
-| `/login` | Login Page | V11 | Medium |
-| `/dashboard` | Client Portal | V11 | Medium |
+*All previously planned routes are now implemented (see Complete Route Tree above).*
 
 ---
 
@@ -844,32 +946,20 @@ Process: "Our AI Development Process | 8 Weeks to Launch | Sun AI"
 ## TECHNICAL NOTES
 
 ### Current Implementation
-- **Framework:** React (Create React App)
-- **Routing:** Client-side routing (useState-based navigation)
-- **State Management:** Local component state
+- **Framework:** Vite + React
+- **Routing:** `react-router` v7 with `createBrowserRouter` (Data mode)
+- **Auth:** Supabase Auth (email, Google, LinkedIn)
+- **Backend:** Supabase Edge Functions (Hono server)
+- **State Management:** React hooks + `useAuth()` context
 - **Styling:** Tailwind CSS v4
+- **Animation:** Motion (via `motion/react`)
 
-### Migration Path to Full Routing
+### Router Configuration
 ```javascript
-// Future: React Router implementation
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-
-<BrowserRouter>
-  <Routes>
-    <Route path="/" element={<HomePage />} />
-    <Route path="/solutions" element={<SolutionsPage />} />
-    <Route path="/solutions/:solutionId" element={<SolutionDetail />} />
-    // ... etc
-  </Routes>
-</BrowserRouter>
+// /routes.tsx — using react-router (NOT react-router-dom)
+import { createBrowserRouter } from 'react-router';
+// 3 layout groups: Layout (public), DashboardLayout (/app/*), WizardPage (/wizard/*)
 ```
-
-### URL Hash Support
-Currently implemented for projects page:
-- `/projects#startupai`
-- `/projects#fashionos`
-- `/projects#eventsos`
-- `/projects#medellinai`
 
 ---
 
@@ -880,6 +970,7 @@ Currently implemented for projects page:
 | 2026-01-08 | 1.0 | Initial sitemap creation | System |
 | 2026-03-07 | 1.2 | Add individual solution pages | System |
 | 2026-03-07 | 1.3 | Add individual industry pages | System |
+| 2026-03-09 | 13 | Add auth, wizard, app dashboard (23 routes), strategy engine sub-features | System |
 
 ---
 

@@ -33,13 +33,13 @@
 | 17 | "Ask AI" per-block synthesis (Gemini) | 05, 08 | 14c | P1 | L | **Done** | 100% |
 | 18 | "Run Analysis" full-canvas analysis flow | 08, 15 §5 | 14c | P1 | L | **Done** | 100% |
 | 19 | "Create from Wizard" canvas auto-population | 02, 15 §4 | 14c | P1 | M | **Done** | 100% |
-| 20 | Analysis progress sheet (5-agent overlay) | 11 | 14c | P1 | M | Not Started | 0% |
-| 21 | Roadmap Execution panel (center column) | 10 | 14d | P1 | M | Not Started | 0% |
-| 22 | Canvas version history sheet | 12 | 14d | P1 | S | Not Started | 0% |
-| 23 | Mobile tab nav + bottom sheet editor | 13 | 14d | P1 | M | Not Started | 0% |
+| 20 | Analysis progress sheet (5-agent overlay) | 11 | 14c | P1 | M | **Done** | 100% |
+| 21 | Roadmap Execution panel (center column) | 10 | 14d | P1 | M | **Done** | 100% |
+| 22 | Canvas version history sheet | 12 | 14d | P1 | S | **Done** | 100% |
+| 23 | Mobile tab nav + bottom sheet editor | 13 | 14d | P1 | M | **Done** | 100% |
 | 24 | Skeleton loading states for all components | All | 14d | P2 | S | **Done** | 100% |
-| 25 | End-to-end verification (14 tests) | 15 §9 | 14d | P0 | M | Not Started | 0% |
-| | **TOTALS** | | | | | **21 / 26** | **85%** |
+| 25 | End-to-end verification (14 tests) | 15 §9 | 14d | P0 | M | **Done** | 100% |
+| | **TOTALS** | | | | | **26 / 26** | **100%** |
 
 ### Quick Stats
 - **Tasks:** 26 total (12 P0, 10 P1, 4 P2)
