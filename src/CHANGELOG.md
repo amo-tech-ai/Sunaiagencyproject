@@ -3,8 +3,78 @@
 **Project:** Sun AI Agency — AI Consulting & Solutions Website
 **Stack:** Vite + React + Tailwind CSS v4 + Supabase + Vercel
 **Design System:** BCG Consulting-Inspired (Calm Luxury Editorial)
-**Current Version:** v0.24.6
-**Last Updated:** 2026-03-09
+**Current Version:** v0.25.0
+**Last Updated:** 2026-03-10
+
+---
+
+## [0.25.0] — 2026-03-10 — Onboarding Agent (Task 064) + Home Page Cleanup
+
+### Summary
+
+Full implementation of the Onboarding Agent (task 064) — the backend pipeline that converts completed wizard sessions into proper database records. When a user finishes the 5-step Project Brief Wizard, the agent reads wizard data, upserts a client record, creates a project with roadmap/phases, logs an activity event, and returns a full summary. Also removed the Strategic Framework (PlaybookSection) and Testimonial quote sections from HomePageV3 to streamline the home page flow.
+
+### Added — Onboarding Agent Backend (2 routes)
+
+- **`/supabase/functions/server/onboarding-routes.tsx`** — New Hono route group with 2 endpoints:
+  - `POST /onboarding/complete` — Main agent: reads `wizard_sessions` + `wizard_answers`, upserts `clients`, inserts `projects` + `roadmaps` + `roadmap_phases` + `activities`. Idempotent (checks `wizard_session_id` uniqueness). Returns `{ success, client, project, roadmap, phases[], activity, summary, durationMs }`.
+  - `GET /onboarding/status/:sessionId` — Check if a wizard session has already been onboarded. Graceful fallback if tables don't exist yet.
+- **Auth:** Uses `requireAuth()` with anonymous fallback via `getUserFromToken()`. Both authenticated and anonymous users supported.
+
+### Added — Auto-Migration for Onboarding Tables
+
+- **`/supabase/functions/server/ensure-schema.tsx`** — Added `ensureOnboardingSchema()` function. Auto-creates 4 tables on first request: `projects`, `roadmaps`, `roadmap_phases`, `activities`. Uses `CREATE TABLE IF NOT EXISTS` (idempotent). Adds RLS policies for `service_role`. Runs once per server lifecycle via `onboardingMigrationDone` guard.
+
+### Added — Frontend API Layer
+
+- **`/lib/supabase.ts`** — Added `onboardingApi` module with 2 methods:
+  - `onboardingApi.complete(sessionId, token?)` — Calls `POST /onboarding/complete`
+  - `onboardingApi.status(sessionId, token?)` — Calls `GET /onboarding/status/:sessionId`
+- **TypeScript interfaces:** `OnboardingCompleteResponse`, `OnboardingStatusResponse`
+
+### Changed — Server Entry Point
+
+- **`/supabase/functions/server/index.tsx`** — Mounted onboarding routes with schema auto-migration middleware (`ensureOnboardingSchema()` runs before first `/onboarding/*` request). Health check now reports `onboardingSchema` migration status.
+
+### Changed — Wizard Step 5 Integration
+
+- **`/components/wizard/steps/StepLaunchProject.tsx`** — Wired onboarding agent to fire automatically after roadmap generation completes. Added live status indicator in the "What's been created" checklist section:
+  - `idle` — "Preparing to save project to database…"
+  - `checking` — "Checking existing records…"
+  - `running` — "Creating project records…"
+  - `done` — "Project saved — N phases, client record created (Xms)"
+  - `error` — "Could not save to database" with Retry button
+- Checks `onboardingApi.status()` first (idempotent guard), then calls `onboardingApi.complete()`.
+
+### Removed — Home Page Sections
+
+- **`/components/HomePageV3.tsx`** — Removed 2 sections from the home page:
+  - **Strategic Framework** (`PlaybookSection`) — The "Future-Ready Playbook for Climbing the AI Maturity Curve" accordion with 4 items (Data Readiness, Use Case Prioritization, Model Selection, Operationalization)
+  - **Testimonial** (`TestimonialSection`) — The Sarah Mitchell quote "Sun AI didn't just build us an AI system — they transformed how our entire team thinks about operations."
+- Cleaned up dead code: `PLAYBOOK_ITEMS` array, `TESTIMONIAL_IMG` constant, `PlaybookSection` function, `TestimonialSection` function
+- Page now flows: How We Deliver → Metrics Band → Final CTA
+
+### Files Created
+
+```
+/supabase/functions/server/onboarding-routes.tsx — Onboarding agent (2 routes)
+```
+
+### Files Modified
+
+```
+/supabase/functions/server/ensure-schema.tsx — ensureOnboardingSchema() auto-migration
+/supabase/functions/server/index.tsx — Mount onboarding routes + schema middleware
+/lib/supabase.ts — onboardingApi module (2 methods + 2 interfaces)
+/components/wizard/steps/StepLaunchProject.tsx — Auto-trigger onboarding + status UI
+/components/HomePageV3.tsx — Removed PlaybookSection + TestimonialSection
+```
+
+### Production Status
+
+- Edge function routes: 65 (63 prior + 2 onboarding)
+- Database tables: 48 (44 prior + 4 onboarding: projects, roadmaps, roadmap_phases, activities)
+- Auto-migration functions: 2 (ensureAISchema + ensureOnboardingSchema)
 
 ---
 

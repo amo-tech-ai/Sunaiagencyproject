@@ -1,15 +1,15 @@
 # TODO — Sun AI Agency Website
 
 **Project:** Sun AI Agency — AI Consulting & Solutions Website
-**Current Version:** v0.24.6
-**Last Updated:** 2026-03-09
+**Current Version:** v0.25.0
+**Last Updated:** 2026-03-10
 
 ---
 
 ## IMMEDIATE PRIORITIES (This Sprint)
 
 ### Deployment Steps
-- [ ] **Deploy Edge Function** — Deploy updated server with all 63 routes (49 prior + 14 strategy) to Supabase Edge Functions. Includes: Phase 8 documents, Phase 11 workflows, Phase 13 financial, CRM auth fix, dashboard-insights 404 fix, and **Phase 14 strategy engine** (14 endpoints mounted directly on main Hono app)
+- [ ] **Deploy Edge Function** — Deploy updated server with all 65 routes (63 prior + 2 onboarding) to Supabase Edge Functions. Includes: Phase 8 documents, Phase 11 workflows, Phase 13 financial, CRM auth fix, dashboard-insights 404 fix, **Phase 14 strategy engine** (14 endpoints), and **Task 064 onboarding agent** (2 endpoints with auto-migration)
 - [ ] **Run CRM Pipeline Migrations** — Execute `20260307120300_create_crm_pipeline_tables.sql` and `20260307120400_seed_default_pipeline_and_verify.sql` in Supabase SQL Editor to create `crm_pipelines`, `crm_stages`, `crm_deals`, `crm_interactions` tables and seed default pipelines
 - [ ] **Run Strategy Engine Migration** — Execute `/imports/create-strategy-tables.txt` in Supabase SQL Editor to create 12 strategy tables (`lean_canvases`, `lean_canvas_versions`, `strategy_insights`, `automation_opportunities`, `strategy_recommendations`, `strategy_actions`, + 6 advanced tables). Verified against docs 15 and 16 with 5 extra indexes, append-only RLS on audit tables
 - [ ] **Run Realtime Broadcast Triggers (4 files)** — Execute all 4 SQL files in Supabase SQL Editor to enable live Realtime on all channels:
@@ -21,7 +21,20 @@
 - [ ] **Verify CRM Auth Fix** — Test `GET /crm/clients` and `GET /crm/pipelines` with both anonymous and authenticated tokens after deploy; confirm JWT decode anon detection works
 - [ ] **Verify Document Storage** — The `make-283466b6-documents` bucket auto-creates on first upload; verify in Supabase Dashboard > Storage
 - [ ] **Verify Strategy Engine** — Test `/app/strategy` page loads, canvas CRUD works, "Run Analysis" triggers 5-agent orchestration, version history saves/reverts
+- [ ] **Run Onboarding Tables Migration** — Execute `20260310120000_create_onboarding_tables.sql` in Supabase SQL Editor to create `projects`, `roadmaps`, `roadmap_phases`, `activities` tables with CHECK constraints and indexes (or rely on auto-migration via `ensureOnboardingSchema()` for basic table creation)
 - [ ] **Watch for Hono Sub-Router 404s** — After deploy, test all AI routes (`/ai/generate`, `/ai/cache`, `/agent-stats/*`, etc.) for 404s caused by Hono sub-router mounting. If any 404, move route handler from `ai-routes.tsx` to direct registration in `index.tsx` (same fix applied to `/dashboard-insights` in v0.22.2 and all 14 strategy routes in v0.23.0)
+
+### Smoke Testing — Onboarding Agent (Task 064)
+- [ ] Complete wizard end-to-end (Steps 1-5) and verify onboarding status indicator shows "Project saved" in Step 5
+- [ ] Verify `projects` table has a new row with correct `wizard_session_id`, `client_id`, `name`, `industry`, `selected_systems`
+- [ ] Verify `roadmaps` table has a new row linked to the project with `quick_wins`, `risk_factors`, `success_metrics`
+- [ ] Verify `roadmap_phases` table has N rows (matching AI roadmap phases) with phase 1 `status = 'active'`
+- [ ] Verify `activities` table has a new row with `type = 'onboarding'` and correct metadata
+- [ ] Verify `clients` table has a new or updated row with company name from wizard Step 1
+- [ ] Re-complete the same wizard session and verify idempotent response (no duplicate project created)
+- [ ] Test with anonymous user (no auth) — verify graceful handling
+- [ ] Test Retry button on error state in Step 5 UI
+- [ ] Verify health check at `/health` reports `onboardingSchema: "migrated"`
 
 ### Smoke Testing — All Dashboard Phases
 - [ ] Dashboard home loads at `/app/dashboard` with metrics
@@ -113,8 +126,9 @@
 | 12 | (Merged into Phase 8) | — | — |
 | 13 | Financial Dashboard | Done | v0.22.0 |
 | 14 | Lean Strategy Engine | Done | v0.24.0 |
+| T064 | Onboarding Agent | Done | v0.25.0 |
 
-**ALL 14 DASHBOARD PHASES COMPLETE** (26/26 strategy tasks) | CRM Auth Hardened in v0.22.1 | Hono 404 Fix in v0.22.2 | Sitemap v13 in v0.24.1
+**ALL 14 DASHBOARD PHASES COMPLETE** (26/26 strategy tasks) | CRM Auth Hardened in v0.22.1 | Hono 404 Fix in v0.22.2 | Sitemap v13 in v0.24.1 | Onboarding Agent in v0.25.0
 
 ---
 
@@ -162,6 +176,27 @@
 - [x] **WizardContext update** — Calls `markLocalSave()` before cloud saves
 - [x] **3 SQL trigger files** — ai-runs, wizard-sessions, lean-canvases broadcast triggers
 - [x] **Wiring map rewrite** — 4 broadcast channels, 4 SQL triggers, updated architecture docs
+
+---
+
+## COMPLETED — Task 064: Onboarding Agent (v0.25.0)
+
+> Spec: `/imports/onboarding-agent-rewrite.md`
+> Progress: **10 / 10 steps** (100%)
+
+- [x] **Read wizard_sessions + wizard_answers** — Loads session + all step answers by session ID
+- [x] **Validate wizard completeness** — Checks steps 1-3 are present (4-5 optional)
+- [x] **Extract business profile** — Parses Step 1 data (company, industry, size, goal, challenge)
+- [x] **Extract selected systems** — Parses Step 3 data (AI system selections)
+- [x] **UPSERT client record** — Creates or updates `clients` row by `created_by` user ID
+- [x] **INSERT project record** — Creates `projects` row with `wizard_session_id` (idempotent guard)
+- [x] **INSERT roadmap record** — Creates `roadmaps` row with AI-generated quick wins, risks, metrics
+- [x] **INSERT roadmap_phases** — Creates N phase rows from AI roadmap (or 1 default phase)
+- [x] **UPDATE wizard_sessions** — Sets `user_id` and `status = 'completed'` on the session
+- [x] **INSERT activity event** — Logs onboarding completion to `activities` table
+- [x] **Auto-migration** — `ensureOnboardingSchema()` creates all 4 tables on first request
+- [x] **Frontend wiring** — `onboardingApi` in `lib/supabase.ts` + Step 5 live status UI
+- [x] **Idempotent** — Checks existing project by `wizard_session_id` before creating
 
 ---
 
@@ -221,12 +256,12 @@
 | E-commerce AI | HomePageV3.tsx | ✅ Cloudinary |
 | AI Automations | HomePageV3.tsx | ✅ Cloudinary (v0.24.6) |
 | Story section | HomePageV3.tsx | ⬜ Unsplash |
-| Testimonial | HomePageV3.tsx | ⬜ Unsplash |
+| ~~Testimonial~~ | ~~HomePageV3.tsx~~ | ❌ Removed (v0.25.0) |
 | Specialized Service 1 | HomePageV3.tsx | ⬜ Unsplash |
 | Specialized Service 2 | HomePageV3.tsx | ⬜ Unsplash |
 | Specialized Service 3 | HomePageV3.tsx | ⬜ Unsplash |
 
-**Progress:** 10/15 migrated to Cloudinary
+**Progress:** 10/14 migrated to Cloudinary (1 section removed)
 
 ---
 
@@ -308,14 +343,15 @@
 
 - **Total Routes:** 51 (32 public + 16 authenticated + 3 aliases)
 - **Dashboard Pages:** 43 production components, 0 placeholders
-- **Edge Function Routes:** 63 total (49 prior + 14 strategy engine)
+- **Edge Function Routes:** 65 total (49 prior + 14 strategy engine + 2 onboarding agent)
 - **Realtime Channels:** 4 (all broadcast pattern — ai-runs, wizard-sync, pipeline-deals, canvas-sync)
 - **Custom Hooks:** 13 (6 utility + 4 Realtime domain + 2 data + 1 legacy base)
 - **Auth Methods:** 5 (email sign-in, email sign-up, Google OAuth, LinkedIn OIDC, guest/anonymous)
 - **Supabase Storage:** 1 private bucket (make-283466b6-documents)
-- **Database Tables:** 44 (32 prior + 12 strategy engine)
+- **Database Tables:** 48 (32 prior + 12 strategy engine + 4 onboarding: projects, roadmaps, roadmap_phases, activities)
+- **Auto-Migration Functions:** 2 (ensureAISchema + ensureOnboardingSchema)
 - **SQL Trigger Files:** 4 (broadcast triggers for Realtime)
 - **RLS Policies on realtime.messages:** 4 (ai_runs_read, wizard_sessions_read, pipeline_deals_read, canvas_blocks_read)
 - **Planning Docs:** 17 spec documents in `/docs/lean/`
-- **Current Version:** v0.24.6
-- **Project Completion:** ~92% (all 14 dashboard phases complete; full Realtime system wired; enhancements + infrastructure remaining)
+- **Current Version:** v0.25.0
+- **Project Completion:** ~93% (all 14 dashboard phases complete; onboarding agent wired; full Realtime system; enhancements + infrastructure remaining)
