@@ -36,9 +36,6 @@ const HERO_IMG =
 const STORY_IMG =
   'https://images.unsplash.com/photo-1765371513765-d2b624850162?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtaW5pbWFsJTIwYm9va3NoZWxmJTIwbW9kZXJuJTIbWludGVyaW9uJTIwZGVzaWduJTIwYXJ0JTIwbmF0dXJhbCUyMGxpZ2h0fGVufDF8fHx8MTc3MjAxMzc5MHww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral';
 
-const TESTIMONIAL_IMG =
-  'https://images.unsplash.com/photo-1635366898830-b5d48950e4f6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwcm9mZXNzaW9uYWwlMjB3b21hbiUyMGV4ZWN1dGl2ZSUyMHBvcnRyYWl0JTIwbmF0dXJhbCUyMGxpZ2h0fGVufDF8fHx8MTc3MjAxMzc5MXww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral';
-
 /* ── BCG Design Tokens ── */
 
 const cx = {
@@ -785,162 +782,13 @@ function ProcessSection() {
    8 — PLAYBOOK / RESOURCES
    ═══════════════════════════════════════════════════════════════ */
 
-const PLAYBOOK_ITEMS = [
-  {
-    title: 'Data Readiness Assessment',
-    desc: 'Evaluate your data infrastructure for AI integration — identify gaps, quality issues, and pipeline requirements.',
-    active: true,
-  },
-  {
-    title: 'AI Use Case Prioritization',
-    desc: 'Score potential AI applications by impact, feasibility, and time-to-value to build a focused implementation roadmap.',
-    active: false,
-  },
-  {
-    title: 'Model Selection & Architecture',
-    desc: 'Choose the right LLM, embedding strategy, and deployment infrastructure for your specific business needs.',
-    active: false,
-  },
-  {
-    title: 'Operationalization & Scale',
-    desc: 'Move from pilot to production with monitoring, governance, and continuous optimization frameworks.',
-    active: false,
-  },
-];
-
-function PlaybookSection() {
-  return (
-    <SectionWrap>
-      <div className="py-24 sm:py-32">
-        <div className="mb-14 max-w-2xl">
-          <p
-            className="uppercase tracking-[0.2em] mb-4"
-            style={{ fontSize: '0.7rem', fontWeight: 600, color: cx.accent }}
-          >
-            Strategic Framework
-          </p>
-          <h2
-            className="tracking-tight mb-3"
-            style={{
-              fontFamily: "Georgia, 'Playfair Display', serif",
-              fontSize: 'clamp(1.5rem, 3vw, 2.25rem)',
-              fontWeight: 400,
-              lineHeight: 1.2,
-              color: cx.dark,
-            }}
-          >
-            The Future-Ready Playbook for Climbing the AI Maturity Curve
-          </h2>
-          <p style={{ fontSize: '0.95rem', color: cx.muted, lineHeight: 1.7 }}>
-            A structured approach to enterprise AI adoption.
-          </p>
-        </div>
-
-        <div className="max-w-3xl">
-          {PLAYBOOK_ITEMS.map((item, i) => (
-            <div
-              key={item.title}
-              className="py-6 transition-all duration-300"
-              style={{
-                borderTop: i === 0 ? `1px solid ${cx.border}` : 'none',
-                borderBottom: `1px solid ${cx.border}`,
-                borderLeft: 'none',
-                borderRight: 'none',
-              }}
-            >
-              <div className="flex items-start gap-6">
-                <span
-                  className="shrink-0 mt-1"
-                  style={{
-                    fontFamily: "Georgia, serif",
-                    fontSize: '1.25rem',
-                    fontWeight: 400,
-                    color: item.active ? cx.accent : cx.caption,
-                  }}
-                >
-                  {String(i + 1).padStart(2, '0')}
-                </span>
-                <div>
-                  <h3
-                    className="mb-1.5"
-                    style={{
-                      fontSize: '1rem',
-                      fontWeight: 600,
-                      color: cx.dark,
-                    }}
-                  >
-                    {item.title}
-                  </h3>
-                  <p style={{ fontSize: '0.875rem', lineHeight: 1.65, color: cx.muted }}>
-                    {item.desc}
-                  </p>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </SectionWrap>
-  );
-}
+// ... remove this code ...
 
 /* ═══════════════════════════════════════════════════════════════
    9 — TESTIMONIAL
    ═══════════════════════════════════════════════════════════════ */
 
-function TestimonialSection() {
-  return (
-    <SectionWrap bg={cx.bgWhite}>
-      <div className="py-24 sm:py-32">
-        <div className="max-w-3xl mx-auto">
-          {/* Top rule */}
-          <div className="mb-12" style={{ height: '1px', background: cx.border }} />
-          
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-10 items-start">
-            {/* Avatar column */}
-            <div className="md:col-span-3 flex md:flex-col items-center md:items-start gap-4">
-              <div className="w-16 h-16 rounded-full overflow-hidden shrink-0">
-                <ImageWithFallback
-                  src={TESTIMONIAL_IMG}
-                  alt="Client"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div>
-                <p style={{ fontSize: '0.875rem', fontWeight: 600, color: cx.dark }}>
-                  Sarah Mitchell
-                </p>
-                <p style={{ fontSize: '0.8rem', color: cx.muted }}>
-                  VP of Operations, Meridian Group
-                </p>
-              </div>
-            </div>
-
-            {/* Quote */}
-            <div className="md:col-span-9">
-              <blockquote
-                style={{
-                  fontFamily: "Georgia, 'Playfair Display', serif",
-                  fontSize: 'clamp(1.15rem, 2.5vw, 1.5rem)',
-                  lineHeight: 1.6,
-                  color: cx.dark,
-                  fontWeight: 400,
-                }}
-              >
-                "Sun AI didn't just build us an AI system — they transformed how our
-                entire team thinks about operations. The ROI was visible within the
-                first month."
-              </blockquote>
-            </div>
-          </div>
-          
-          {/* Bottom rule */}
-          <div className="mt-12" style={{ height: '1px', background: cx.border }} />
-        </div>
-      </div>
-    </SectionWrap>
-  );
-}
+// ... remove this code ...
 
 /* ═══════════════════════════════════════════════════════════════
    10 — METRICS BAND
@@ -1068,8 +916,6 @@ export default function HomePageV3() {
       <StorySection />
       <SpecializedServicesSection />
       <HowWeDeliverSection />
-      <PlaybookSection />
-      <TestimonialSection />
       <MetricsBand />
       <FinalCTA />
     </div>

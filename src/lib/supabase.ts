@@ -778,3 +778,51 @@ export const strategyApi = {
       token,
     }),
 };
+
+// ── Onboarding API (Task 064 — Onboarding Agent) ──
+export interface OnboardingCompleteResponse {
+  success: boolean;
+  idempotent: boolean;
+  client: { id: string };
+  project: { id: string; name?: string };
+  roadmap: { id: string } | null;
+  phases: { id: string }[];
+  activity: { id: string } | null;
+  summary?: {
+    companyName: string;
+    industry: string;
+    selectedSystems: string[];
+    totalWeeks: number;
+    totalInvestment: string;
+    phaseCount: number;
+  };
+  durationMs: number;
+  message?: string;
+}
+
+export interface OnboardingStatusResponse {
+  onboarded: boolean;
+  project: {
+    id: string;
+    name: string;
+    status: string;
+    current_phase: number;
+    total_weeks: number;
+    created_at: string;
+  } | null;
+  message?: string;
+}
+
+export const onboardingApi = {
+  /** Complete onboarding — creates client, project, roadmap, phases, activity */
+  complete: (sessionId: string, token?: string) =>
+    api<OnboardingCompleteResponse>('/onboarding/complete', {
+      method: 'POST',
+      body: { sessionId },
+      token,
+    }),
+
+  /** Check if a wizard session has already been onboarded */
+  status: (sessionId: string, token?: string) =>
+    api<OnboardingStatusResponse>(`/onboarding/status/${sessionId}`, { token }),
+};

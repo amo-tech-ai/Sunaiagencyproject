@@ -10,7 +10,8 @@ import { WizardLayout } from '../WizardLayout';
 import { motion } from 'motion/react';
 import { Check, ArrowRight, Loader2, AlertCircle, RefreshCw } from 'lucide-react';
 import { Link } from 'react-router';
-import { aiApi } from '../../../lib/supabase';
+import { aiApi, onboardingApi } from '../../../lib/supabase';
+import type { OnboardingCompleteResponse } from '../../../lib/supabase';
 
 interface RoadmapPhase {
   phaseNumber: number;
@@ -50,6 +51,64 @@ export function StepLaunchProject() {
   const [roadmapError, setRoadmapError] = useState<string | null>(null);
   const fetchedRef = useRef(false);
 
+  // ── Onboarding Agent State ──
+  const [onboardingResult, setOnboardingResult] = useState<OnboardingCompleteResponse | null>(null);
+  const [onboardingLoading, setOnboardingLoading] = useState(false);
+  const [onboardingError, setOnboardingError] = useState<string | null>(null);
+  const [onboardingStatus, setOnboardingStatus] = useState<'idle' | 'checking' | 'running' | 'done' | 'error'>('idle');
+  const onboardingRef = useRef(false);
+
+  // ── Run onboarding agent after roadmap loads ──
+  const runOnboarding = useCallback(async () => {
+    if (!sessionId || onboardingRef.current) return;
+    onboardingRef.current = true;
+    setOnboardingLoading(true);
+    setOnboardingStatus('checking');
+    setOnboardingError(null);
+
+    try {
+      // First check if already onboarded (idempotent)
+      const { data: statusData } = await onboardingApi.status(sessionId);
+      if (statusData?.onboarded) {
+        console.log('[Step5] Session already onboarded, project:', statusData.project?.id);
+        setOnboardingResult({
+          success: true,
+          idempotent: true,
+          client: { id: '' },
+          project: { id: statusData.project?.id || '', name: statusData.project?.name },
+          roadmap: null,
+          phases: [],
+          activity: null,
+          durationMs: 0,
+          message: 'Project already exists',
+        });
+        setOnboardingStatus('done');
+        setOnboardingLoading(false);
+        return;
+      }
+
+      // Run the onboarding agent
+      setOnboardingStatus('running');
+      const { data, error } = await onboardingApi.complete(sessionId);
+
+      if (error) {
+        console.error('[Step5] Onboarding error:', error);
+        setOnboardingError(error);
+        setOnboardingStatus('error');
+      } else if (data) {
+        console.log('[Step5] Onboarding complete:', data);
+        setOnboardingResult(data);
+        setOnboardingStatus('done');
+      }
+    } catch (e) {
+      console.error('[Step5] Onboarding exception:', e);
+      setOnboardingError(String(e));
+      setOnboardingStatus('error');
+    } finally {
+      setOnboardingLoading(false);
+    }
+  }, [sessionId]);
+
   // Fetch roadmap on mount
   useEffect(() => {
     if (fetchedRef.current) return;
@@ -82,6 +141,21 @@ export function StepLaunchProject() {
     fetchRoadmap();
   }, [sessionId, step1.industry, step1.companySize, step3.selectedSystems]);
 
+  // Trigger onboarding after roadmap finishes (or after a short delay if no roadmap)
+  useEffect(() => {
+    if (onboardingRef.current) return;
+    if (!sessionId) return;
+
+    // Wait for roadmap to finish loading, then run onboarding
+    if (!roadmapLoading) {
+      // Small delay to ensure wizard_answers for step 5 are saved
+      const timer = setTimeout(() => {
+        runOnboarding();
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [roadmapLoading, sessionId, runOnboarding]);
+
   const retryRoadmap = useCallback(async () => {
     fetchedRef.current = false;
     setRoadmapLoading(true);
@@ -104,6 +178,13 @@ export function StepLaunchProject() {
       setRoadmapLoading(false);
     }
   }, [sessionId, step1, step3.selectedSystems]);
+
+  const retryOnboarding = useCallback(() => {
+    onboardingRef.current = false;
+    setOnboardingError(null);
+    setOnboardingStatus('idle');
+    runOnboarding();
+  }, [runOnboarding]);
 
   // Use AI roadmap phases or fallback to static
   const displayPhases = roadmap?.phases?.length
@@ -368,6 +449,56 @@ export function StepLaunchProject() {
                   </motion.div>
                 ))}
               </div>
+
+              {/* Onboarding Agent Status */}
+              <motion.div
+                className="mt-4 pt-4 border-t"
+                style={{ borderColor: '#F0F0EC' }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1.3 }}
+              >
+                {onboardingStatus === 'idle' && (
+                  <div className="flex items-center gap-2 text-xs" style={{ color: '#9CA39B' }}>
+                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: '#E8E8E4' }} />
+                    Preparing to save project to database…
+                  </div>
+                )}
+                {(onboardingStatus === 'checking' || onboardingStatus === 'running') && (
+                  <div className="flex items-center gap-2 text-xs" style={{ color: '#00875A' }}>
+                    <Loader2 className="w-3 h-3 animate-spin" />
+                    {onboardingStatus === 'checking' ? 'Checking existing records…' : 'Creating project records…'}
+                  </div>
+                )}
+                {onboardingStatus === 'done' && onboardingResult && (
+                  <div className="flex items-center gap-2 text-xs" style={{ color: '#00875A' }}>
+                    <Check className="w-3.5 h-3.5" />
+                    <span>
+                      {onboardingResult.idempotent
+                        ? 'Project already saved to database'
+                        : `Project saved — ${onboardingResult.summary?.phaseCount || 0} phases, client record created`}
+                      {onboardingResult.durationMs > 0 && (
+                        <span style={{ color: '#9CA39B' }}> ({onboardingResult.durationMs}ms)</span>
+                      )}
+                    </span>
+                  </div>
+                )}
+                {onboardingStatus === 'error' && (
+                  <div className="flex items-center gap-2 text-xs">
+                    <AlertCircle className="w-3.5 h-3.5" style={{ color: '#D97706' }} />
+                    <span style={{ color: '#6B6B63' }}>
+                      Could not save to database — your data is safe locally.
+                    </span>
+                    <button
+                      onClick={retryOnboarding}
+                      className="flex items-center gap-1 text-xs px-2 py-0.5 border rounded transition-colors hover:bg-gray-50"
+                      style={{ borderColor: '#E8E8E4', borderRadius: '4px', color: '#00875A' }}
+                    >
+                      <RefreshCw className="w-3 h-3" /> Retry
+                    </button>
+                  </div>
+                )}
+              </motion.div>
             </div>
           </div>
         </motion.div>

@@ -14,8 +14,10 @@ import { documents } from "./document-routes.tsx";
 import { workflows } from "./workflow-routes.tsx";
 import { financial } from "./financial-routes.tsx";
 import { strategy } from "./strategy-routes.tsx";
+import { onboarding } from "./onboarding-routes.tsx";
 import { createUser } from "./auth.tsx";
 import { ensureAISchema } from "./ensure-schema.tsx";
+import { ensureOnboardingSchema } from "./ensure-schema.tsx";
 import { callGemini } from "./gemini.tsx";
 
 const app = new Hono();
@@ -39,10 +41,12 @@ app.use(
 // ── Health check ──
 app.get(`${PREFIX}/health`, async (c) => {
   const schema = await ensureAISchema();
+  const onboardingSchema = await ensureOnboardingSchema();
   return c.json({
     status: "ok",
     timestamp: new Date().toISOString(),
     schema: schema.ok ? "migrated" : schema.error,
+    onboardingSchema: onboardingSchema.ok ? "migrated" : onboardingSchema.error,
   });
 });
 
@@ -168,6 +172,13 @@ app.route("/", financial);
 
 // ── Mount Strategy routes (Phase 14 — Lean Strategy Engine) ──
 app.route("/", strategy);
+
+// ── Mount Onboarding routes (Task 064 — Onboarding Agent) ──
+app.use(`${PREFIX}/onboarding/*`, async (c, next) => {
+  await ensureOnboardingSchema();
+  await next();
+});
+app.route("/", onboarding);
 
 // ── 404 handler ──
 app.notFound((c) => {

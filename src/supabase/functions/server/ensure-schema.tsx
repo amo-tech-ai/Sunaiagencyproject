@@ -8,6 +8,7 @@ import postgres from "npm:postgres@3.4.5";
 
 let migrationDone = false;
 let migrationError: string | null = null;
+let onboardingMigrationDone = false;
 
 /**
  * Ensure the ai_run_logs and ai_cache tables have the correct columns.
@@ -136,6 +137,159 @@ export async function ensureAISchema(): Promise<{ ok: boolean; error?: string }>
     console.log(`[Schema] ${msg}`);
     migrationDone = true; // Don't retry every request
     migrationError = msg;
+    return { ok: false, error: msg };
+  } finally {
+    if (sql) {
+      try { await sql.end(); } catch { /* ignore close errors */ }
+    }
+  }
+}
+
+/**
+ * Ensure the onboarding tables exist (projects, roadmaps, roadmap_phases, activities).
+ * Uses CREATE TABLE IF NOT EXISTS — safe to run multiple times.
+ * Runs only once per server lifecycle.
+ */
+export async function ensureOnboardingSchema(): Promise<{ ok: boolean; error?: string }> {
+  if (onboardingMigrationDone) return { ok: true };
+
+  const dbUrl = Deno.env.get("SUPABASE_DB_URL");
+  if (!dbUrl) {
+    console.log("[Schema] SUPABASE_DB_URL not set — skipping onboarding migration");
+    onboardingMigrationDone = true;
+    return { ok: false, error: "SUPABASE_DB_URL not configured" };
+  }
+
+  let sql: ReturnType<typeof postgres> | null = null;
+
+  try {
+    sql = postgres(dbUrl, { max: 1, idle_timeout: 5, connect_timeout: 10 });
+
+    console.log("[Schema] Running onboarding table auto-migration...");
+
+    // ─── projects ────────────────────────────────────────────────────
+    await sql`
+      CREATE TABLE IF NOT EXISTS projects (
+        id              uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+        client_id       uuid        NULL,
+        user_id         uuid        NULL,
+        wizard_session_id uuid      NULL,
+        name            text        NOT NULL,
+        description     text        NOT NULL DEFAULT '',
+        industry        text        NOT NULL DEFAULT '',
+        company_size    text        NOT NULL DEFAULT '',
+        selected_systems jsonb      NOT NULL DEFAULT '[]'::jsonb,
+        status          text        NOT NULL DEFAULT 'active',
+        current_phase   integer     NOT NULL DEFAULT 1,
+        total_weeks     integer     NOT NULL DEFAULT 0,
+        total_investment text       NOT NULL DEFAULT '',
+        wizard_snapshot  jsonb      NULL,
+        created_at      timestamptz NOT NULL DEFAULT now(),
+        updated_at      timestamptz NOT NULL DEFAULT now()
+      )
+    `;
+    await sql`ALTER TABLE projects ENABLE ROW LEVEL SECURITY`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_projects_user_id ON projects (user_id) WHERE user_id IS NOT NULL`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_projects_wizard_session ON projects (wizard_session_id) WHERE wizard_session_id IS NOT NULL`;
+    console.log("[Schema] projects OK");
+
+    // ─── roadmaps ────────────────────────────────────────────────────
+    await sql`
+      CREATE TABLE IF NOT EXISTS roadmaps (
+        id              uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+        project_id      uuid        NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+        title           text        NOT NULL DEFAULT '',
+        total_weeks     integer     NOT NULL DEFAULT 0,
+        total_investment text       NOT NULL DEFAULT '',
+        quick_wins      jsonb       NOT NULL DEFAULT '[]'::jsonb,
+        risk_factors    jsonb       NOT NULL DEFAULT '[]'::jsonb,
+        success_metrics jsonb       NOT NULL DEFAULT '[]'::jsonb,
+        ai_response     jsonb       NULL,
+        created_at      timestamptz NOT NULL DEFAULT now(),
+        updated_at      timestamptz NOT NULL DEFAULT now()
+      )
+    `;
+    await sql`ALTER TABLE roadmaps ENABLE ROW LEVEL SECURITY`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_roadmaps_project_id ON roadmaps (project_id)`;
+    console.log("[Schema] roadmaps OK");
+
+    // ─── roadmap_phases ──────────────────────────────────────────────
+    await sql`
+      CREATE TABLE IF NOT EXISTS roadmap_phases (
+        id              uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+        roadmap_id      uuid        NOT NULL REFERENCES roadmaps(id) ON DELETE CASCADE,
+        phase_number    integer     NOT NULL,
+        title           text        NOT NULL DEFAULT '',
+        week_range      text        NOT NULL DEFAULT '',
+        systems         jsonb       NOT NULL DEFAULT '[]'::jsonb,
+        deliverables    jsonb       NOT NULL DEFAULT '[]'::jsonb,
+        milestones      jsonb       NOT NULL DEFAULT '[]'::jsonb,
+        estimated_cost  text        NOT NULL DEFAULT '',
+        status          text        NOT NULL DEFAULT 'upcoming',
+        progress        integer     NOT NULL DEFAULT 0,
+        created_at      timestamptz NOT NULL DEFAULT now()
+      )
+    `;
+    await sql`ALTER TABLE roadmap_phases ENABLE ROW LEVEL SECURITY`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_roadmap_phases_roadmap_id ON roadmap_phases (roadmap_id)`;
+    console.log("[Schema] roadmap_phases OK");
+
+    // ─── activities ──────────────────────────────────────────────────
+    await sql`
+      CREATE TABLE IF NOT EXISTS activities (
+        id              uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id         uuid        NULL,
+        project_id      uuid        NULL,
+        session_id      text        NULL,
+        type            text        NOT NULL DEFAULT 'system',
+        action          text        NOT NULL,
+        detail          text        NOT NULL DEFAULT '',
+        metadata        jsonb       NOT NULL DEFAULT '{}'::jsonb,
+        created_at      timestamptz NOT NULL DEFAULT now()
+      )
+    `;
+    await sql`ALTER TABLE activities ENABLE ROW LEVEL SECURITY`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_activities_created_at ON activities (created_at DESC)`;
+    console.log("[Schema] activities OK");
+
+    // ─── RLS policies (service role bypasses these, but good practice) ──
+    // Using DO blocks to avoid "already exists" errors
+    await sql`
+      DO $$ BEGIN
+        IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'projects_service_all') THEN
+          CREATE POLICY projects_service_all ON projects FOR ALL TO service_role USING (true);
+        END IF;
+      END $$
+    `;
+    await sql`
+      DO $$ BEGIN
+        IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'roadmaps_service_all') THEN
+          CREATE POLICY roadmaps_service_all ON roadmaps FOR ALL TO service_role USING (true);
+        END IF;
+      END $$
+    `;
+    await sql`
+      DO $$ BEGIN
+        IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'roadmap_phases_service_all') THEN
+          CREATE POLICY roadmap_phases_service_all ON roadmap_phases FOR ALL TO service_role USING (true);
+        END IF;
+      END $$
+    `;
+    await sql`
+      DO $$ BEGIN
+        IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'activities_service_all') THEN
+          CREATE POLICY activities_service_all ON activities FOR ALL TO service_role USING (true);
+        END IF;
+      END $$
+    `;
+
+    console.log("[Schema] Onboarding auto-migration complete");
+    onboardingMigrationDone = true;
+    return { ok: true };
+  } catch (e) {
+    const msg = `Onboarding migration failed: ${e}`;
+    console.log(`[Schema] ${msg}`);
+    onboardingMigrationDone = true; // Don't retry every request
     return { ok: false, error: msg };
   } finally {
     if (sql) {
