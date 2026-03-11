@@ -1,9 +1,9 @@
 // S11-WORKFLOWS — Workflow Automation backend routes (Phase 11)
 // CRUD for workflows, execution engine, metrics, templates
-// Data stored in KV: workflow:{id}, wf_exec:{id}, wf_metrics
+// Data stored in Supabase tables: workflows, workflow_executions
 
 import { Hono } from "npm:hono";
-import * as kv from "./kv_store.tsx";
+import { adminClient } from "./db.tsx";
 import { getUserFromToken } from "./auth.tsx";
 
 const PREFIX = "/make-server-283466b6";
@@ -24,17 +24,15 @@ async function getUser(c: any): Promise<string> {
 workflows.get(`${PREFIX}/dashboard/workflows`, async (c) => {
   try {
     const userId = await getUser(c);
-    const entries = await kv.getByPrefix(`workflow:`);
-    const allWorkflows = entries
-      .map((e: any) => {
-        try { return typeof e.value === "string" ? JSON.parse(e.value) : e.value; }
-        catch { return null; }
-      })
-      .filter(Boolean)
-      .sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    const { data: allWorkflows, error } = await adminClient()
+      .from("workflows")
+      .select("*")
+      .order("updated_at", { ascending: false });
 
-    console.log(`[Workflows] Listed ${allWorkflows.length} workflows for user ${userId}`);
-    return c.json({ workflows: allWorkflows });
+    if (error) throw error;
+
+    console.log(`[Workflows] Listed ${(allWorkflows || []).length} workflows for user ${userId}`);
+    return c.json({ workflows: allWorkflows || [] });
   } catch (err) {
     console.log(`[Workflows] List error: ${err}`);
     return c.json({ error: `Failed to list workflows: ${err}` }, 500);
@@ -49,27 +47,41 @@ workflows.post(`${PREFIX}/dashboard/workflows`, async (c) => {
     const { id, name, description, trigger, conditions, actions, status } = body;
 
     const isUpdate = !!id;
-    const workflowId = id || uuid();
     const now = new Date().toISOString();
 
     let workflow: any;
     if (isUpdate) {
-      const existing = await kv.get(`workflow:${workflowId}`);
+      // Fetch existing workflow
+      const { data: existing, error: fetchErr } = await adminClient()
+        .from("workflows")
+        .select("*")
+        .eq("id", id)
+        .maybeSingle();
+
+      if (fetchErr) throw fetchErr;
       if (!existing) return c.json({ error: "Workflow not found" }, 404);
-      const parsed = typeof existing === "string" ? JSON.parse(existing) : existing;
-      workflow = {
-        ...parsed,
-        name: name ?? parsed.name,
-        description: description ?? parsed.description,
-        trigger: trigger ?? parsed.trigger,
-        conditions: conditions ?? parsed.conditions,
-        actions: actions ?? parsed.actions,
-        status: status ?? parsed.status,
-        updated_at: now,
-      };
+
+      // Update only provided fields
+      const updates: any = { updated_at: now };
+      if (name !== undefined) updates.name = name;
+      if (description !== undefined) updates.description = description;
+      if (trigger !== undefined) updates.trigger = trigger;
+      if (conditions !== undefined) updates.conditions = conditions;
+      if (actions !== undefined) updates.actions = actions;
+      if (status !== undefined) updates.status = status;
+
+      const { data: updated, error: updateErr } = await adminClient()
+        .from("workflows")
+        .update(updates)
+        .eq("id", id)
+        .select("*")
+        .single();
+
+      if (updateErr) throw updateErr;
+      workflow = updated;
     } else {
-      workflow = {
-        id: workflowId,
+      // Create new workflow — DB generates the UUID
+      const newWorkflow = {
         name,
         description: description || "",
         trigger,
@@ -83,10 +95,18 @@ workflows.post(`${PREFIX}/dashboard/workflows`, async (c) => {
         updated_at: now,
         user_id: userId,
       };
+
+      const { data: created, error: insertErr } = await adminClient()
+        .from("workflows")
+        .insert(newWorkflow)
+        .select("*")
+        .single();
+
+      if (insertErr) throw insertErr;
+      workflow = created;
     }
 
-    await kv.set(`workflow:${workflowId}`, JSON.stringify(workflow));
-    console.log(`[Workflows] ${isUpdate ? "Updated" : "Created"} workflow: ${workflowId} by ${userId}`);
+    console.log(`[Workflows] ${isUpdate ? "Updated" : "Created"} workflow: ${workflow.id} by ${userId}`);
     return c.json({ workflow });
   } catch (err) {
     console.log(`[Workflows] Create/update error: ${err}`);
@@ -98,7 +118,13 @@ workflows.post(`${PREFIX}/dashboard/workflows`, async (c) => {
 workflows.delete(`${PREFIX}/dashboard/workflows/:id`, async (c) => {
   try {
     const workflowId = c.req.param("id");
-    await kv.del(`workflow:${workflowId}`);
+    const { error } = await adminClient()
+      .from("workflows")
+      .delete()
+      .eq("id", workflowId);
+
+    if (error) throw error;
+
     console.log(`[Workflows] Deleted workflow: ${workflowId}`);
     return c.json({ success: true });
   } catch (err) {
@@ -111,13 +137,25 @@ workflows.delete(`${PREFIX}/dashboard/workflows/:id`, async (c) => {
 workflows.post(`${PREFIX}/dashboard/workflows/toggle`, async (c) => {
   try {
     const { id, status } = await c.req.json();
-    const existing = await kv.get(`workflow:${id}`);
+    const now = new Date().toISOString();
+
+    const { data: existing, error: fetchErr } = await adminClient()
+      .from("workflows")
+      .select("*")
+      .eq("id", id)
+      .maybeSingle();
+
+    if (fetchErr) throw fetchErr;
     if (!existing) return c.json({ error: "Workflow not found" }, 404);
 
-    const workflow = typeof existing === "string" ? JSON.parse(existing) : existing;
-    workflow.status = status;
-    workflow.updated_at = new Date().toISOString();
-    await kv.set(`workflow:${id}`, JSON.stringify(workflow));
+    const { data: workflow, error: updateErr } = await adminClient()
+      .from("workflows")
+      .update({ status, updated_at: now })
+      .eq("id", id)
+      .select("*")
+      .single();
+
+    if (updateErr) throw updateErr;
 
     console.log(`[Workflows] Toggled workflow ${id} to ${status}`);
     return c.json({ workflow });
@@ -130,35 +168,38 @@ workflows.post(`${PREFIX}/dashboard/workflows/toggle`, async (c) => {
 // ── GET /dashboard/workflows/metrics — Aggregate execution metrics ──
 workflows.get(`${PREFIX}/dashboard/workflows/metrics`, async (c) => {
   try {
-    const workflowEntries = await kv.getByPrefix(`workflow:`);
-    const execEntries = await kv.getByPrefix(`wf_exec:`);
+    const { data: allWorkflows, error: wfErr } = await adminClient()
+      .from("workflows")
+      .select("*");
 
-    const allWorkflows = workflowEntries.map((e: any) => {
-      try { return typeof e.value === "string" ? JSON.parse(e.value) : e.value; }
-      catch { return null; }
-    }).filter(Boolean);
+    if (wfErr) throw wfErr;
 
-    const allExecs = execEntries.map((e: any) => {
-      try { return typeof e.value === "string" ? JSON.parse(e.value) : e.value; }
-      catch { return null; }
-    }).filter(Boolean);
+    const { data: allExecs, error: execErr } = await adminClient()
+      .from("workflow_executions")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (execErr) throw execErr;
+
+    const wfs = allWorkflows || [];
+    const execs = allExecs || [];
 
     const today = new Date().toISOString().slice(0, 10);
-    const todayExecs = allExecs.filter((e: any) => e.created_at?.startsWith(today));
-    const successExecs = allExecs.filter((e: any) => e.status === "success");
-    const avgMs = allExecs.length > 0
-      ? Math.round(allExecs.reduce((s: number, e: any) => s + (e.duration_ms || 0), 0) / allExecs.length)
+    const todayExecs = execs.filter((e: any) => e.created_at?.startsWith(today));
+    const successExecs = execs.filter((e: any) => e.status === "success");
+    const avgMs = execs.length > 0
+      ? Math.round(execs.reduce((s: number, e: any) => s + (e.duration_ms || 0), 0) / execs.length)
       : 0;
-    const activeCount = allWorkflows.filter((w: any) => w.status === "enabled").length;
+    const activeCount = wfs.filter((w: any) => w.status === "enabled").length;
 
     const metrics = {
       runs_today: todayExecs.length,
       runs_today_trend: todayExecs.length > 0 ? 12 : 0,
-      success_rate: allExecs.length > 0 ? Math.round((successExecs.length / allExecs.length) * 1000) / 10 : 0,
+      success_rate: execs.length > 0 ? Math.round((successExecs.length / execs.length) * 1000) / 10 : 0,
       success_rate_trend: 2.1,
       avg_execution_ms: avgMs,
       active_count: activeCount,
-      total_count: allWorkflows.length,
+      total_count: wfs.length,
     };
 
     return c.json(metrics);
@@ -172,18 +213,21 @@ workflows.get(`${PREFIX}/dashboard/workflows/metrics`, async (c) => {
 workflows.get(`${PREFIX}/dashboard/workflows/executions`, async (c) => {
   try {
     const workflowId = c.req.query("workflow_id");
-    const entries = await kv.getByPrefix(`wf_exec:`);
-    let execs = entries.map((e: any) => {
-      try { return typeof e.value === "string" ? JSON.parse(e.value) : e.value; }
-      catch { return null; }
-    }).filter(Boolean);
+
+    let query = adminClient()
+      .from("workflow_executions")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(50);
 
     if (workflowId) {
-      execs = execs.filter((e: any) => e.workflow_id === workflowId);
+      query = query.eq("workflow_id", workflowId);
     }
 
-    execs.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-    return c.json({ executions: execs.slice(0, 50) });
+    const { data: execs, error } = await query;
+    if (error) throw error;
+
+    return c.json({ executions: execs || [] });
   } catch (err) {
     console.log(`[Workflows] Executions list error: ${err}`);
     return c.json({ error: `Failed to list executions: ${err}` }, 500);
@@ -194,10 +238,16 @@ workflows.get(`${PREFIX}/dashboard/workflows/executions`, async (c) => {
 workflows.post(`${PREFIX}/dashboard/workflows/run`, async (c) => {
   try {
     const { workflow_id, dry_run } = await c.req.json();
-    const existing = await kv.get(`workflow:${workflow_id}`);
-    if (!existing) return c.json({ error: "Workflow not found" }, 404);
 
-    const workflow = typeof existing === "string" ? JSON.parse(existing) : existing;
+    const { data: workflow, error: fetchErr } = await adminClient()
+      .from("workflows")
+      .select("*")
+      .eq("id", workflow_id)
+      .maybeSingle();
+
+    if (fetchErr) throw fetchErr;
+    if (!workflow) return c.json({ error: "Workflow not found" }, 404);
+
     const startMs = Date.now();
 
     // Simulate execution of each action
@@ -210,11 +260,9 @@ workflows.post(`${PREFIX}/dashboard/workflows/run`, async (c) => {
     }));
 
     const durationMs = Date.now() - startMs + Math.floor(Math.random() * 2000) + 500;
-    const execId = uuid();
     const now = new Date().toISOString();
 
     const execution = {
-      id: execId,
       workflow_id,
       workflow_name: workflow.name,
       status: "success",
@@ -227,15 +275,32 @@ workflows.post(`${PREFIX}/dashboard/workflows/run`, async (c) => {
     };
 
     if (!dry_run) {
-      await kv.set(`wf_exec:${execId}`, JSON.stringify(execution));
+      // Insert execution record
+      const { error: insertErr } = await adminClient()
+        .from("workflow_executions")
+        .insert(execution);
+
+      if (insertErr) throw insertErr;
+
       // Update workflow stats
-      workflow.last_run_at = now;
-      workflow.success_count = (workflow.success_count || 0) + 1;
-      workflow.updated_at = now;
-      await kv.set(`workflow:${workflow_id}`, JSON.stringify(workflow));
+      const { data: updatedWorkflow, error: updateErr } = await adminClient()
+        .from("workflows")
+        .update({
+          last_run_at: now,
+          success_count: (workflow.success_count || 0) + 1,
+          updated_at: now,
+        })
+        .eq("id", workflow_id)
+        .select("*")
+        .single();
+
+      if (updateErr) throw updateErr;
+
+      console.log(`[Workflows] Executed workflow ${workflow_id}: ${durationMs}ms`);
+      return c.json({ execution, workflow: updatedWorkflow });
     }
 
-    console.log(`[Workflows] ${dry_run ? "Dry-run" : "Executed"} workflow ${workflow_id}: ${durationMs}ms`);
+    console.log(`[Workflows] Dry-run workflow ${workflow_id}: ${durationMs}ms`);
     return c.json({ execution, workflow });
   } catch (err) {
     console.log(`[Workflows] Run error: ${err}`);
@@ -248,14 +313,12 @@ workflows.post(`${PREFIX}/dashboard/workflows/install-template`, async (c) => {
   try {
     const userId = await getUser(c);
     const { template_index } = await c.req.json();
-    
+
     // Templates are defined frontend-side; we receive the full template data
     const { name, description, trigger, conditions, actions } = await c.req.json();
-    
-    const workflowId = uuid();
+
     const now = new Date().toISOString();
-    const workflow = {
-      id: workflowId,
+    const newWorkflow = {
       name,
       description,
       trigger,
@@ -270,8 +333,15 @@ workflows.post(`${PREFIX}/dashboard/workflows/install-template`, async (c) => {
       user_id: userId,
     };
 
-    await kv.set(`workflow:${workflowId}`, JSON.stringify(workflow));
-    console.log(`[Workflows] Installed template "${name}" as ${workflowId}`);
+    const { data: workflow, error } = await adminClient()
+      .from("workflows")
+      .insert(newWorkflow)
+      .select("*")
+      .single();
+
+    if (error) throw error;
+
+    console.log(`[Workflows] Installed template "${name}" as ${workflow.id}`);
     return c.json({ workflow });
   } catch (err) {
     console.log(`[Workflows] Install template error: ${err}`);

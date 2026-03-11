@@ -1,0 +1,41 @@
+# Changelog
+
+## 2026-03-10 (Session 2)
+
+- **Edge Function v24** — Full rewrite of 3 route modules (workflow, financial, document) from KV store to Supabase tables. Deployed 1.013MB, all endpoints verified.
+- **KV migration complete** — `kv_store.tsx` deleted. `workflow-routes.tsx` → `from("workflows")` / `from("workflow_executions")`. `financial-routes.tsx` → `from("dashboard_invoices")` / `from("dashboard_payments")`. `document-routes.tsx` → `from("documents")`.
+- **CORS restriction** — `index.tsx` CORS middleware now reads `ALLOWED_ORIGINS` env var. Production: comma-separated whitelist. Dev (unset): `"*"`.
+- **Gemini retry** — `gemini.tsx` `callGemini()` now has 30s AbortController timeout + 3-retry exponential backoff (1s/2s/4s) on 429/5xx/timeout.
+- **CRM contacts fix** — `pipeline-routes.tsx` updated 3 queries to use `first_name`, `last_name`, `job_title` instead of `name`, `role`.
+- **Realtime triggers** — 5 broadcast triggers installed via Supabase MCP: `ai_run_logs`, `wizard_sessions`, `crm_deals`, `lean_canvases`, `lean_canvas_versions`. 4 topic-specific RLS policies on `realtime.messages`.
+- **ensure-schema.tsx cleanup** — Removed all DDL (CREATE TABLE, ALTER TABLE, DROP TABLE, CREATE INDEX, CREATE POLICY). Now read-only schema verification only. All schema changes via migrations.
+- **RLS policy audit** — Fixed 4 tables with overly permissive `true` policies: `workflows`, `dashboard_invoices`, `lean_canvases`, `strategy_roles` → now enforce `user_id = (select auth.uid())`. Verified append-only tables (`workflow_executions`, `dashboard_payments`) have no UPDATE/DELETE. Removed overly permissive `"Authenticated users can receive broadcasts"` policy on `realtime.messages`.
+- **Prompt archival** — 8 completed prompts (064, 070, 072, 074, 075, 077, 078, 079) moved to `tasks/archive/`. 7 remaining (067, 068, 073, 080-083).
+- **Migrations consolidated** — `supabase/migrations/` declared canonical (CLI standard). 10 SQL files synced between `supabase/migrations/` and `src/supabase/migrations/`. README updated with full inventory. New migration `20260310150000_rls_audit_and_realtime_triggers.sql` records RLS + trigger changes.
+- **Smoke test** — 23/23 API endpoints verified: 9 return 200 with correct data, 12 return 401 (auth required), 2 return 200 with correct param-based responses. Frontend builds clean (3008 modules, 0 errors).
+- **Vercel deployment** — Removed spurious deps (`next`, `hono`, `postgres`, `@jsr/supabase__supabase-js`, `google-one-tap`) that caused ERESOLVE conflict. Added `vercel.json` (framework: null, outputDirectory: build). Deployed to https://sunv2.vercel.app — all 8 frontend routes return 200.
+- **Package.json cleanup** — Removed 5 server-side-only dependencies from frontend package.json. Build size: 2.4MB JS, 136KB CSS.
+
+## 2026-03-10
+
+- **Edge Function v34** — Deployed with 3 fixes: Gemini 3-retry exponential backoff (1s/2s/4s on 429/5xx/timeout), wizard list user_id safety (returns 503 instead of unfiltered data), CORS production allowlist via `ALLOWED_ORIGINS` secret.
+- **Database index cleanup** — Dropped 27 redundant indexes (6 KV dupes, 5 constraint dupes, 2 IVFFlat embedding, 13 GIN JSONB, 1 composite-covered). Migration: `20260310140000_drop_unused_duplicate_indexes.sql`. Supabase advisor: 0 duplicate warnings remaining.
+- **Security audit** — Storage `auth.uid()` policies verified (already use subquery pattern). Anon exposure audit: only wizard + public catalog tables have anon access (correct).
+- **Prompt archival** — 73 completed prompts moved to `tasks/archive/`. 6 remaining in `tasks/prompts/` (064, 067, 068 + data/070, 073, 075).
+- **Secrets** — `ALLOWED_ORIGINS=https://sunaiagencyproject100.vercel.app,https://www.sunaiagency.com` set on Supabase Edge Functions.
+- **Skills updated** — `supabase-edge-functions/SKILL.md` C4 section: added retry, timeout, model selector docs.
+
+## 2025-03-09
+
+- **Merge origin/main** — Integrated remote main; kept server Edge Function fixes (Gemini header/timeout, CORS, wizard 503, KV→Supabase workflow/financial routes), `.gitignore`, and `CLAUDE.md`. Adopted `src/imports/` and `src/docs/lean/` layout from origin.
+- **GitHub** — Pushed to `amo-tech-ai/Sunaiagencyproject` (main at e8c18717).
+- **Supabase** — Deployed Edge Function `server` to project `necxcwhuzylsumlkkmlk` (~943kB).
+- **Migrations** — Merge dropped some older migration files from the tree. Local `supabase/migrations/` has 6 files; apply them to the project DB for wizard, AI, CRM, and workflow/financial tables to work. See `supabase/migrations/README.md` and `todo.md`.
+
+- **tasks/ restructure** — Prompts 064–076 and lean/01–13 moved to `src/imports/`. Other folders (archive, mermaid, notes, prompts 001–063, todo, wizard) were removed in the merge; full backup = git commit `a9ceed82`. See **`tasks/README.md`** for map and restore commands.
+
+## Earlier
+
+- Dashboard: CRM pipeline, financial, workflows, documents, agents, system health.
+- Edge Functions: workflow + financial backed by Supabase tables (no KV); document-routes still use KV.
+- Migrations: wizard_sessions enhance, AI tables, CRM core + pipeline + seed, workflow_financial_tables (20260309100000).

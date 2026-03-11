@@ -187,7 +187,7 @@ pipeline.get(`${PREFIX}/crm/pipelines/:id`, async (c) => {
     if (contactIds.length > 0) {
       const { data: contacts } = await db
         .from("crm_contacts")
-        .select("id, name, email")
+        .select("id, first_name, last_name, email")
         .in("id", contactIds);
       for (const c of contacts || []) {
         contactMap[c.id] = c;
@@ -410,7 +410,7 @@ pipeline.get(`${PREFIX}/crm/deals/:id`, async (c) => {
     if (deal.contact_id) {
       const { data: contactData } = await db
         .from("crm_contacts")
-        .select("id, name, email, phone, role")
+        .select("id, first_name, last_name, email, phone, job_title")
         .eq("id", deal.contact_id)
         .maybeSingle();
       contact = contactData;
@@ -571,8 +571,8 @@ pipeline.get(`${PREFIX}/crm/contacts`, async (c) => {
     const db = adminClient();
     const { data: contacts, error } = await db
       .from("crm_contacts")
-      .select("id, name, email, client_id, role")
-      .order("name", { ascending: true });
+      .select("id, first_name, last_name, email, client_id, job_title")
+      .order("first_name", { ascending: true });
 
     if (error) {
       return c.json(

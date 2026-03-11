@@ -26,11 +26,15 @@ const PREFIX = "/make-server-283466b6";
 // Enable logger
 app.use("*", logger(console.log));
 
-// Enable CORS for all routes and methods
+// Production: restrict to ALLOWED_ORIGINS env var; Dev: allow all
+const allowedOrigins = Deno.env.get("ALLOWED_ORIGINS")?.split(",").map((o) => o.trim());
+
 app.use(
   "/*",
   cors({
-    origin: "*",
+    origin: allowedOrigins
+      ? (origin) => (allowedOrigins.includes(origin) ? origin : "")
+      : "*",
     allowHeaders: ["Content-Type", "Authorization"],
     allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     exposeHeaders: ["Content-Length"],
