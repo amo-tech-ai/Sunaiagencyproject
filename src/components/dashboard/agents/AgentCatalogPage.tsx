@@ -1,7 +1,7 @@
 // C-AGENT-CATALOG — Browse all AI agents organized by division
 // Grid of agent cards with emoji avatars, division tab filter, search, View/Run buttons
-// Design: white cards on light gray (#F8F9FA), blue accents (#2563EB), professional SaaS
-// Mobile-first: 1 col → 2 col on md+ → 3 col on xl+
+// Design: white cards, blue accents (#2563EB), professional SaaS
+// Mobile-first: 1 col -> 2 col on md+
 
 import { useState, useMemo } from 'react';
 import { Link } from 'react-router';
@@ -85,7 +85,6 @@ export default function AgentCatalogPage() {
             key={div.id}
             label={div.label}
             count={divisionCuratedCounts[div.id] || 0}
-            fullCount={div.count}
             active={activeDivision === div.id}
             onClick={() => { setActiveDivision(div.id); setVisibleCount(PAGE_SIZE); }}
           />
@@ -131,15 +130,14 @@ export default function AgentCatalogPage() {
   );
 }
 
-/* ────── Division Tab ────── */
+/* ---- Division Tab ---- */
 
-function DivisionTab({ label, count, fullCount, active, onClick }: {
-  label: string; count: number; fullCount?: number; active: boolean; onClick: () => void;
+function DivisionTab({ label, count, active, onClick }: {
+  label: string; count: number; active: boolean; onClick: () => void;
 }) {
   return (
     <button
       onClick={onClick}
-      title={fullCount && fullCount > count ? `${count} curated / ${fullCount} total in full catalog` : undefined}
       className={`inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-medium rounded-lg whitespace-nowrap transition-all ${
         active
           ? 'bg-[#2563EB] text-white shadow-sm'
@@ -152,7 +150,7 @@ function DivisionTab({ label, count, fullCount, active, onClick }: {
   );
 }
 
-/* ────── Agent Card ────── */
+/* ---- Agent Card ---- */
 
 function AgentCard({ agent, index }: { agent: CatalogAgent; index: number }) {
   const divColor = DIVISION_COLORS[agent.division] || '#6B7280';

@@ -1,6 +1,6 @@
 // C-AGENT-RUNNER — Execute an agent on a task at /app/agents/catalog/:slug/run
 // Split-pane: task input (left) + agent output (right)
-// Design: white cards on #F8F9FA, blue accents (#2563EB), emoji avatar
+// Design: white cards, blue accents (#2563EB), emoji avatar
 // Mobile-first: stacked on mobile, side-by-side on lg+
 
 import { useState, useCallback } from 'react';
@@ -32,14 +32,14 @@ export default function AgentRunnerPage() {
   const [copied, setCopied] = useState(false);
 
   const handleRun = useCallback(async () => {
-    if (!task.trim()) return;
+    if (!task.trim() || !agent) return;
     setRunning(true);
     setResult(null);
 
     // Simulate agent execution (in production, calls POST /agents/:slug/run)
     await new Promise(resolve => setTimeout(resolve, 2200 + Math.random() * 1500));
 
-    const simulatedOutput = generateSimulatedOutput(agent?.name || '', task, context, format);
+    const simulatedOutput = generateSimulatedOutput(agent.name, task, context, format);
     setResult({
       output: simulatedOutput,
       tokens: 800 + Math.floor(Math.random() * 1200),
@@ -68,7 +68,7 @@ export default function AgentRunnerPage() {
 
   return (
     <div>
-      {/* Header */}
+      {/* Breadcrumb */}
       <div className="flex items-center gap-1.5 text-xs text-[#6B7280] mb-5">
         <Link to="/app/agents" className="hover:text-[#111827] transition-colors">Agents</Link>
         <ChevronRight className="w-3 h-3" />
@@ -77,6 +77,7 @@ export default function AgentRunnerPage() {
         <span className="text-[#111827] font-medium">Run</span>
       </div>
 
+      {/* Title */}
       <div className="flex items-center gap-3 mb-6">
         <div className="w-10 h-10 rounded-xl bg-[#F3F4F6] flex items-center justify-center shrink-0 text-xl">
           {agent.emoji}
@@ -125,7 +126,7 @@ export default function AgentRunnerPage() {
             <textarea
               value={task}
               onChange={e => setTask(e.target.value)}
-              placeholder="E.g., Scope an MVP for a WhatsApp booking bot. Budget: $5K. Timeline: 2 weeks. Must support Spanish and English."
+              placeholder="E.g., Scope an MVP for a WhatsApp booking bot. Budget: $5K. Timeline: 2 weeks."
               className="w-full px-3.5 py-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-lg text-sm text-[#111827] placeholder:text-[#9CA3AF] resize-none focus:outline-none focus:ring-2 focus:ring-[#2563EB]/20 focus:border-[#2563EB] focus:bg-white transition-all"
               rows={5}
             />
@@ -175,8 +176,7 @@ export default function AgentRunnerPage() {
           <button
             onClick={handleRun}
             disabled={running || !task.trim()}
-            className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium text-white rounded-lg transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
-            style={{ backgroundColor: running ? '#6B7280' : '#2563EB' }}
+            className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium text-white rounded-lg transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed bg-[#2563EB] hover:bg-[#1D4ED8]"
           >
             {running ? (
               <>
@@ -221,7 +221,7 @@ export default function AgentRunnerPage() {
                     <Loader2 className="w-4 h-4 animate-spin text-[#2563EB]" />
                     <p className="text-sm font-medium text-[#374151]">{agent.name} is working...</p>
                   </div>
-                  <p className="text-xs text-[#9CA3AF]">This usually takes 2&ndash;5 seconds</p>
+                  <p className="text-xs text-[#9CA3AF]">This usually takes 2-5 seconds</p>
                 </motion.div>
               )}
 
@@ -248,12 +248,13 @@ export default function AgentRunnerPage() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3 }}
                 >
-                  {/* Output Content */}
-                  <div className="flex-1 bg-[#F9FAFB] rounded-lg p-4 text-sm text-[#111827] leading-relaxed whitespace-pre-wrap font-mono overflow-auto max-h-[520px] border border-[#F3F4F6]" style={{ fontSize: '13px' }}>
+                  <div
+                    className="flex-1 bg-[#F9FAFB] rounded-lg p-4 text-sm text-[#111827] leading-relaxed whitespace-pre-wrap font-mono overflow-auto max-h-[520px] border border-[#F3F4F6]"
+                    style={{ fontSize: '13px' }}
+                  >
                     {result.output}
                   </div>
 
-                  {/* Metadata */}
                   <div className="flex items-center justify-between mt-4 pt-3.5 border-t border-[#F3F4F6]">
                     <div className="flex items-center gap-4 text-xs text-[#9CA3AF]">
                       <span className="flex items-center gap-1">
@@ -294,7 +295,7 @@ export default function AgentRunnerPage() {
   );
 }
 
-/* ────── Simulated Output Generator ────── */
+/* ---- Simulated Output Generator ---- */
 
 function generateSimulatedOutput(
   agentName: string,
@@ -326,7 +327,7 @@ function generateSimulatedOutput(
 
   const lines = [
     `${'='.repeat(45)}`,
-    `${agentName.toUpperCase()} — OUTPUT`,
+    `${agentName.toUpperCase()} - OUTPUT`,
     `${'='.repeat(45)}`,
     ``,
   ];
@@ -339,27 +340,27 @@ function generateSimulatedOutput(
       `Budget: $5,000`,
       ``,
       `WEEK 1:`,
-      `  • WhatsApp Business API setup`,
-      `  • Booking flow (select service → date → time)`,
-      `  • Calendar sync with Google Calendar`,
-      `  • Bilingual support: Spanish + English`,
+      `  - WhatsApp Business API setup`,
+      `  - Booking flow (select service > date > time)`,
+      `  - Calendar sync with Google Calendar`,
+      `  - Bilingual support: Spanish + English`,
       ``,
       `WEEK 2:`,
-      `  • Confirmation messages (WhatsApp template)`,
-      `  • Reminder: 24hr before appointment`,
-      `  • Cancellation/reschedule flow`,
-      `  • Testing + go-live`,
+      `  - Confirmation messages (WhatsApp template)`,
+      `  - Reminder: 24hr before appointment`,
+      `  - Cancellation/reschedule flow`,
+      `  - Testing + go-live`,
       ``,
       `NOT IN MVP:`,
-      `  • Payment collection`,
-      `  • Multi-location support`,
-      `  • AI conversational chat (just menu-driven)`,
+      `  - Payment collection`,
+      `  - Multi-location support`,
+      `  - AI conversational chat (just menu-driven)`,
       ``,
       `RECOMMENDED STACK:`,
-      `  • Twilio for WhatsApp Business API`,
-      `  • Supabase for data + auth`,
-      `  • n8n for workflow automation`,
-      `  • Google Calendar API for scheduling`,
+      `  - Twilio for WhatsApp Business API`,
+      `  - Supabase for data + auth`,
+      `  - n8n for workflow automation`,
+      `  - Google Calendar API for scheduling`,
     );
   } else if (taskLower.includes('seo') || taskLower.includes('keyword')) {
     lines.push(
@@ -369,14 +370,14 @@ function generateSimulatedOutput(
       `Competitor average: 180+ keyword rankings`,
       ``,
       `TOP OPPORTUNITIES:`,
-      `  1. "custom birthstone necklace" — 8K monthly, Low competition`,
-      `  2. "personalized jewelry gifts" — 5K monthly, Medium competition`,
-      `  3. "handmade gold necklace" — 3K monthly, Low competition`,
+      `  1. "custom birthstone necklace" - 8K monthly, Low competition`,
+      `  2. "personalized jewelry gifts" - 5K monthly, Medium competition`,
+      `  3. "handmade gold necklace" - 3K monthly, Low competition`,
       ``,
       `QUICK WINS (0-30 days):`,
-      `  • Optimize product page titles with target keywords`,
-      `  • Add alt text to all product images`,
-      `  • Create 3 long-form blog posts (1500+ words)`,
+      `  - Optimize product page titles with target keywords`,
+      `  - Add alt text to all product images`,
+      `  - Create 3 long-form blog posts (1500+ words)`,
       ``,
       `ESTIMATED IMPACT:`,
       `  Month 3: 500+ organic visitors/month`,
@@ -397,8 +398,8 @@ function generateSimulatedOutput(
       `TIMELINE: 2-4 weeks for initial delivery`,
       ``,
       `RISK FACTORS:`,
-      `  • Scope creep if requirements aren't locked`,
-      `  • Integration complexity may add 3-5 days`,
+      `  - Scope creep if requirements aren't locked`,
+      `  - Integration complexity may add 3-5 days`,
       ``,
       `NEXT STEPS:`,
       `  1. Confirm requirements and priorities`,

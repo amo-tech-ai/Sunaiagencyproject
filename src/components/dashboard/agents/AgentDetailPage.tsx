@@ -1,7 +1,6 @@
 // C-AGENT-DETAIL — Single agent profile page at /app/agents/catalog/:slug
 // Tabs: About, Capabilities, Use Cases, Run History
-// Design: white cards on #F8F9FA, blue accents (#2563EB), emoji avatar
-// Professional SaaS feel, not playful
+// Design: white cards, blue accents (#2563EB), emoji avatar
 
 import { useState } from 'react';
 import { useParams, Link } from 'react-router';
@@ -59,12 +58,9 @@ export default function AgentDetailPage() {
         transition={{ duration: 0.25 }}
       >
         <div className="flex flex-col sm:flex-row sm:items-start gap-5">
-          {/* Emoji Avatar */}
           <div className="w-16 h-16 rounded-2xl bg-[#F3F4F6] flex items-center justify-center shrink-0 text-3xl">
             {agent.emoji}
           </div>
-
-          {/* Info */}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2.5 flex-wrap">
               <h1 className="text-xl sm:text-2xl font-semibold text-[#111827] tracking-tight">
@@ -77,15 +73,11 @@ export default function AgentDetailPage() {
                 {agent.division}
               </span>
             </div>
-            <p className="text-sm text-[#6B7280] mt-1">
-              {agent.division} Division
-            </p>
+            <p className="text-sm text-[#6B7280] mt-1">{agent.division} Division</p>
             <p className="text-sm text-[#374151] mt-3 leading-relaxed italic">
               &ldquo;{agent.tagline}&rdquo;
             </p>
           </div>
-
-          {/* Actions */}
           <div className="flex items-center gap-2.5 sm:shrink-0">
             <Link
               to={`/app/agents/catalog/${agent.slug}/run`}
@@ -94,9 +86,7 @@ export default function AgentDetailPage() {
               <Play className="w-4 h-4" />
               Run This Agent
             </Link>
-            <button
-              className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium border border-[#E5E7EB] rounded-lg text-[#374151] hover:bg-[#F9FAFB] hover:border-[#D1D5DB] transition-all"
-            >
+            <button className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium border border-[#E5E7EB] rounded-lg text-[#374151] hover:bg-[#F9FAFB] hover:border-[#D1D5DB] transition-all">
               <Plus className="w-4 h-4" />
               Assign to Project
             </button>
@@ -130,12 +120,11 @@ export default function AgentDetailPage() {
   );
 }
 
-/* ────── About Tab ────── */
+/* ---- About Tab ---- */
 
 function AboutTab({ agent, divColor }: { agent: CatalogAgent; divColor: string }) {
   return (
     <div className="space-y-5">
-      {/* Description */}
       <motion.div
         className="bg-white rounded-xl border border-[#E5E7EB] p-5 sm:p-6"
         initial={{ opacity: 0, y: 8 }}
@@ -143,12 +132,9 @@ function AboutTab({ agent, divColor }: { agent: CatalogAgent; divColor: string }
         transition={{ duration: 0.2 }}
       >
         <h3 className="text-sm font-semibold text-[#111827] mb-3">About</h3>
-        <p className="text-sm text-[#6B7280] leading-relaxed">
-          {agent.description}
-        </p>
+        <p className="text-sm text-[#6B7280] leading-relaxed">{agent.description}</p>
       </motion.div>
 
-      {/* Mission / Rules / Metrics */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <motion.div
           className="bg-white rounded-xl border border-[#E5E7EB] p-5"
@@ -211,7 +197,6 @@ function AboutTab({ agent, divColor }: { agent: CatalogAgent; divColor: string }
         </motion.div>
       </div>
 
-      {/* Best For */}
       <motion.div
         className="bg-white rounded-xl border border-[#E5E7EB] p-5 sm:p-6"
         initial={{ opacity: 0, y: 8 }}
@@ -224,9 +209,7 @@ function AboutTab({ agent, divColor }: { agent: CatalogAgent; divColor: string }
             <p className="text-[11px] text-[#9CA3AF] uppercase tracking-wider font-medium mb-2">Industries</p>
             <div className="flex flex-wrap gap-1.5">
               {agent.industries.map(ind => (
-                <span key={ind} className="text-xs px-2.5 py-1 bg-[#F3F4F6] text-[#374151] rounded-md">
-                  {ind}
-                </span>
+                <span key={ind} className="text-xs px-2.5 py-1 bg-[#F3F4F6] text-[#374151] rounded-md">{ind}</span>
               ))}
             </div>
           </div>
@@ -234,9 +217,7 @@ function AboutTab({ agent, divColor }: { agent: CatalogAgent; divColor: string }
             <p className="text-[11px] text-[#9CA3AF] uppercase tracking-wider font-medium mb-2">Goals</p>
             <div className="flex flex-wrap gap-1.5">
               {agent.goals.map(g => (
-                <span key={g} className="text-xs px-2.5 py-1 bg-[#EFF6FF] text-[#2563EB] rounded-md">
-                  {g}
-                </span>
+                <span key={g} className="text-xs px-2.5 py-1 bg-[#EFF6FF] text-[#2563EB] rounded-md">{g}</span>
               ))}
             </div>
           </div>
@@ -244,16 +225,13 @@ function AboutTab({ agent, divColor }: { agent: CatalogAgent; divColor: string }
             <p className="text-[11px] text-[#9CA3AF] uppercase tracking-wider font-medium mb-2">Pairs With</p>
             <div className="flex flex-wrap gap-1.5">
               {agent.pairsWith.map(p => (
-                <span key={p} className="text-xs px-2.5 py-1 bg-[#F3F4F6] text-[#374151] rounded-md">
-                  {p}
-                </span>
+                <span key={p} className="text-xs px-2.5 py-1 bg-[#F3F4F6] text-[#374151] rounded-md">{p}</span>
               ))}
             </div>
           </div>
         </div>
       </motion.div>
 
-      {/* Currently Assigned */}
       {agent.assignedTo.length > 0 && (
         <motion.div
           className="bg-white rounded-xl border border-[#E5E7EB] p-5 sm:p-6"
@@ -276,7 +254,7 @@ function AboutTab({ agent, divColor }: { agent: CatalogAgent; divColor: string }
   );
 }
 
-/* ────── Capabilities Tab ────── */
+/* ---- Capabilities Tab ---- */
 
 function CapabilitiesTab({ agent }: { agent: CatalogAgent }) {
   return (
@@ -289,10 +267,7 @@ function CapabilitiesTab({ agent }: { agent: CatalogAgent }) {
       <h3 className="text-sm font-semibold text-[#111827] mb-4">Capabilities</h3>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {agent.capabilities.map((cap, idx) => (
-          <div
-            key={idx}
-            className="flex items-start gap-3 p-3 bg-[#F9FAFB] rounded-lg"
-          >
+          <div key={idx} className="flex items-start gap-3 p-3 bg-[#F9FAFB] rounded-lg">
             <div className="w-6 h-6 rounded-md bg-[#EFF6FF] text-[#2563EB] flex items-center justify-center shrink-0 text-xs font-semibold">
               {idx + 1}
             </div>
@@ -301,7 +276,6 @@ function CapabilitiesTab({ agent }: { agent: CatalogAgent }) {
         ))}
       </div>
 
-      {/* Methodology */}
       <div className="mt-6 pt-5 border-t border-[#F3F4F6]">
         <h4 className="text-xs font-semibold uppercase tracking-wider text-[#9CA3AF] mb-3">Methodology</h4>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -323,7 +297,7 @@ function CapabilitiesTab({ agent }: { agent: CatalogAgent }) {
   );
 }
 
-/* ────── Use Cases Tab ────── */
+/* ---- Use Cases Tab ---- */
 
 function UseCasesTab({ agent }: { agent: CatalogAgent }) {
   return (
@@ -342,7 +316,6 @@ function UseCasesTab({ agent }: { agent: CatalogAgent }) {
             transition={{ duration: 0.2, delay: idx * 0.05 }}
           >
             <h4 className="text-sm font-semibold text-[#111827] mb-4">{uc.title}</h4>
-
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <p className="text-[11px] uppercase tracking-wider text-[#9CA3AF] font-medium mb-1.5">Input</p>
@@ -357,7 +330,6 @@ function UseCasesTab({ agent }: { agent: CatalogAgent }) {
                 </div>
               </div>
             </div>
-
             <div className="mt-4 pt-3.5 border-t border-[#F3F4F6]">
               <Link
                 to={`/app/agents/catalog/${agent.slug}/run`}
@@ -374,7 +346,7 @@ function UseCasesTab({ agent }: { agent: CatalogAgent }) {
   );
 }
 
-/* ────── Run History Tab ────── */
+/* ---- Run History Tab ---- */
 
 const MOCK_RUNS = [
   { id: '1', task: 'Scope WhatsApp booking bot MVP', tokens: 1847, duration: 3.2, date: '2026-03-11', format: 'Structured' },
