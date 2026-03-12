@@ -11,6 +11,7 @@ import { useRealtimeWizardSync } from '../../lib/hooks/useRealtimeWizardSync';
 
 export interface Step1Data {
   companyName: string;
+  projectDescription: string;
   websiteUrl: string;
   industry: string;
   companySize: string;
@@ -54,7 +55,7 @@ export type SaveStatus = 'idle' | 'saving' | 'saved';
 const INITIAL_STATE: WizardState = {
   currentStep: 1,
   completedSteps: [],
-  step1: { companyName: '', websiteUrl: '', industry: '', companySize: '', goal: '', goalOther: '', challenge: '' },
+  step1: { companyName: '', projectDescription: '', websiteUrl: '', industry: '', companySize: '', goal: '', goalOther: '', challenge: '' },
   step2: { answers: {} },
   step3: { selectedSystems: [] },
   step4: { briefApproved: false, briefStatus: 'draft', briefEdits: {}, briefVersion: 1 },

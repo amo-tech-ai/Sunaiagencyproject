@@ -528,6 +528,29 @@ export function StepBusinessContext() {
           />
         </FieldGroup>
 
+        {/* Project Description */}
+        <FieldGroup label="Project Description" optional fieldId="projectDescription">
+          <input
+            type="text"
+            value={s.projectDescription}
+            onChange={e => updateStep1({ projectDescription: e.target.value })}
+            onFocus={() => setFocusedField('projectDescription')}
+            placeholder="e.g., AI-powered customer support chatbot for our e-commerce platform"
+            maxLength={150}
+            className="w-full px-4 py-3 text-sm border rounded outline-none transition-all"
+            style={{
+              borderColor: '#E8E8E4',
+              borderRadius: '4px',
+              backgroundColor: '#FFFFFF',
+              color: '#1A1A1A',
+            }}
+          />
+          <p className="text-xs mt-1.5 flex items-center justify-between" style={{ color: '#9CA39B' }}>
+            <span>A brief one-liner to help identify this project later</span>
+            <span>{s.projectDescription.length} / 150</span>
+          </p>
+        </FieldGroup>
+
         {/* Website URL — Enhanced */}
         <FieldGroup label="Website URL" optional fieldId="websiteUrl">
           <div className="flex">

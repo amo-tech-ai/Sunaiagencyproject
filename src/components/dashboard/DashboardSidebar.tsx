@@ -14,6 +14,7 @@ interface NavItem {
   label: string;
   icon: typeof LayoutDashboard;
   badgeKey?: string; // key into badges prop
+  children?: { to: string; label: string }[];
 }
 
 const NAV_ITEMS: NavItem[] = [
@@ -27,7 +28,13 @@ const NAV_ITEMS: NavItem[] = [
   { to: '/app/documents', label: 'Documents', icon: FileText },
   { to: '/app/financial', label: 'Financial', icon: DollarSign },
   { to: '/app/workflows', label: 'Workflows', icon: Workflow },
-  { to: '/app/agents', label: 'AI Agents', icon: Bot },
+  {
+    to: '/app/agents', label: 'AI Agents', icon: Bot,
+    children: [
+      { to: '/app/agents/catalog', label: 'Catalog' },
+      { to: '/app/agents', label: 'Monitor' },
+    ],
+  },
   { to: '/app/settings', label: 'Settings', icon: Settings },
 ];
 
@@ -103,7 +110,7 @@ export default function DashboardSidebar({ open, onClose, badges = {} }: Dashboa
 
         <nav className="flex-1 overflow-y-auto py-3 px-2 lg:px-3">
           <ul className="space-y-0.5">
-            {NAV_ITEMS.map(({ to, label, icon: Icon, badgeKey }) => {
+            {NAV_ITEMS.map(({ to, label, icon: Icon, badgeKey, children }) => {
               const isActive = location.pathname === to || location.pathname.startsWith(to + '/');
               const badgeCount = badgeKey ? (badges[badgeKey] || 0) : 0;
               return (
@@ -136,6 +143,34 @@ export default function DashboardSidebar({ open, onClose, badges = {} }: Dashboa
                       <span className="hidden md:block lg:hidden absolute top-1 right-1 w-2 h-2 bg-[#D97706] rounded-full" />
                     )}
                   </NavLink>
+                  {children && isActive && (
+                    <ul className="space-y-0.5 pl-5 md:hidden lg:block mt-0.5">
+                      {children.map(({ to: childTo, label: childLabel }) => {
+                        const isChildActive = location.pathname === childTo
+                          || (childTo !== '/app/agents' && location.pathname.startsWith(childTo + '/'));
+                        return (
+                          <li key={childTo + childLabel}>
+                            <NavLink
+                              to={childTo}
+                              onClick={onClose}
+                              aria-current={isChildActive ? 'page' : undefined}
+                              title={childLabel}
+                              className={`
+                                flex items-center rounded text-xs transition-colors
+                                min-h-[36px] px-3 py-1.5
+                                ${isChildActive
+                                  ? 'text-[#00875A] font-medium'
+                                  : 'text-[#F5F5F0]/40 hover:text-[#F5F5F0]/70'
+                                }
+                              `}
+                            >
+                              {childLabel}
+                            </NavLink>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  )}
                 </li>
               );
             })}

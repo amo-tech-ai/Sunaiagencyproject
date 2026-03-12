@@ -14,7 +14,8 @@ export type ActionType =
   | 'send_notification'
   | 'log_activity'
   | 'generate_document'
-  | 'update_record';
+  | 'update_record'
+  | 'run_agent';
 
 export type ConditionOperator = 'equals' | 'contains' | 'greater_than' | 'is_not_null';
 export type WorkflowStatus = 'enabled' | 'disabled' | 'error';
@@ -163,4 +164,5 @@ export const ACTION_LABELS: Record<ActionType, string> = {
   log_activity: 'Log Activity',
   generate_document: 'Generate Document',
   update_record: 'Update Record',
+  run_agent: 'Run Agent',
 };

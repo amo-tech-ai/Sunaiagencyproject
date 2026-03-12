@@ -46,6 +46,11 @@ export interface Deal {
   daysInStage: number;
   isStale: boolean;       // > 7 days
   isVeryStale: boolean;   // > 14 days
+  // Agent health scoring (optional, backward-compatible)
+  healthScore?: number;           // 0-100
+  healthLabel?: 'HIGH' | 'MEDIUM' | 'LOW';
+  healthInsight?: string;         // e.g. "No exec sponsor identified"
+  scoringAgent?: string;          // e.g. "Pipeline Analyst"
 }
 
 export interface DealDetail extends Deal {

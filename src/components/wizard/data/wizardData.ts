@@ -733,6 +733,10 @@ export const STEP1_CONTEXT: Record<string, { heading: string; body: string }> = 
     heading: 'Why we need your company name',
     body: 'Your company name is used throughout the strategy brief and proposal. We\'ll reference it in all recommendations.',
   },
+  projectDescription: {
+    heading: 'Name your project',
+    body: 'A short description helps you identify this project later — especially if you run multiple briefs. It also gives our AI extra context for more relevant recommendations.',
+  },
   websiteUrl: {
     heading: 'Intelligent website analysis',
     body: 'When you provide your website, our AI reads your site content and searches public web sources to understand your business, positioning, and market context — so recommendations are tailored from the start.',

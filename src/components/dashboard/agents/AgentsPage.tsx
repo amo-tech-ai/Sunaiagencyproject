@@ -171,14 +171,23 @@ export default function AgentsPage() {
             )}
           </p>
         </div>
-        <button
-          onClick={handleRefresh}
-          disabled={statsLoading}
-          className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded border border-[#E8E8E4] text-[#1A1A1A] hover:bg-[#F5F5F0] transition-colors min-h-[36px] disabled:opacity-40"
-        >
-          <RefreshCw className={`w-3.5 h-3.5 ${statsLoading ? 'animate-spin' : ''}`} />
-          Refresh
-        </button>
+        <div className="flex items-center gap-2">
+          <Link
+            to="/app/agents/catalog"
+            className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded text-white transition-colors min-h-[36px]"
+            style={{ backgroundColor: '#00875A', borderRadius: '4px' }}
+          >
+            Browse Catalog
+          </Link>
+          <button
+            onClick={handleRefresh}
+            disabled={statsLoading}
+            className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded border border-[#E8E8E4] text-[#1A1A1A] hover:bg-[#F5F5F0] transition-colors min-h-[36px] disabled:opacity-40"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${statsLoading ? 'animate-spin' : ''}`} />
+            Refresh
+          </button>
+        </div>
       </div>
 
       {/* Summary stats row */}

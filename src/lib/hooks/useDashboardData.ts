@@ -61,6 +61,11 @@ export interface InsightItem {
   priority: 'high' | 'medium' | 'low';
   action?: string;
   actionLabel?: string;
+  // Agent attribution (optional, backward-compatible)
+  agentName?: string;
+  agentColor?: string;
+  impactMetric?: string;
+  timestamp?: string;
 }
 
 export interface DashboardData {

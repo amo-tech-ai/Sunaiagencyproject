@@ -8,12 +8,14 @@ import { useAuth } from '../AuthContext';
 import { useDashboardData } from '../../lib/hooks/useDashboardData';
 import type { InsightItem } from '../../lib/hooks/useDashboardData';
 import { aiApi } from '../../lib/supabase';
+import { matchAgents } from '../wizard/data/agentData';
 import WelcomeBanner from './WelcomeBanner';
 import MetricsRow from './MetricsRow';
 import ProjectSummaryCard from './ProjectSummaryCard';
 import ActivityFeed from './ActivityFeed';
 import QuickActionsGrid from './QuickActionsGrid';
 import AIInsightsPanel from './AIInsightsPanel';
+import AgentTeamWidget from './AgentTeamWidget';
 import EmptyDashboard from './EmptyDashboard';
 import { motion } from 'motion/react';
 import { useState, useEffect, useRef } from 'react';
@@ -133,6 +135,13 @@ export default function DashboardHome() {
     return <EmptyDashboard />;
   }
 
+  // Match agents from wizard data
+  const agentTeam = matchAgents(
+    data.project.systems,
+    data.org.industry,
+    data.org.name,
+  );
+
   return (
     <div className="space-y-4 sm:space-y-6">
       {/* Welcome Banner */}
@@ -144,13 +153,15 @@ export default function DashboardHome() {
         <WelcomeBanner org={data.org} readiness={data.readiness} />
       </motion.div>
 
-      {/* Metrics Row */}
+      {/* Metrics Row + Agents count */}
       <MetricsRow
         readinessScore={data.readiness.overall}
         systemsCount={data.project.systems.length}
         currentPhase={data.project.currentPhase}
         totalPhases={data.project.totalPhases}
         totalInvestment={data.project.totalInvestment}
+        activeAgents={agentTeam.length}
+        totalAgents={agentTeam.length}
       />
 
       {/* Two-column grid: Project + Activity — stacked on mobile */}
@@ -172,22 +183,32 @@ export default function DashboardHome() {
         </motion.div>
       </div>
 
+      {/* Two-column grid: Agent Team + AI Insights — stacked on mobile */}
+      <div className="grid lg:grid-cols-2 gap-4 sm:gap-6">
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.25 }}
+        >
+          <AgentTeamWidget agents={agentTeam} />
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.3 }}
+        >
+          <AIInsightsPanel insights={mergedInsights} loading={insightsLoading} />
+        </motion.div>
+      </div>
+
       {/* Quick Actions */}
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3, delay: 0.25 }}
+        transition={{ duration: 0.3, delay: 0.35 }}
       >
         <QuickActionsGrid />
-      </motion.div>
-
-      {/* AI Insights — live API + static fallback */}
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3, delay: 0.3 }}
-      >
-        <AIInsightsPanel insights={mergedInsights} loading={insightsLoading} />
       </motion.div>
     </div>
   );

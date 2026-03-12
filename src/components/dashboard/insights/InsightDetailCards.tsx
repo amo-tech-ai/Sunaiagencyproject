@@ -70,12 +70,38 @@ function InsightCard({ insight, index }: { insight: InsightItem; index: number }
               <span className={`w-1.5 h-1.5 rounded-full ${meta.dot}`} />
               {meta.label}
             </span>
+            {/* Agent attribution badge */}
+            {insight.agentName && (
+              <span
+                className="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full border"
+                style={{
+                  color: insight.agentColor || '#6B6B63',
+                  backgroundColor: (insight.agentColor || '#6B6B63') + '12',
+                  borderColor: (insight.agentColor || '#6B6B63') + '30',
+                }}
+              >
+                {insight.agentName}
+              </span>
+            )}
+            {/* Relative timestamp */}
+            {insight.timestamp && (
+              <span className="text-[10px] text-[#9CA39B] ml-auto shrink-0">
+                {formatRelativeTime(insight.timestamp)}
+              </span>
+            )}
           </div>
 
           {/* Description */}
-          <p className="text-sm text-[#6B6B63] leading-relaxed mb-3">
+          <p className="text-sm text-[#6B6B63] leading-relaxed mb-2">
             {insight.description}
           </p>
+
+          {/* Impact metric */}
+          {insight.impactMetric && (
+            <p className="text-xs font-medium text-[#1A1A1A] mb-2">
+              Impact: <span className="text-[#00875A]">{insight.impactMetric}</span>
+            </p>
+          )}
 
           {/* Action */}
           {insight.action && insight.actionLabel && (
@@ -91,6 +117,22 @@ function InsightCard({ insight, index }: { insight: InsightItem; index: number }
       </div>
     </motion.div>
   );
+}
+
+/** Format ISO timestamp to relative time string */
+function formatRelativeTime(timestamp: string): string {
+  const now = Date.now();
+  const then = new Date(timestamp).getTime();
+  const diffMs = now - then;
+  const diffMins = Math.floor(diffMs / 60000);
+  if (diffMins < 1) return 'Just now';
+  if (diffMins < 60) return `${diffMins}m ago`;
+  const diffHrs = Math.floor(diffMins / 60);
+  if (diffHrs < 24) return `${diffHrs}h ago`;
+  const diffDays = Math.floor(diffHrs / 24);
+  if (diffDays === 1) return '1 day ago';
+  if (diffDays < 7) return `${diffDays} days ago`;
+  return `${Math.floor(diffDays / 7)}w ago`;
 }
 
 export default function InsightDetailCards({ insights, loading }: InsightDetailCardsProps) {

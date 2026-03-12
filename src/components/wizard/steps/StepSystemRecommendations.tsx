@@ -8,8 +8,9 @@ import { useMemo, useState } from 'react';
 import { useWizard } from '../WizardContext';
 import { WizardLayout } from '../WizardLayout';
 import { AI_SYSTEMS, getIndustryPrioritizedSystems, type AISystem } from '../data/wizardData';
+import { calculateFitScores, isQuickWin, type FitScoreResult } from '../data/agentData';
 import { motion, AnimatePresence } from 'motion/react';
-import { Check, ChevronDown, ExternalLink } from 'lucide-react';
+import { Check, ChevronDown, ExternalLink, Zap } from 'lucide-react';
 import { Link } from 'react-router';
 
 type SortMode = 'recommended' | 'impact' | 'effort';
@@ -41,6 +42,17 @@ export function StepSystemRecommendations() {
       return aIdx - bIdx;
     });
   }, [state.diagnosticSignals, state.step1.industry]);
+
+  // Calculate fit scores for all systems
+  const fitScores = useMemo(() => {
+    const industryId = state.step1.industry || '';
+    const prioritizedIds = getIndustryPrioritizedSystems(industryId).map(s => s.id);
+    const signalIds = state.diagnosticSignals.map(s => s.id);
+    return calculateFitScores(prioritizedIds, signalIds, state.step1.companySize || '', AI_SYSTEMS);
+  }, [state.step1.industry, state.step1.companySize, state.diagnosticSignals]);
+
+  const getFitScore = (systemId: string) =>
+    fitScores.find(f => f.systemId === systemId);
 
   // Sort based on current mode
   const sortedSystems = useMemo(() => {
@@ -194,6 +206,8 @@ export function StepSystemRecommendations() {
                 key={system.id}
                 system={system}
                 rank={recRank}
+                fitScore={getFitScore(system.id)}
+                quickWin={isQuickWin(system.id, system.effort)}
                 isSelected={selected.includes(system.id)}
                 onToggle={() => toggleSystem(system.id)}
                 isRecommended={recRank <= 3}
@@ -254,8 +268,8 @@ export function StepSystemRecommendations() {
 
 /* ────── System Card ────── */
 
-function SystemCard({ system, rank, isSelected, onToggle, isRecommended, isExpanded, onToggleExpand, delay }: {
-  system: AISystem; rank: number; isSelected: boolean; onToggle: () => void;
+function SystemCard({ system, rank, fitScore, quickWin, isSelected, onToggle, isRecommended, isExpanded, onToggleExpand, delay }: {
+  system: AISystem; rank: number; fitScore: FitScoreResult | undefined; quickWin: boolean; isSelected: boolean; onToggle: () => void;
   isRecommended: boolean; isExpanded: boolean; onToggleExpand: () => void; delay: number;
 }) {
   const Icon = system.icon;
@@ -279,10 +293,29 @@ function SystemCard({ system, rank, isSelected, onToggle, isRecommended, isExpan
       {/* Main clickable area */}
       <div className="px-5 py-4 cursor-pointer" onClick={onToggle}>
         <div className="flex items-start justify-between mb-3">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 flex-wrap">
             {isRecommended && (
               <span className="text-xs px-2 py-0.5 rounded" style={{ backgroundColor: '#E6F4ED', color: '#00875A', borderRadius: '2px' }}>
                 #{rank} Recommended
+              </span>
+            )}
+            {fitScore && (
+              <span
+                className="text-xs px-2 py-0.5 rounded font-medium"
+                style={{
+                  backgroundColor: fitScore.score >= 80 ? '#E6F4ED' : fitScore.score >= 60 ? '#FEF9E7' : '#F5F5F0',
+                  color: fitScore.score >= 80 ? '#00875A' : fitScore.score >= 60 ? '#D97706' : '#6B6B63',
+                  borderRadius: '2px',
+                  fontFamily: 'JetBrains Mono, monospace',
+                }}
+              >
+                {fitScore.score}% fit
+              </span>
+            )}
+            {quickWin && (
+              <span className="text-xs px-2 py-0.5 rounded inline-flex items-center gap-1" style={{ backgroundColor: '#EFF6FF', color: '#2563EB', borderRadius: '2px' }}>
+                <Zap className="w-3 h-3" />
+                Quick Win
               </span>
             )}
           </div>

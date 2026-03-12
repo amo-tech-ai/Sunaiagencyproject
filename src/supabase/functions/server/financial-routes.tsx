@@ -1,9 +1,9 @@
 // S13-FINANCIAL — Financial Dashboard backend routes (Phase 13)
 // Invoice CRUD, payment recording, revenue metrics, profitability
-// Data stored in Supabase tables: dashboard_invoices, dashboard_payments
+// Data stored in KV: invoice:{id}, payment:{id}
 
 import { Hono } from "npm:hono";
-import { adminClient } from "./db.tsx";
+import * as kv from "./kv_store.tsx";
 import { getUserFromToken } from "./auth.tsx";
 
 const PREFIX = "/make-server-283466b6";
@@ -20,12 +20,9 @@ async function getUser(c: any): Promise<string> {
 
 // ── Helper: auto-generate invoice number ──
 async function nextInvoiceNumber(): Promise<string> {
-  const { count, error } = await adminClient()
-    .from("dashboard_invoices")
-    .select("id", { count: "exact", head: true });
-  if (error) throw error;
-  const next = (count || 0) + 1;
-  return `INV-${String(next).padStart(4, "0")}`;
+  const entries = await kv.getByPrefix("invoice:");
+  const count = entries.length + 1;
+  return `INV-${String(count).padStart(4, "0")}`;
 }
 
 // ── Helper: check if invoice is overdue ──
@@ -39,18 +36,20 @@ function checkOverdue(invoice: any): any {
 // ── GET /dashboard/financial/metrics — Revenue metrics ──
 financial.get(`${PREFIX}/dashboard/financial/metrics`, async (c) => {
   try {
-    const { data: invoiceRows, error: invErr } = await adminClient()
-      .from("dashboard_invoices")
-      .select("*");
-    if (invErr) throw invErr;
+    const invoiceEntries = await kv.getByPrefix("invoice:");
+    const paymentEntries = await kv.getByPrefix("payment:");
 
-    const { data: paymentRows, error: payErr } = await adminClient()
-      .from("dashboard_payments")
-      .select("*");
-    if (payErr) throw payErr;
+    const invoices = invoiceEntries.map((e: any) => {
+      try {
+        const inv = typeof e.value === "string" ? JSON.parse(e.value) : e.value;
+        return checkOverdue(inv);
+      } catch { return null; }
+    }).filter(Boolean);
 
-    const invoices = (invoiceRows || []).map(checkOverdue);
-    const payments = paymentRows || [];
+    const payments = paymentEntries.map((e: any) => {
+      try { return typeof e.value === "string" ? JSON.parse(e.value) : e.value; }
+      catch { return null; }
+    }).filter(Boolean);
 
     const now = new Date();
     const thisMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
@@ -98,24 +97,27 @@ financial.get(`${PREFIX}/dashboard/financial/invoices`, async (c) => {
     const status = c.req.query("status");
     const search = c.req.query("search");
 
-    let query = adminClient()
-      .from("dashboard_invoices")
-      .select("*");
+    const entries = await kv.getByPrefix("invoice:");
+    let invoices = entries.map((e: any) => {
+      try {
+        const inv = typeof e.value === "string" ? JSON.parse(e.value) : e.value;
+        return checkOverdue(inv);
+      } catch { return null; }
+    }).filter(Boolean);
 
     if (status && status !== "all") {
-      query = query.eq("status", status);
+      invoices = invoices.filter((i: any) => i.status === status);
     }
     if (search) {
-      query = query.or(`client_name.ilike.%${search}%,project_name.ilike.%${search}%,invoice_number.ilike.%${search}%`);
+      const q = search.toLowerCase();
+      invoices = invoices.filter((i: any) =>
+        i.client_name?.toLowerCase().includes(q) ||
+        i.project_name?.toLowerCase().includes(q) ||
+        i.invoice_number?.toLowerCase().includes(q)
+      );
     }
 
-    query = query.order("created_at", { ascending: false });
-
-    const { data: rows, error } = await query;
-    if (error) throw error;
-
-    const invoices = (rows || []).map(checkOverdue);
-
+    invoices.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
     return c.json({ invoices, total: invoices.length });
   } catch (err) {
     console.log(`[Financial] List invoices error: ${err}`);
@@ -131,9 +133,11 @@ financial.post(`${PREFIX}/dashboard/financial/invoices`, async (c) => {
     const { client_id, client_name, project_id, project_name, amount, due_date, line_items, notes } = body;
 
     const invoiceNumber = await nextInvoiceNumber();
+    const invoiceId = uuid();
     const now = new Date().toISOString();
 
     const invoice = {
+      id: invoiceId,
       invoice_number: invoiceNumber,
       client_id: client_id || "",
       client_name: client_name || "Unknown Client",
@@ -146,18 +150,14 @@ financial.post(`${PREFIX}/dashboard/financial/invoices`, async (c) => {
       payment_date: null,
       line_items: (line_items || []).map((li: any) => ({ ...li, id: uuid() })),
       notes: notes || "",
+      created_at: now,
+      updated_at: now,
       user_id: userId,
     };
 
-    const { data, error } = await adminClient()
-      .from("dashboard_invoices")
-      .insert(invoice)
-      .select()
-      .single();
-    if (error) throw error;
-
-    console.log(`[Financial] Created invoice ${invoiceNumber} (${data.id}) by ${userId}`);
-    return c.json({ invoice: data });
+    await kv.set(`invoice:${invoiceId}`, JSON.stringify(invoice));
+    console.log(`[Financial] Created invoice ${invoiceNumber} (${invoiceId}) by ${userId}`);
+    return c.json({ invoice });
   } catch (err) {
     console.log(`[Financial] Create invoice error: ${err}`);
     return c.json({ error: `Failed to create invoice: ${err}` }, 500);
@@ -168,14 +168,10 @@ financial.post(`${PREFIX}/dashboard/financial/invoices`, async (c) => {
 financial.put(`${PREFIX}/dashboard/financial/invoices/:id`, async (c) => {
   try {
     const invoiceId = c.req.param("id");
-    const { data: invoice, error: fetchErr } = await adminClient()
-      .from("dashboard_invoices")
-      .select("*")
-      .eq("id", invoiceId)
-      .maybeSingle();
-    if (fetchErr) throw fetchErr;
-    if (!invoice) return c.json({ error: "Invoice not found" }, 404);
+    const existing = await kv.get(`invoice:${invoiceId}`);
+    if (!existing) return c.json({ error: "Invoice not found" }, 404);
 
+    const invoice = typeof existing === "string" ? JSON.parse(existing) : existing;
     const body = await c.req.json();
 
     // Enforce valid status transitions
@@ -191,24 +187,19 @@ financial.put(`${PREFIX}/dashboard/financial/invoices/:id`, async (c) => {
       }
     }
 
-    const updates: any = { ...body };
-    // Protect immutable fields
-    delete updates.id;
-    delete updates.invoice_number;
-    updates.updated_at = new Date().toISOString();
+    const updated = {
+      ...invoice,
+      ...body,
+      id: invoiceId,
+      invoice_number: invoice.invoice_number, // immutable
+      updated_at: new Date().toISOString(),
+    };
 
-    if (body.status === "paid" && !invoice.payment_date && !updates.payment_date) {
-      updates.payment_date = new Date().toISOString().slice(0, 10);
+    if (body.status === "paid" && !updated.payment_date) {
+      updated.payment_date = new Date().toISOString().slice(0, 10);
     }
 
-    const { data: updated, error: updateErr } = await adminClient()
-      .from("dashboard_invoices")
-      .update(updates)
-      .eq("id", invoiceId)
-      .select()
-      .single();
-    if (updateErr) throw updateErr;
-
+    await kv.set(`invoice:${invoiceId}`, JSON.stringify(updated));
     console.log(`[Financial] Updated invoice ${invoiceId}`);
     return c.json({ invoice: updated });
   } catch (err) {
@@ -221,24 +212,15 @@ financial.put(`${PREFIX}/dashboard/financial/invoices/:id`, async (c) => {
 financial.delete(`${PREFIX}/dashboard/financial/invoices/:id`, async (c) => {
   try {
     const invoiceId = c.req.param("id");
-    const { data: invoice, error: fetchErr } = await adminClient()
-      .from("dashboard_invoices")
-      .select("*")
-      .eq("id", invoiceId)
-      .maybeSingle();
-    if (fetchErr) throw fetchErr;
-    if (!invoice) return c.json({ error: "Invoice not found" }, 404);
+    const existing = await kv.get(`invoice:${invoiceId}`);
+    if (!existing) return c.json({ error: "Invoice not found" }, 404);
 
+    const invoice = typeof existing === "string" ? JSON.parse(existing) : existing;
     if (invoice.status !== "draft") {
       return c.json({ error: "Only draft invoices can be deleted" }, 400);
     }
 
-    const { error: delErr } = await adminClient()
-      .from("dashboard_invoices")
-      .delete()
-      .eq("id", invoiceId);
-    if (delErr) throw delErr;
-
+    await kv.del(`invoice:${invoiceId}`);
     console.log(`[Financial] Deleted invoice ${invoiceId}`);
     return c.json({ success: true });
   } catch (err) {
@@ -254,13 +236,10 @@ financial.post(`${PREFIX}/dashboard/financial/payments/record`, async (c) => {
     const body = await c.req.json();
     const { invoice_id, amount, payment_date, method, notes } = body;
 
-    const { data: invoice, error: fetchErr } = await adminClient()
-      .from("dashboard_invoices")
-      .select("*")
-      .eq("id", invoice_id)
-      .maybeSingle();
-    if (fetchErr) throw fetchErr;
-    if (!invoice) return c.json({ error: "Invoice not found" }, 404);
+    const existing = await kv.get(`invoice:${invoice_id}`);
+    if (!existing) return c.json({ error: "Invoice not found" }, 404);
+
+    const invoice = typeof existing === "string" ? JSON.parse(existing) : existing;
 
     if (invoice.status !== "sent" && invoice.status !== "overdue") {
       return c.json({ error: "Can only record payments for sent or overdue invoices" }, 400);
@@ -270,38 +249,30 @@ financial.post(`${PREFIX}/dashboard/financial/payments/record`, async (c) => {
       return c.json({ error: "Payment cannot exceed invoice amount" }, 400);
     }
 
+    const paymentId = uuid();
     const now = new Date().toISOString();
-    const paymentRecord = {
+
+    const payment = {
+      id: paymentId,
       invoice_id,
       amount,
       payment_date: payment_date || now.slice(0, 10),
       method: method || "bank_transfer",
       notes: notes || null,
       recorded_by: userId,
+      created_at: now,
     };
 
-    const { data: payment, error: payErr } = await adminClient()
-      .from("dashboard_payments")
-      .insert(paymentRecord)
-      .select()
-      .single();
-    if (payErr) throw payErr;
+    await kv.set(`payment:${paymentId}`, JSON.stringify(payment));
 
     // Update invoice status to paid
-    const { data: updatedInvoice, error: updErr } = await adminClient()
-      .from("dashboard_invoices")
-      .update({
-        status: "paid",
-        payment_date: payment.payment_date,
-        updated_at: now,
-      })
-      .eq("id", invoice_id)
-      .select()
-      .single();
-    if (updErr) throw updErr;
+    invoice.status = "paid";
+    invoice.payment_date = payment.payment_date;
+    invoice.updated_at = now;
+    await kv.set(`invoice:${invoice_id}`, JSON.stringify(invoice));
 
-    console.log(`[Financial] Recorded payment ${payment.id} for invoice ${invoice_id}`);
-    return c.json({ payment, invoice: updatedInvoice });
+    console.log(`[Financial] Recorded payment ${paymentId} for invoice ${invoice_id}`);
+    return c.json({ payment, invoice });
   } catch (err) {
     console.log(`[Financial] Record payment error: ${err}`);
     return c.json({ error: `Failed to record payment: ${err}` }, 500);
@@ -312,21 +283,18 @@ financial.post(`${PREFIX}/dashboard/financial/payments/record`, async (c) => {
 financial.get(`${PREFIX}/dashboard/financial/payments`, async (c) => {
   try {
     const invoiceId = c.req.query("invoice_id");
-
-    let query = adminClient()
-      .from("dashboard_payments")
-      .select("*");
+    const entries = await kv.getByPrefix("payment:");
+    let payments = entries.map((e: any) => {
+      try { return typeof e.value === "string" ? JSON.parse(e.value) : e.value; }
+      catch { return null; }
+    }).filter(Boolean);
 
     if (invoiceId) {
-      query = query.eq("invoice_id", invoiceId);
+      payments = payments.filter((p: any) => p.invoice_id === invoiceId);
     }
 
-    query = query.order("created_at", { ascending: false });
-
-    const { data: payments, error } = await query;
-    if (error) throw error;
-
-    return c.json({ payments: payments || [] });
+    payments.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    return c.json({ payments });
   } catch (err) {
     console.log(`[Financial] List payments error: ${err}`);
     return c.json({ error: `Failed to list payments: ${err}` }, 500);
@@ -336,12 +304,12 @@ financial.get(`${PREFIX}/dashboard/financial/payments`, async (c) => {
 // ── GET /dashboard/financial/charts — Revenue chart data ──
 financial.get(`${PREFIX}/dashboard/financial/charts`, async (c) => {
   try {
-    const { data: invoiceRows, error } = await adminClient()
-      .from("dashboard_invoices")
-      .select("*");
-    if (error) throw error;
+    const invoiceEntries = await kv.getByPrefix("invoice:");
+    const invoices = invoiceEntries.map((e: any) => {
+      try { return typeof e.value === "string" ? JSON.parse(e.value) : e.value; }
+      catch { return null; }
+    }).filter(Boolean);
 
-    const invoices = invoiceRows || [];
     const paidInvoices = invoices.filter((i: any) => i.status === "paid");
 
     // Revenue by client
@@ -404,12 +372,11 @@ financial.get(`${PREFIX}/dashboard/financial/charts`, async (c) => {
 // ── GET /dashboard/financial/profitability — Project profitability ──
 financial.get(`${PREFIX}/dashboard/financial/profitability`, async (c) => {
   try {
-    const { data: invoiceRows, error } = await adminClient()
-      .from("dashboard_invoices")
-      .select("*");
-    if (error) throw error;
-
-    const invoices = invoiceRows || [];
+    const invoiceEntries = await kv.getByPrefix("invoice:");
+    const invoices = invoiceEntries.map((e: any) => {
+      try { return typeof e.value === "string" ? JSON.parse(e.value) : e.value; }
+      catch { return null; }
+    }).filter(Boolean);
 
     // Group invoices by project
     const projectMap: Record<string, { project_name: string; client_name: string; invoiced: number; paid: number }> = {};
@@ -454,14 +421,10 @@ financial.get(`${PREFIX}/dashboard/financial/profitability`, async (c) => {
 financial.post(`${PREFIX}/dashboard/financial/invoices/:id/reminder`, async (c) => {
   try {
     const invoiceId = c.req.param("id");
-    const { data: invoice, error } = await adminClient()
-      .from("dashboard_invoices")
-      .select("*")
-      .eq("id", invoiceId)
-      .maybeSingle();
-    if (error) throw error;
-    if (!invoice) return c.json({ error: "Invoice not found" }, 404);
+    const existing = await kv.get(`invoice:${invoiceId}`);
+    if (!existing) return c.json({ error: "Invoice not found" }, 404);
 
+    const invoice = typeof existing === "string" ? JSON.parse(existing) : existing;
     console.log(`[Financial] Payment reminder sent for invoice ${invoice.invoice_number} to ${invoice.client_name}`);
     return c.json({ success: true, message: `Reminder sent for ${invoice.invoice_number}` });
   } catch (err) {

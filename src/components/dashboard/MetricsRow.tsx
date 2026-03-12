@@ -3,7 +3,7 @@
 // Uses dl/dt/dd for accessibility, staggered fade-in animation.
 
 import { motion } from 'motion/react';
-import { Activity, Layers, GitBranch, DollarSign } from 'lucide-react';
+import { Activity, Layers, GitBranch, DollarSign, Users } from 'lucide-react';
 
 interface MetricsRowProps {
   readinessScore: number;
@@ -11,6 +11,8 @@ interface MetricsRowProps {
   currentPhase: number;
   totalPhases: number;
   totalInvestment: string;
+  activeAgents?: number;
+  totalAgents?: number;
 }
 
 interface MetricCardProps {
@@ -48,11 +50,13 @@ function MetricCard({ label, value, subtitle, icon, color = '#1A1A1A', index }: 
 
 export default function MetricsRow({
   readinessScore, systemsCount, currentPhase, totalPhases, totalInvestment,
+  activeAgents, totalAgents,
 }: MetricsRowProps) {
   const scoreColor = readinessScore >= 70 ? '#00875A' : readinessScore >= 40 ? '#D97706' : '#DC2626';
+  const hasAgents = activeAgents !== undefined && totalAgents !== undefined;
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3 lg:gap-4">
+    <div className={`grid grid-cols-2 gap-2.5 sm:gap-3 lg:gap-4 ${hasAgents ? 'lg:grid-cols-5' : 'lg:grid-cols-4'}`}>
       <MetricCard
         label="Readiness"
         value={`${readinessScore}`}
@@ -82,6 +86,15 @@ export default function MetricsRow({
         icon={<DollarSign className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
         index={3}
       />
+      {hasAgents && (
+        <MetricCard
+          label="Agents"
+          value={`${activeAgents}/${totalAgents}`}
+          subtitle="active/total"
+          icon={<Users className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
+          index={4}
+        />
+      )}
     </div>
   );
 }

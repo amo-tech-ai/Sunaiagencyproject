@@ -183,6 +183,9 @@ export default function FinancialDashboardPage() {
       {/* Metrics Row */}
       <MetricsRow metrics={metrics} />
 
+      {/* Agent Projection — Finance Tracker */}
+      <AgentProjectionWidget />
+
       {/* Main Grid: Invoices (left 60%) + Charts (right 40%) */}
       <div className="grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-6 mb-8">
         {/* Left: Invoice Table */}
@@ -738,6 +741,69 @@ function RecordPaymentModal({
           </button>
         </div>
       </motion.div>
+    </motion.div>
+  );
+}
+
+// ── Agent Projection Widget ──
+function AgentProjectionWidget() {
+  const projections = [
+    { month: 'Month 1', savings: '$1,240', detail: 'Bot handles 60% of bookings' },
+    { month: 'Month 3', savings: '$1,800', detail: 'Bot handles 80% + reminders' },
+    { month: 'Month 6', savings: '$2,900', detail: '$2,100 savings + $800 new revenue from after-hours' },
+  ];
+
+  return (
+    <motion.div
+      className="bg-white border border-[#E8E8E4] rounded-lg p-4 sm:p-5 mb-6"
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, delay: 0.1 }}
+    >
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <div className="w-7 h-7 rounded-full flex items-center justify-center" style={{ backgroundColor: '#F59E0B18' }}>
+            <DollarSign className="w-3.5 h-3.5" style={{ color: '#F59E0B' }} />
+          </div>
+          <div>
+            <h3 className="text-sm font-medium text-[#1A1A1A]" style={{ fontFamily: 'Georgia, serif' }}>
+              Agent Projection
+            </h3>
+            <p className="text-[10px] text-[#9CA39B]">Finance Tracker</p>
+          </div>
+        </div>
+        <span className="text-[10px] text-[#9CA39B]">Last updated: 2 hours ago</span>
+      </div>
+
+      <p className="text-sm text-[#6B6B63] leading-relaxed mb-4">
+        Based on your current trajectory and the booking automation going live in week 3:
+      </p>
+
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+        {projections.map((p) => (
+          <div key={p.month} className="border border-[#E8E8E4] rounded p-3" style={{ borderRadius: '4px' }}>
+            <p className="text-xs text-[#9CA39B] uppercase tracking-wider mb-1">{p.month}</p>
+            <p className="text-lg font-semibold text-[#00875A]" style={{ fontFamily: 'JetBrains Mono, monospace' }}>
+              {p.savings}
+            </p>
+            <p className="text-xs text-[#6B6B63] mt-0.5">{p.detail}</p>
+          </div>
+        ))}
+      </div>
+
+      <div className="flex items-center justify-between pt-3 border-t border-[#F0F0EC]">
+        <div>
+          <p className="text-xs text-[#6B6B63]">
+            Breakeven: <span className="text-[#1A1A1A] font-medium">Week 6</span>
+          </p>
+          <p className="text-xs text-[#6B6B63]">
+            12-month net benefit: <span className="text-[#00875A] font-semibold">$28,200</span>
+          </p>
+        </div>
+        <button className="text-xs px-3 py-1.5 border border-[#E8E8E4] rounded text-[#00875A] hover:bg-gray-50 transition-colors min-h-[32px]" style={{ borderRadius: '4px' }}>
+          Refresh Projection
+        </button>
+      </div>
     </motion.div>
   );
 }

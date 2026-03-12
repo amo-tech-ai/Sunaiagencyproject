@@ -44,6 +44,9 @@ import RoadmapPage from './components/dashboard/RoadmapPage';
 import SettingsPageComponent from './components/dashboard/SettingsPage';
 import InsightsPage from './components/dashboard/insights/InsightsPage';
 import DashAgentsPage from './components/dashboard/agents/AgentsPage';
+import AgentCatalogPage from './components/dashboard/agents/AgentCatalogPage';
+import AgentDetailPage from './components/dashboard/agents/AgentDetailPage';
+import AgentRunnerPage from './components/dashboard/agents/AgentRunnerPage';
 import ClientsListPage from './components/dashboard/clients/ClientsListPage';
 import ClientDetailPage from './components/dashboard/clients/ClientDetailPage';
 import CRMPipelinePage from './components/dashboard/crm/CRMPipelinePage';
@@ -125,6 +128,9 @@ export const router = createBrowserRouter([
       { path: 'strategy', Component: StrategyEnginePage },
       // Phase 10: AI Agent Management — production page
       { path: 'agents', Component: DashAgentsPage },
+      { path: 'agents/catalog', Component: AgentCatalogPage },
+      { path: 'agents/catalog/:slug', Component: AgentDetailPage },
+      { path: 'agents/catalog/:slug/run', Component: AgentRunnerPage },
     ],
   },
   {

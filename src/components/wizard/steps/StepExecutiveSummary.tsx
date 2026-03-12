@@ -6,6 +6,7 @@ import { useState, useRef, useEffect, useMemo, useCallback, forwardRef } from 'r
 import { useWizard } from '../WizardContext';
 import { WizardLayout } from '../WizardLayout';
 import { AI_SYSTEMS, ROADMAP_PHASES } from '../data/wizardData';
+import { matchAgents, type AssignedAgent } from '../data/agentData';
 import { motion, AnimatePresence } from 'motion/react';
 import { aiApi } from '../../../lib/supabase';
 import {
@@ -30,6 +31,15 @@ export function StepExecutiveSummary() {
   const [activeSection, setActiveSection] = useState('executive-summary');
   const [editingSection, setEditingSection] = useState<string | null>(null);
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
+
+  // ── Agent Team ──
+  const agentTeam = useMemo(() => {
+    if (step3.selectedSystems.length === 0) return [];
+    return matchAgents(step3.selectedSystems, step1.industry || '', step1.companyName || '');
+  }, [step3.selectedSystems, step1.industry, step1.companyName]);
+
+  const primaryAgents = agentTeam.filter(a => a.isPrimary);
+  const supportAgents = agentTeam.filter(a => !a.isPrimary);
 
   // ── AI Readiness Score State ──
   const [readiness, setReadiness] = useState<ReadinessData | null>(null);
@@ -134,6 +144,7 @@ export function StepExecutiveSummary() {
     { id: 'industry-analysis', label: 'Industry Analysis' },
     { id: 'ai-readiness', label: 'AI Readiness Score' },
     { id: 'recommended-systems', label: 'Recommended Systems' },
+    ...(agentTeam.length > 0 ? [{ id: 'your-ai-team', label: 'Your AI Team' }] : []),
     { id: 'proposed-roadmap', label: 'Proposed Roadmap' },
     { id: 'expected-outcomes', label: 'Expected Outcomes' },
     { id: 'next-steps', label: 'Next Steps' },
@@ -466,6 +477,65 @@ export function StepExecutiveSummary() {
               )}
             </div>
           </div>
+
+          {/* ─── Section 4.5: Your AI Team ─── */}
+          {agentTeam.length > 0 && (
+            <div id="your-ai-team" ref={(el) => { sectionRefs.current['your-ai-team'] = el; }}>
+              <SectionHeading title="Your AI Team" />
+              <p className="text-sm mt-2 mb-4" style={{ color: '#6B6B63' }}>
+                We've assembled a team of AI specialists for your project:
+              </p>
+
+              {/* Primary agent cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+                {primaryAgents.map((agent, idx) => {
+                  const AgentIcon = agent.icon;
+                  return (
+                    <motion.div
+                      key={agent.id}
+                      className="border rounded p-4 transition-all"
+                      style={{ borderColor: '#E8E8E4', borderRadius: '4px', backgroundColor: '#FFFFFF' }}
+                      initial={{ opacity: 0, y: 12 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: idx * 0.08 }}
+                      whileHover={{ y: -2, boxShadow: '0 2px 8px rgba(26,26,26,0.06)' }}
+                    >
+                      <div className="flex items-center gap-2.5 mb-2">
+                        <div
+                          className="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
+                          style={{ backgroundColor: agent.color + '18' }}
+                        >
+                          <AgentIcon className="w-4 h-4" style={{ color: agent.color }} />
+                        </div>
+                        <div>
+                          <p className="text-sm" style={{ fontFamily: 'Georgia, serif', color: '#1A1A1A' }}>
+                            {agent.name}
+                          </p>
+                          <p className="text-xs" style={{ color: '#9CA39B' }}>{agent.division}</p>
+                        </div>
+                      </div>
+                      <p className="text-xs leading-relaxed" style={{ color: '#6B6B63' }}>
+                        {agent.task}
+                      </p>
+                    </motion.div>
+                  );
+                })}
+              </div>
+
+              {/* Support agents as list */}
+              {supportAgents.length > 0 && (
+                <div className="space-y-1.5">
+                  {supportAgents.map(agent => (
+                    <div key={agent.id} className="flex items-center gap-2">
+                      <span className="text-sm" style={{ color: '#00875A' }}>+</span>
+                      <span className="text-sm" style={{ color: '#1A1A1A' }}>{agent.name}</span>
+                      <span className="text-sm" style={{ color: '#6B6B63' }}>({agent.role})</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
 
           {/* ─── Section 5: Proposed Roadmap ─── */}
           <div id="proposed-roadmap" ref={(el) => { sectionRefs.current['proposed-roadmap'] = el; }}>

@@ -137,75 +137,35 @@ export async function callGemini(
 
   try {
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`;
-    const requestBody = JSON.stringify({
-      contents: [
-        {
-          role: "user",
-          parts: [
-            {
-              text: `${systemPrompt}\n\n---\n\n${userPrompt}`,
-            },
-          ],
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [
+          {
+            role: "user",
+            parts: [
+              {
+                text: `${systemPrompt}\n\n---\n\n${userPrompt}`,
+              },
+            ],
+          },
+        ],
+        generationConfig: {
+          temperature: 0.7,
+          topP: 0.95,
+          maxOutputTokens: 4096,
+          responseMimeType: "application/json",
         },
-      ],
-      generationConfig: {
-        temperature: 0.7,
-        topP: 0.95,
-        maxOutputTokens: 4096,
-        responseMimeType: "application/json",
-      },
+      }),
     });
 
-    const RETRYABLE_STATUSES = [429, 500, 502, 503, 504];
-    const MAX_RETRIES = 3;
-    const BACKOFF_MS = [1000, 2000, 4000];
-    const TIMEOUT_MS = 30000;
-
-    let response: Response | undefined;
-    let lastError: Error | undefined;
-
-    for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
-      try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
-
-        response = await fetch(url, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: requestBody,
-          signal: controller.signal,
-        });
-
-        clearTimeout(timeoutId);
-
-        if (response.ok) break;
-
-        if (!RETRYABLE_STATUSES.includes(response.status)) {
-          const errorText = await response.text();
-          throw new Error(
-            `Gemini API error (${response.status}): ${errorText.slice(0, 200)}`
-          );
-        }
-
-        lastError = new Error(`Gemini API error (${response.status})`);
-      } catch (e) {
-        lastError = e instanceof Error ? e : new Error(String(e));
-        if (e instanceof DOMException || (e instanceof Error && e.name === "AbortError")) {
-          lastError = new Error(`Gemini API timeout after ${TIMEOUT_MS}ms`);
-        } else if (!RETRYABLE_STATUSES.includes((response as Response)?.status)) {
-          throw lastError;
-        }
-        response = undefined;
-      }
-
-      if (attempt < MAX_RETRIES - 1) {
-        console.log(`[Gemini] Retry ${attempt + 1}/${MAX_RETRIES} after ${BACKOFF_MS[attempt]}ms`);
-        await new Promise((r) => setTimeout(r, BACKOFF_MS[attempt]));
-      }
-    }
-
-    if (!response?.ok) {
-      throw lastError || new Error("Gemini API failed after retries");
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(
+        `Gemini API error (${response.status}): ${errorText.slice(0, 200)}`
+      );
     }
 
     const data = await response.json();

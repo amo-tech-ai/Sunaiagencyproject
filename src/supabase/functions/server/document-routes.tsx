@@ -1,11 +1,12 @@
 // S08-DOCUMENTS — Document Management routes (Phase 8)
-// Uses Supabase Storage for files + documents table for metadata
+// Uses Supabase Storage for files + KV store for metadata
 // Private bucket with signed URLs for access control
 // Auth via getUserFromToken (allows anonymous browse, auth for upload/delete)
 
 import { Hono } from "npm:hono";
 import { adminClient } from "./db.tsx";
 import { getUserFromToken } from "./auth.tsx";
+import * as kv from "./kv_store.tsx";
 
 const documents = new Hono();
 const PREFIX = "/make-server-283466b6";
@@ -83,14 +84,6 @@ function detectMimeType(name: string): string {
   return map[ext] || "application/octet-stream";
 }
 
-/** Enrich a DB row with computed fields for frontend compatibility */
-function enrichDoc(row: any) {
-  return {
-    ...row,
-    file_type: detectFileType(row.name || ""),
-  };
-}
-
 // ── GET /documents — List all documents ──
 documents.get(`${PREFIX}/documents`, async (c) => {
   try {
@@ -100,40 +93,36 @@ documents.get(`${PREFIX}/documents`, async (c) => {
       return c.json({ error: "Authentication required" }, 401);
     }
 
-    const db = adminClient();
-
-    // Build query
-    let query = db
-      .from("documents")
-      .select("*")
-      .order("created_at", { ascending: false });
+    // Get all documents from KV by prefix
+    const docs = await kv.getByPrefix("doc:");
 
     // Optional filters from query params
     const category = c.req.query("category");
     const search = c.req.query("search")?.toLowerCase();
 
+    let filtered = docs || [];
+
     if (category && category !== "all") {
-      query = query.eq("category", category);
+      filtered = filtered.filter((d: any) => d.category === category);
     }
     if (search) {
-      query = query.or(
-        `name.ilike.%${search}%,category.ilike.%${search}%`
+      filtered = filtered.filter(
+        (d: any) =>
+          d.name?.toLowerCase().includes(search) ||
+          d.project_name?.toLowerCase().includes(search)
       );
     }
 
-    const { data: docs, error } = await query;
-
-    if (error) {
-      console.log(`[Documents] List query error: ${error.message}`);
-      return c.json({ error: `List failed: ${error.message}` }, 500);
-    }
-
-    const enriched = (docs || []).map(enrichDoc);
+    // Sort by created_at descending
+    filtered.sort(
+      (a: any, b: any) =>
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    );
 
     console.log(
-      `[Documents] Listed ${enriched.length} documents`
+      `[Documents] Listed ${filtered.length} documents (total: ${docs?.length || 0})`
     );
-    return c.json({ documents: enriched });
+    return c.json({ documents: filtered });
   } catch (error) {
     return errorResponse(c, "List documents failed", error);
   }
@@ -149,34 +138,22 @@ documents.get(`${PREFIX}/documents/stats`, async (c) => {
       return c.json({ error: "Authentication required" }, 401);
     }
 
-    const db = adminClient();
-    const { data: docs, error } = await db
-      .from("documents")
-      .select("*");
-
-    if (error) {
-      console.log(`[Documents] Stats query error: ${error.message}`);
-      return c.json({ error: `Stats failed: ${error.message}` }, 500);
-    }
-
-    const rows = docs || [];
+    const docs = (await kv.getByPrefix("doc:")) || [];
 
     const stats = {
-      total: rows.length,
-      totalSize: rows.reduce((sum: number, d: any) => sum + (d.file_size || 0), 0),
+      total: docs.length,
+      totalSize: docs.reduce((sum: number, d: any) => sum + (d.file_size || 0), 0),
       byCategory: {} as Record<string, number>,
       byType: {} as Record<string, number>,
       recentCount: 0,
     };
 
     const weekAgo = Date.now() - 7 * 86400000;
-    for (const doc of rows) {
-      const cat = doc.category || "uncategorized";
-      const fileType = detectFileType(doc.name || "");
-      stats.byCategory[cat] =
-        (stats.byCategory[cat] || 0) + 1;
-      stats.byType[fileType] =
-        (stats.byType[fileType] || 0) + 1;
+    for (const doc of docs) {
+      stats.byCategory[doc.category] =
+        (stats.byCategory[doc.category] || 0) + 1;
+      stats.byType[doc.file_type] =
+        (stats.byType[doc.file_type] || 0) + 1;
       if (new Date(doc.created_at).getTime() > weekAgo) {
         stats.recentCount++;
       }
@@ -198,17 +175,7 @@ documents.get(`${PREFIX}/documents/:id`, async (c) => {
     }
 
     const id = c.req.param("id");
-    const db = adminClient();
-    const { data: doc, error } = await db
-      .from("documents")
-      .select("*")
-      .eq("id", id)
-      .maybeSingle();
-
-    if (error) {
-      console.log(`[Documents] Get query error: ${error.message}`);
-      return c.json({ error: `Get failed: ${error.message}` }, 500);
-    }
+    const doc = await kv.get(`doc:${id}`);
 
     if (!doc) {
       return c.json({ error: `Document ${id} not found` }, 404);
@@ -216,6 +183,7 @@ documents.get(`${PREFIX}/documents/:id`, async (c) => {
 
     // Generate signed URL (1 hour expiry)
     await ensureBucket();
+    const db = adminClient();
     const { data: signedData, error: signErr } = await db.storage
       .from(BUCKET_NAME)
       .createSignedUrl(doc.storage_path, 3600);
@@ -226,7 +194,7 @@ documents.get(`${PREFIX}/documents/:id`, async (c) => {
 
     return c.json({
       document: {
-        ...enrichDoc(doc),
+        ...doc,
         signed_url: signedData?.signedUrl || null,
       },
     });
@@ -252,6 +220,7 @@ documents.post(`${PREFIX}/documents/upload`, async (c) => {
     const name = (formData.get("name") as string) || file?.name || "Untitled";
     const category = (formData.get("category") as string) || "deliverables";
     const projectId = (formData.get("project_id") as string) || null;
+    const projectName = (formData.get("project_name") as string) || null;
 
     if (!file) {
       return c.json({ error: "No file provided" }, 400);
@@ -285,34 +254,26 @@ documents.post(`${PREFIX}/documents/upload`, async (c) => {
       );
     }
 
-    // Save metadata to documents table
-    const now = new Date().toISOString();
-    const dbRow = {
+    // Save metadata to KV
+    const docMeta = {
       id: docId,
       name,
       category,
+      file_type: fileType,
       storage_path: storagePath,
       project_id: projectId,
+      project_name: projectName,
       uploaded_by: userId === "anonymous" ? null : userId,
+      uploaded_by_name: null,
+      version: 1,
       file_size: file.size,
       mime_type: mimeType,
-      created_at: now,
-      updated_at: now,
+      ai_summary: null,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
     };
 
-    const { error: insertError } = await db
-      .from("documents")
-      .insert(dbRow);
-
-    if (insertError) {
-      console.log(`[Documents] Insert error: ${insertError.message}`);
-      // Clean up the uploaded file since metadata save failed
-      await db.storage.from(BUCKET_NAME).remove([storagePath]);
-      return c.json(
-        { error: `Save metadata failed: ${insertError.message}` },
-        500
-      );
-    }
+    await kv.set(`doc:${docId}`, docMeta);
 
     // Generate signed URL for immediate use
     const { data: signedData } = await db.storage
@@ -326,7 +287,7 @@ documents.post(`${PREFIX}/documents/upload`, async (c) => {
     return c.json(
       {
         document: {
-          ...enrichDoc(dbRow),
+          ...docMeta,
           signed_url: signedData?.signedUrl || null,
         },
       },
@@ -347,17 +308,7 @@ documents.delete(`${PREFIX}/documents/:id`, async (c) => {
     }
 
     const id = c.req.param("id");
-    const db = adminClient();
-    const { data: doc, error: fetchError } = await db
-      .from("documents")
-      .select("*")
-      .eq("id", id)
-      .maybeSingle();
-
-    if (fetchError) {
-      console.log(`[Documents] Fetch for delete error: ${fetchError.message}`);
-      return c.json({ error: `Fetch failed: ${fetchError.message}` }, 500);
-    }
+    const doc = await kv.get(`doc:${id}`);
 
     if (!doc) {
       return c.json({ error: `Document ${id} not found` }, 404);
@@ -365,6 +316,7 @@ documents.delete(`${PREFIX}/documents/:id`, async (c) => {
 
     // Delete from storage
     await ensureBucket();
+    const db = adminClient();
     const { error: storageErr } = await db.storage
       .from(BUCKET_NAME)
       .remove([doc.storage_path]);
@@ -375,16 +327,8 @@ documents.delete(`${PREFIX}/documents/:id`, async (c) => {
       );
     }
 
-    // Delete metadata from documents table
-    const { error: deleteError } = await db
-      .from("documents")
-      .delete()
-      .eq("id", id);
-
-    if (deleteError) {
-      console.log(`[Documents] Delete row error: ${deleteError.message}`);
-      return c.json({ error: `Delete failed: ${deleteError.message}` }, 500);
-    }
+    // Delete metadata from KV
+    await kv.del(`doc:${id}`);
 
     console.log(`[Documents] Deleted: ${id} (${doc.name})`);
     return c.json({ success: true });
@@ -403,17 +347,7 @@ documents.post(`${PREFIX}/documents/:id/share`, async (c) => {
     }
 
     const id = c.req.param("id");
-    const db = adminClient();
-    const { data: doc, error: fetchError } = await db
-      .from("documents")
-      .select("*")
-      .eq("id", id)
-      .maybeSingle();
-
-    if (fetchError) {
-      console.log(`[Documents] Fetch for share error: ${fetchError.message}`);
-      return c.json({ error: `Fetch failed: ${fetchError.message}` }, 500);
-    }
+    const doc = await kv.get(`doc:${id}`);
 
     if (!doc) {
       return c.json({ error: `Document ${id} not found` }, 404);
@@ -434,6 +368,7 @@ documents.post(`${PREFIX}/documents/:id/share`, async (c) => {
     }
 
     await ensureBucket();
+    const db = adminClient();
     const { data, error } = await db.storage
       .from(BUCKET_NAME)
       .createSignedUrl(doc.storage_path, expiresIn);
@@ -475,50 +410,33 @@ documents.put(`${PREFIX}/documents/:id`, async (c) => {
     }
 
     const id = c.req.param("id");
-    const db = adminClient();
-    const { data: doc, error: fetchError } = await db
-      .from("documents")
-      .select("*")
-      .eq("id", id)
-      .maybeSingle();
-
-    if (fetchError) {
-      console.log(`[Documents] Fetch for update error: ${fetchError.message}`);
-      return c.json({ error: `Fetch failed: ${fetchError.message}` }, 500);
-    }
+    const doc = await kv.get(`doc:${id}`);
 
     if (!doc) {
       return c.json({ error: `Document ${id} not found` }, 404);
     }
 
     const body = await c.req.json();
-
-    // Map incoming fields to DB columns
-    // Frontend may send ai_summary (old KV field) — map it to summary (DB column)
+    const allowedFields = [
+      "name",
+      "category",
+      "project_id",
+      "project_name",
+      "ai_summary",
+    ];
     const updates: Record<string, unknown> = {
       updated_at: new Date().toISOString(),
     };
 
-    if (body.name !== undefined) updates.name = body.name;
-    if (body.category !== undefined) updates.category = body.category;
-    if (body.project_id !== undefined) updates.project_id = body.project_id;
-    if (body.summary !== undefined) updates.summary = body.summary;
-    if (body.ai_summary !== undefined) updates.summary = body.ai_summary;
-
-    const { data: updatedDoc, error: updateError } = await db
-      .from("documents")
-      .update(updates)
-      .eq("id", id)
-      .select("*")
-      .single();
-
-    if (updateError) {
-      console.log(`[Documents] Update error: ${updateError.message}`);
-      return c.json({ error: `Update failed: ${updateError.message}` }, 500);
+    for (const field of allowedFields) {
+      if (body[field] !== undefined) updates[field] = body[field];
     }
 
+    const updatedDoc = { ...doc, ...updates };
+    await kv.set(`doc:${id}`, updatedDoc);
+
     console.log(`[Documents] Updated metadata: ${id}`);
-    return c.json({ document: enrichDoc(updatedDoc) });
+    return c.json({ document: updatedDoc });
   } catch (error) {
     return errorResponse(c, "Update document failed", error);
   }

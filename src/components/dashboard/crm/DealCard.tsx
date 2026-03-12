@@ -87,6 +87,46 @@ export default function DealCard({ deal, onClick, onDragStart }: DealCardProps) 
               </span>
             )}
           </div>
+
+          {/* Agent health score (if available) */}
+          {deal.healthScore !== undefined && (
+            <div className="mt-2 pt-2 border-t border-[#F0F0EC]">
+              <div className="flex items-center justify-between mb-1">
+                <span className={`text-[10px] font-medium ${
+                  deal.healthLabel === 'HIGH' ? 'text-[#00875A]' :
+                  deal.healthLabel === 'MEDIUM' ? 'text-[#D97706]' :
+                  'text-[#DC2626]'
+                }`}>
+                  Health: {deal.healthLabel || 'N/A'}
+                </span>
+                <span className="text-[10px] text-[#9CA39B] font-mono">
+                  {deal.healthScore}%
+                </span>
+              </div>
+              <div className="w-full h-1 rounded-full bg-[#F0F0EC]">
+                <div
+                  className="h-1 rounded-full transition-all duration-300"
+                  style={{
+                    width: `${deal.healthScore}%`,
+                    backgroundColor:
+                      deal.healthLabel === 'HIGH' ? '#00875A' :
+                      deal.healthLabel === 'MEDIUM' ? '#D97706' :
+                      '#DC2626',
+                  }}
+                />
+              </div>
+              {deal.healthInsight && (
+                <p className="text-[10px] text-[#6B6B63] mt-1 leading-tight">
+                  {deal.healthInsight}
+                </p>
+              )}
+              {deal.scoringAgent && (
+                <p className="text-[10px] text-[#9CA39B] mt-0.5">
+                  Agent: {deal.scoringAgent}
+                </p>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>

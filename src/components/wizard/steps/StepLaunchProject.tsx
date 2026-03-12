@@ -3,12 +3,13 @@
 // Celebration + confirmation screen with staggered animations
 // NOW WIRED: Calls /generate-roadmap for live AI-generated implementation roadmap
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useWizard } from '../WizardContext';
 import { AI_SYSTEMS, ROADMAP_PHASES, DASHBOARD_PREVIEW_CARDS, STEPS } from '../data/wizardData';
+import { matchAgents, type AssignedAgent } from '../data/agentData';
 import { WizardLayout } from '../WizardLayout';
 import { motion } from 'motion/react';
-import { Check, ArrowRight, Loader2, AlertCircle, RefreshCw } from 'lucide-react';
+import { Check, ArrowRight, Loader2, AlertCircle, RefreshCw, Users } from 'lucide-react';
 import { Link } from 'react-router';
 import { aiApi, onboardingApi } from '../../../lib/supabase';
 import type { OnboardingCompleteResponse } from '../../../lib/supabase';
@@ -201,6 +202,12 @@ export function StepLaunchProject() {
     `Roadmap with ${displayPhases.length} phases set`,
     roadmap ? `${roadmap.quickWins?.length || 0} quick wins identified` : '12 initial tasks generated',
   ];
+
+  // Match agents to the project
+  const agentTeam = useMemo(() => {
+    if (step3.selectedSystems.length === 0) return [];
+    return matchAgents(step3.selectedSystems, step1.industry || '', step1.companyName || '');
+  }, [step3.selectedSystems, step1.industry, step1.companyName]);
 
   return (
     <WizardLayout>
@@ -500,6 +507,52 @@ export function StepLaunchProject() {
                 )}
               </motion.div>
             </div>
+
+            {/* Assigned Agents */}
+            {agentTeam.length > 0 && (
+              <>
+                <div className="border-t" style={{ borderColor: '#F0F0EC' }} />
+                <div>
+                  <div className="flex items-center gap-2 mb-4">
+                    <Users className="w-4 h-4" style={{ color: '#00875A' }} />
+                    <p className="text-xs tracking-widest uppercase" style={{ color: '#00875A', letterSpacing: '0.08em' }}>
+                      Your Team is Ready
+                    </p>
+                  </div>
+                  <div className="space-y-2.5">
+                    {agentTeam.map((agent, idx) => {
+                      const AgentIcon = agent.icon;
+                      return (
+                        <motion.div
+                          key={agent.id}
+                          className="flex items-center gap-3 px-4 py-3 border rounded transition-all"
+                          style={{ borderColor: '#E8E8E4', borderRadius: '4px', backgroundColor: '#FAFAF8' }}
+                          initial={{ opacity: 0, x: -12 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 1.0 + idx * 0.08, duration: 0.3 }}
+                        >
+                          <div
+                            className="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
+                            style={{ backgroundColor: agent.color + '18' }}
+                          >
+                            <AgentIcon className="w-4 h-4" style={{ color: agent.color }} />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm" style={{ fontFamily: 'Georgia, serif', color: '#1A1A1A' }}>
+                              {agent.name}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            <span className="text-xs" style={{ color: '#9CA39B' }}>First task:</span>
+                            <span className="text-xs" style={{ color: '#6B6B63' }}>{agent.task}</span>
+                          </div>
+                        </motion.div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         </motion.div>
 
