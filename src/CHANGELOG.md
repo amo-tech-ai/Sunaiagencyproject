@@ -3,8 +3,80 @@
 **Project:** Sun AI Agency — AI Consulting & Solutions Website
 **Stack:** Vite + React + Tailwind CSS v4 + Supabase + Vercel
 **Design System:** BCG Consulting-Inspired (Calm Luxury Editorial)
-**Current Version:** v0.25.0
-**Last Updated:** 2026-03-10
+**Current Version:** v0.26.0
+**Last Updated:** 2026-03-13
+
+---
+
+## [0.26.0] — 2026-03-13 — Agency Agents: Server Wiring, Live API, System Map & Data Model ERD
+
+### Summary
+
+Major Agency Agents infrastructure release. Fixed a critical server bug where `agent-routes.tsx` (3 endpoints) was defined but never mounted — `POST /agents/run`, `POST /agents/match`, and `GET /agents/history/:slug` were unreachable. Added typed `agentCatalogApi` to the frontend API layer. Wired AgentRunnerPage to call the real Gemini-backed edge function (with graceful simulated fallback). Wired RunHistoryTab to fetch real `ai_run_logs` entries (with mock fallback). Created two interactive SVG documentation diagrams: an Agent System Map showing product areas connected to color-coded agent circles with single/multi-agent call legend, and an Entity-Relationship Diagram showing the 5 agent database tables with PK/FK badges, monospace columns, and one-to-many relationship arrows. Both diagrams are hover-interactive with highlight/dim behavior. Added 2 new docs to `/docs/agency/`.
+
+### Fixed — Agent Routes Not Mounted (Critical)
+
+- **`/supabase/functions/server/index.tsx`** — Imported `agents` from `agent-routes.tsx` and mounted with `app.route("/", agents)`. Added `ensureAISchema()` middleware for `/agents/*` routes. Previously, all 3 agent endpoints were defined in `agent-routes.tsx` but never reachable because the file was not imported or mounted on the Hono app. Edge function route count: 65 → 68.
+
+### Added — Frontend Agent API (`agentCatalogApi`)
+
+- **`/lib/supabase.ts`** — Added `agentCatalogApi` module with 3 typed methods:
+  - `agentCatalogApi.run({ slug, agentName, task, context?, format? }, token?)` → `AgentRunResponse`
+  - `agentCatalogApi.match({ industry, goals?, companySize?, systemIds? }, token?)` → `AgentMatchResponse`
+  - `agentCatalogApi.history(slug, limit?, token?)` → `{ runs: AgentRunHistoryEntry[] }`
+- **TypeScript interfaces:** `AgentRunResponse`, `AgentMatchResponse`, `AgentRunHistoryEntry`
+
+### Changed — AgentRunnerPage: Real Gemini API
+
+- **`/components/dashboard/agents/AgentRunnerPage.tsx`** — `handleRun()` now calls `agentCatalogApi.run()` which hits the real `POST /agents/run` edge function (Gemini 2.0 Flash). On API failure, gracefully falls back to the existing `generateSimulatedOutput()` function with a yellow warning banner. Added `error` state for fallback notice display.
+
+### Changed — AgentDetailPage: Live Run History
+
+- **`/components/dashboard/agents/AgentDetailPage.tsx`** — `RunHistoryTab` now calls `agentCatalogApi.history()` on mount to fetch real `ai_run_logs` entries filtered by `prompt_type = "agent-run:{slug}"`. Falls back to mock data with an amber "Showing sample data" notice if API returns empty or errors. Added loading spinner state.
+
+### Added — Agent System Map (`/app/agents/system-map`)
+
+- **`/components/dashboard/agents/AgentSystemMap.tsx`** — Interactive SVG diagram mapping 9 product areas (Wizard Steps 3-5, Dashboard, Insights, CRM, Workflows, Financial, Strategy) to 13 agent circles. Color-coded by division (Engineering=blue, Sales=amber, Marketing=purple, PM=indigo, Testing=red, Support=emerald). Bezier curve connections with hover highlight/dim. Legend bar shows single-agent (solid line), multi-agent (dashed line), and no-call (dotted line) patterns. Zoom controls. Info panel with token cost summary.
+
+### Added — Agent Data Model ERD (`/app/agents/er-diagram`)
+
+- **`/components/dashboard/agents/AgentERDiagram.tsx`** — Interactive SVG entity-relationship diagram showing 5 database tables: `agent_catalog`, `agent_assignments`, `agent_runs`, `agent_outputs`, `insight_cards`. White table cards on dot-grid background with monospace column names, PK (blue) and FK (amber) badges, column types, and nullable indicators. One-to-many relationship arrows with "1" circle markers and arrowhead markers. Hover highlights connected tables and dims unrelated ones. Click any table to open a detailed inspector panel with full column specs and clickable cross-references to related tables. Zoom controls with reset.
+
+### Added — Sidebar Sub-Items
+
+- **`/components/dashboard/DashboardSidebar.tsx`** — AI Agents section now has 4 sub-items (was 3): Catalog, System Map, Data Model, Monitor. Sub-items only show when the AI Agents section is active.
+
+### Added — Documentation
+
+- **`/docs/agency/06-agent-system-mapping.md`** — Agent-to-product mapping table, implementation status checklist, output combination patterns (Parallel+Merge, Primary+Augmentation, Independent+Display), token budget per feature, files modified/created index.
+- **`/docs/agency/07-data-model-erd.md`** — Full schema documentation for 5 agent tables with column specs, types, keys, relationships diagram, implementation notes, migration path guidance.
+
+### Files Created
+
+```
+/components/dashboard/agents/AgentSystemMap.tsx — Interactive SVG system mapping diagram
+/components/dashboard/agents/AgentERDiagram.tsx — Interactive SVG ER diagram
+/docs/agency/06-agent-system-mapping.md — System mapping documentation
+/docs/agency/07-data-model-erd.md — Data model ER documentation
+```
+
+### Files Modified
+
+```
+/supabase/functions/server/index.tsx — Mount agent routes + AI schema middleware
+/lib/supabase.ts — agentCatalogApi module (3 methods + 3 interfaces)
+/components/dashboard/agents/AgentRunnerPage.tsx — Real Gemini API + fallback
+/components/dashboard/agents/AgentDetailPage.tsx — Live run history + fallback
+/components/dashboard/DashboardSidebar.tsx — 2 new sub-items (System Map, Data Model)
+/routes.tsx — 2 new routes (agents/system-map, agents/er-diagram)
+```
+
+### Production Status
+
+- Edge function routes: 68 (65 prior + 3 agent catalog now mounted)
+- Dashboard pages: 45 production components (43 prior + 2 diagrams)
+- Agency docs: 8 (00-07)
+- Total routes: 53 (51 prior + 2 new dashboard pages)
 
 ---
 

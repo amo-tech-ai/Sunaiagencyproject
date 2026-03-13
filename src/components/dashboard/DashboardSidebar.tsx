@@ -33,6 +33,7 @@ const NAV_ITEMS: NavItem[] = [
     children: [
       { to: '/app/agents/catalog', label: 'Catalog' },
       { to: '/app/agents/system-map', label: 'System Map' },
+      { to: '/app/agents/er-diagram', label: 'Data Model' },
       { to: '/app/agents', label: 'Monitor' },
     ],
   },
@@ -190,8 +191,8 @@ export default function DashboardSidebar({ open, onClose, badges = {} }: Dashboa
             <span className="ml-auto text-xs md:hidden lg:inline">→</span>
           </NavLink>
           <div className="px-3 text-xs text-[#F5F5F0]/30 md:text-center lg:text-left">
-            <span className="md:hidden lg:inline">v0.24.0</span>
-            <span className="hidden md:inline lg:hidden">v24</span>
+            <span className="md:hidden lg:inline">v0.26.0</span>
+            <span className="hidden md:inline lg:hidden">v26</span>
           </div>
         </div>
       </aside>

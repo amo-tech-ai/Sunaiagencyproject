@@ -1,15 +1,15 @@
 # TODO — Sun AI Agency Website
 
 **Project:** Sun AI Agency — AI Consulting & Solutions Website
-**Current Version:** v0.25.0
-**Last Updated:** 2026-03-10
+**Current Version:** v0.26.0
+**Last Updated:** 2026-03-13
 
 ---
 
 ## IMMEDIATE PRIORITIES (This Sprint)
 
 ### Deployment Steps
-- [ ] **Deploy Edge Function** — Deploy updated server with all 65 routes (63 prior + 2 onboarding) to Supabase Edge Functions. Includes: Phase 8 documents, Phase 11 workflows, Phase 13 financial, CRM auth fix, dashboard-insights 404 fix, **Phase 14 strategy engine** (14 endpoints), and **Task 064 onboarding agent** (2 endpoints with auto-migration)
+- [ ] **Deploy Edge Function** — Deploy updated server with all 68 routes (65 prior + 3 agent catalog now mounted) to Supabase Edge Functions. Includes: Phase 8 documents, Phase 11 workflows, Phase 13 financial, CRM auth fix, dashboard-insights 404 fix, **Phase 14 strategy engine** (14 endpoints), **Task 064 onboarding agent** (2 endpoints with auto-migration), and **Agent Catalog** (3 endpoints: POST /agents/run, POST /agents/match, GET /agents/history/:slug — were defined but not mounted until v0.26.0)
 - [ ] **Run CRM Pipeline Migrations** — Execute `20260307120300_create_crm_pipeline_tables.sql` and `20260307120400_seed_default_pipeline_and_verify.sql` in Supabase SQL Editor to create `crm_pipelines`, `crm_stages`, `crm_deals`, `crm_interactions` tables and seed default pipelines
 - [ ] **Run Strategy Engine Migration** — Execute `/imports/create-strategy-tables.txt` in Supabase SQL Editor to create 12 strategy tables (`lean_canvases`, `lean_canvas_versions`, `strategy_insights`, `automation_opportunities`, `strategy_recommendations`, `strategy_actions`, + 6 advanced tables). Verified against docs 15 and 16 with 5 extra indexes, append-only RLS on audit tables
 - [ ] **Run Realtime Broadcast Triggers (4 files)** — Execute all 4 SQL files in Supabase SQL Editor to enable live Realtime on all channels:
@@ -23,6 +23,20 @@
 - [ ] **Verify Strategy Engine** — Test `/app/strategy` page loads, canvas CRUD works, "Run Analysis" triggers 5-agent orchestration, version history saves/reverts
 - [ ] **Run Onboarding Tables Migration** — Execute `20260310120000_create_onboarding_tables.sql` in Supabase SQL Editor to create `projects`, `roadmaps`, `roadmap_phases`, `activities` tables with CHECK constraints and indexes (or rely on auto-migration via `ensureOnboardingSchema()` for basic table creation)
 - [ ] **Watch for Hono Sub-Router 404s** — After deploy, test all AI routes (`/ai/generate`, `/ai/cache`, `/agent-stats/*`, etc.) for 404s caused by Hono sub-router mounting. If any 404, move route handler from `ai-routes.tsx` to direct registration in `index.tsx` (same fix applied to `/dashboard-insights` in v0.22.2 and all 14 strategy routes in v0.23.0)
+
+### Smoke Testing — Agent Catalog & Diagrams (v0.26.0)
+- [ ] Agent Catalog page loads at `/app/agents/catalog` with 16 curated agent cards
+- [ ] Agent Detail page loads at `/app/agents/catalog/software-architect` with About/Capabilities/Use Cases/Run History tabs
+- [ ] Run History tab fetches real data from `GET /agents/history/:slug` (shows sample data notice if empty)
+- [ ] Agent Runner page loads at `/app/agents/catalog/software-architect/run` with task input + output panes
+- [ ] Agent Runner calls real `POST /agents/run` edge function (Gemini 2.0 Flash) — verify live output
+- [ ] Agent Runner gracefully falls back to simulated output with yellow warning if API is unavailable
+- [ ] System Map page loads at `/app/agents/system-map` with 9 product areas and 13 agent circles
+- [ ] System Map hover highlights connections and dims unrelated elements
+- [ ] Data Model ERD page loads at `/app/agents/er-diagram` with 5 table cards and relationship arrows
+- [ ] ERD hover highlights related tables; click opens inspector panel with column specs
+- [ ] Sidebar shows 4 sub-items under AI Agents: Catalog, System Map, Data Model, Monitor
+- [ ] Verify `POST /agents/match` returns agent recommendations for a given industry/goals payload
 
 ### Smoke Testing — Onboarding Agent (Task 064)
 - [ ] Complete wizard end-to-end (Steps 1-5) and verify onboarding status indicator shows "Project saved" in Step 5
@@ -127,8 +141,9 @@
 | 13 | Financial Dashboard | Done | v0.22.0 |
 | 14 | Lean Strategy Engine | Done | v0.24.0 |
 | T064 | Onboarding Agent | Done | v0.25.0 |
+| AGT | Agent Catalog Wiring + Diagrams | Done | v0.26.0 |
 
-**ALL 14 DASHBOARD PHASES COMPLETE** (26/26 strategy tasks) | CRM Auth Hardened in v0.22.1 | Hono 404 Fix in v0.22.2 | Sitemap v13 in v0.24.1 | Onboarding Agent in v0.25.0
+**ALL 14 DASHBOARD PHASES COMPLETE** (26/26 strategy tasks) | CRM Auth Hardened in v0.22.1 | Hono 404 Fix in v0.22.2 | Sitemap v13 in v0.24.1 | Onboarding Agent in v0.25.0 | Agent Catalog Live + Diagrams in v0.26.0
 
 ---
 
@@ -176,6 +191,34 @@
 - [x] **WizardContext update** — Calls `markLocalSave()` before cloud saves
 - [x] **3 SQL trigger files** — ai-runs, wizard-sessions, lean-canvases broadcast triggers
 - [x] **Wiring map rewrite** — 4 broadcast channels, 4 SQL triggers, updated architecture docs
+
+---
+
+## COMPLETED — Agent Catalog Wiring + Diagrams (v0.26.0)
+
+> Progress: **12 / 12 items** (100%)
+
+### Critical Fix
+- [x] **Mount agent routes** — `agent-routes.tsx` imported and mounted in server `index.tsx` (3 endpoints were defined but unreachable)
+- [x] **AI schema middleware** — `ensureAISchema()` runs before `/agents/*` requests
+
+### Frontend API Layer
+- [x] **`agentCatalogApi.run()`** — Typed method for `POST /agents/run` (Gemini execution)
+- [x] **`agentCatalogApi.match()`** — Typed method for `POST /agents/match` (agent matching)
+- [x] **`agentCatalogApi.history()`** — Typed method for `GET /agents/history/:slug`
+- [x] **3 TypeScript interfaces** — `AgentRunResponse`, `AgentMatchResponse`, `AgentRunHistoryEntry`
+
+### Live API Wiring
+- [x] **AgentRunnerPage → real Gemini** — `handleRun()` calls edge function with simulated fallback + error notice
+- [x] **RunHistoryTab → real ai_run_logs** — Fetches on mount with mock fallback + sample data notice
+
+### Interactive Diagrams
+- [x] **Agent System Map** — SVG diagram at `/app/agents/system-map` (9 products → 13 agents, color-coded, hover interactive)
+- [x] **Agent Data Model ERD** — SVG diagram at `/app/agents/er-diagram` (5 tables, PK/FK badges, relationship arrows, click-to-inspect)
+
+### Navigation & Docs
+- [x] **Sidebar** — 4 sub-items: Catalog, System Map, Data Model, Monitor
+- [x] **Documentation** — `/docs/agency/06-agent-system-mapping.md` + `/docs/agency/07-data-model-erd.md`
 
 ---
 
@@ -267,6 +310,16 @@
 
 ## NEXT PRIORITIES — Enhancement Phases
 
+### Agency Agents: Next Steps (High Priority)
+- [ ] **Wire `POST /agents/match`** into wizard Steps 3-5 for AI-powered agent team assembly
+- [ ] **Persist full run outputs** — Store task + output text in `agent_outputs` table (currently uses `ai_run_logs` generic fields only)
+- [ ] **Build remaining 100+ agents** — Expand `agentCatalog.ts` from 16 curated to full catalog
+- [ ] **CRM deal scoring** — Integrate Pipeline Analyst + Deal Strategist agents into CRM pipeline
+- [ ] **Dashboard Agent Team widget** — Show assigned agents with status on dashboard home
+- [ ] **Agent team templates** — Add `agent_team_templates` table for industry+goal auto-assignment
+- [ ] **Create agent database tables** — Create `agent_catalog`, `agent_assignments`, `agent_runs`, `agent_outputs`, `insight_cards` via Supabase Dashboard (schema documented in `/docs/agency/07-data-model-erd.md`)
+- [ ] **Update `/docs/agency/05-screen-design-spec.md`** — Remove references to deleted negative-margin layout approach
+
 ### Realtime Enhancements (Medium Priority)
 - [ ] **Canvas Presence Tracking** — Add online user avatars on the strategy canvas using Supabase Realtime `presence` feature (who's viewing/editing which block)
 - [ ] **Deal Activity Feed** — Add a live activity ticker to the pipeline page showing recent deal movements across all team members
@@ -341,9 +394,9 @@
 
 ## PROJECT STATS
 
-- **Total Routes:** 51 (32 public + 16 authenticated + 3 aliases)
-- **Dashboard Pages:** 43 production components, 0 placeholders
-- **Edge Function Routes:** 65 total (49 prior + 14 strategy engine + 2 onboarding agent)
+- **Total Routes:** 53 (32 public + 18 authenticated + 3 aliases)
+- **Dashboard Pages:** 45 production components, 0 placeholders
+- **Edge Function Routes:** 68 total (49 prior + 14 strategy engine + 2 onboarding agent + 3 agent catalog)
 - **Realtime Channels:** 4 (all broadcast pattern — ai-runs, wizard-sync, pipeline-deals, canvas-sync)
 - **Custom Hooks:** 13 (6 utility + 4 Realtime domain + 2 data + 1 legacy base)
 - **Auth Methods:** 5 (email sign-in, email sign-up, Google OAuth, LinkedIn OIDC, guest/anonymous)
@@ -352,6 +405,6 @@
 - **Auto-Migration Functions:** 2 (ensureAISchema + ensureOnboardingSchema)
 - **SQL Trigger Files:** 4 (broadcast triggers for Realtime)
 - **RLS Policies on realtime.messages:** 4 (ai_runs_read, wizard_sessions_read, pipeline_deals_read, canvas_blocks_read)
-- **Planning Docs:** 17 spec documents in `/docs/lean/`
-- **Current Version:** v0.25.0
-- **Project Completion:** ~93% (all 14 dashboard phases complete; onboarding agent wired; full Realtime system; enhancements + infrastructure remaining)
+- **Planning Docs:** 17 spec documents in `/docs/lean/` + 8 agency docs in `/docs/agency/`
+- **Current Version:** v0.26.0
+- **Project Completion:** ~94% (all 14 dashboard phases complete; onboarding agent wired; full Realtime system; agent catalog live with Gemini; enhancements + infrastructure remaining)
