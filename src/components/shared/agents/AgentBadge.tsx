@@ -1,7 +1,7 @@
 // Compact agent attribution badge — emoji + name in a pill
 // Used on insight cards, deal cards, recommendations
 
-import { CATALOG_AGENTS, DIVISION_COLORS, type Division } from '../../wizard/data/agentCatalog';
+import { ALL_CATALOG_AGENTS, DIVISION_COLORS, type Division } from '../../wizard/data/agentCatalog';
 
 interface AgentBadgeProps {
   slug: string;
@@ -9,7 +9,7 @@ interface AgentBadgeProps {
 }
 
 export function AgentBadge({ slug, className = '' }: AgentBadgeProps) {
-  const agent = CATALOG_AGENTS.find(a => a.slug === slug);
+  const agent = ALL_CATALOG_AGENTS.find(a => a.slug === slug);
   if (!agent) return null;
 
   const divisionColor = DIVISION_COLORS[agent.division as Division] || '#64748B';

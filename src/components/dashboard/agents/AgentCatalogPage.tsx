@@ -9,7 +9,7 @@ import { motion } from 'motion/react';
 import { Search as SearchIcon, Eye, Play, ChevronRight } from 'lucide-react';
 import {
   CATALOG_AGENTS, DIVISIONS, searchAgents, filterByDivision,
-  DIVISION_COLORS,
+  DIVISION_COLORS, ALL_CATALOG_AGENTS,
   type CatalogAgent, type Division,
 } from '../../wizard/data/agentCatalog';
 
@@ -20,12 +20,16 @@ export default function AgentCatalogPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeDivision, setActiveDivision] = useState<DivisionFilter>('All');
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const [showAll, setShowAll] = useState(true); // Show all 116 by default
+
+  // Use ALL agents (116) or just curated (16) based on toggle
+  const sourceAgents = showAll ? ALL_CATALOG_AGENTS : CATALOG_AGENTS;
 
   const filteredAgents = useMemo(() => {
-    let result = filterByDivision(CATALOG_AGENTS, activeDivision);
+    let result = filterByDivision(sourceAgents, activeDivision);
     result = searchAgents(result, searchQuery);
     return result;
-  }, [searchQuery, activeDivision]);
+  }, [searchQuery, activeDivision, sourceAgents]);
 
   const visibleAgents = filteredAgents.slice(0, visibleCount);
   const hasMore = visibleCount < filteredAgents.length;
@@ -33,11 +37,11 @@ export default function AgentCatalogPage() {
   // Compute curated counts per division
   const divisionCuratedCounts = useMemo(() => {
     const counts: Record<string, number> = {};
-    CATALOG_AGENTS.forEach(a => {
+    sourceAgents.forEach(a => {
       counts[a.division] = (counts[a.division] || 0) + 1;
     });
     return counts;
-  }, []);
+  }, [sourceAgents]);
 
   return (
     <div>
@@ -55,8 +59,23 @@ export default function AgentCatalogPage() {
             Agent Catalog
           </h1>
           <p className="text-sm text-[#6B7280] mt-1">
-            Showing {filteredAgents.length} curated agents
-            <span className="text-[#9CA3AF]"> &middot; 120+ available in full catalog</span>
+            Showing {filteredAgents.length} of {sourceAgents.length} agents
+            {!showAll && (
+              <button
+                onClick={() => setShowAll(true)}
+                className="ml-2 text-[#2563EB] hover:underline font-medium"
+              >
+                Show all {ALL_CATALOG_AGENTS.length}
+              </button>
+            )}
+            {showAll && sourceAgents.length > CATALOG_AGENTS.length && (
+              <button
+                onClick={() => setShowAll(false)}
+                className="ml-2 text-[#9CA3AF] hover:text-[#6B7280] hover:underline"
+              >
+                Curated only ({CATALOG_AGENTS.length})
+              </button>
+            )}
           </p>
         </div>
 
@@ -76,7 +95,7 @@ export default function AgentCatalogPage() {
       <div className="flex items-center gap-1.5 mb-6 overflow-x-auto pb-1 -mx-1 px-1" style={{ scrollbarWidth: 'none' }}>
         <DivisionTab
           label="All"
-          count={CATALOG_AGENTS.length}
+          count={sourceAgents.length}
           active={activeDivision === 'All'}
           onClick={() => { setActiveDivision('All'); setVisibleCount(PAGE_SIZE); }}
         />

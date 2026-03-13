@@ -1,7 +1,7 @@
 // Reusable agent avatar — emoji in a colored circle
 // Used across wizard, dashboard, catalog, and CRM
 
-import { CATALOG_AGENTS, DIVISION_COLORS, type Division } from '../../wizard/data/agentCatalog';
+import { ALL_CATALOG_AGENTS, DIVISION_COLORS, type Division } from '../../wizard/data/agentCatalog';
 
 interface AgentAvatarProps {
   slug: string;
@@ -18,7 +18,7 @@ const SIZE_MAP = {
 };
 
 export function AgentAvatar({ slug, size = 'md', emoji, color, className = '' }: AgentAvatarProps) {
-  const agent = CATALOG_AGENTS.find(a => a.slug === slug);
+  const agent = ALL_CATALOG_AGENTS.find(a => a.slug === slug);
   const displayEmoji = emoji || agent?.emoji || '🤖';
   const divisionColor = color || agent?.color || DIVISION_COLORS[agent?.division as Division] || '#64748B';
   const s = SIZE_MAP[size];

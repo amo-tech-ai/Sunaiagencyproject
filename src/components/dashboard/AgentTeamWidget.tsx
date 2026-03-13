@@ -9,7 +9,6 @@ import { useState, useEffect, useRef, useMemo } from 'react';
 import { Users, ArrowRight, Loader2, Zap } from 'lucide-react';
 import { agentCatalogApi } from '../../lib/supabase';
 import { AgentAvatar } from '../shared/agents/AgentAvatar';
-import { AgentBadge } from '../shared/agents/AgentBadge';
 import type { AssignedAgent } from '../wizard/data/agentData';
 
 interface AgentTeamWidgetProps {
