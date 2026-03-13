@@ -1,7 +1,7 @@
 # TODO — Sun AI Agency Website
 
 **Project:** Sun AI Agency — AI Consulting & Solutions Website
-**Current Version:** v0.26.1
+**Current Version:** v0.26.2
 **Last Updated:** 2026-03-13
 
 ---
@@ -314,7 +314,9 @@
 ## NEXT PRIORITIES — Enhancement Phases
 
 ### Agency Agents: Next Steps (High Priority)
-- [ ] **Wire `POST /agents/match`** into wizard Steps 3-5 for AI-powered agent team assembly
+- [x] **Wire `POST /agents/match`** into wizard Steps 3-5 for AI-powered agent team assembly
+- [x] **Agent-loader utility** — Server-side prompt compilation with 16-agent registry, deterministic scoring, 4-layer prompt assembly
+- [x] **6 reusable UI components** — AgentAvatar, AgentBadge, AgentTeamCard, AgentStatusRow, InsightCard, DealHealthBar
 - [ ] **Persist full run outputs** — Store task + output text in `agent_outputs` table (currently uses `ai_run_logs` generic fields only)
 - [ ] **Build remaining 100+ agents** — Expand `agentCatalog.ts` from 16 curated to full catalog
 - [ ] **CRM deal scoring** — Integrate Pipeline Analyst + Deal Strategist agents into CRM pipeline
@@ -409,5 +411,5 @@
 - **SQL Trigger Files:** 4 (broadcast triggers for Realtime)
 - **RLS Policies on realtime.messages:** 4 (ai_runs_read, wizard_sessions_read, pipeline_deals_read, canvas_blocks_read)
 - **Planning Docs:** 17 spec documents in `/docs/lean/` + 9 agency docs in `/docs/agency/`
-- **Current Version:** v0.26.1
+- **Current Version:** v0.26.2
 - **Project Completion:** ~94% (all 14 dashboard phases complete; onboarding agent wired; full Realtime system; agent catalog live with Gemini; enhancements + infrastructure remaining)

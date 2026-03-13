@@ -667,7 +667,6 @@ export function extractExcerpt(
  *   - Industry extras get +12 bonus
  */
 export function selectAgents(
-  _route: string,
   context: ClientContext
 ): AgentMatch[] {
   const scores = new Map<string, number>();

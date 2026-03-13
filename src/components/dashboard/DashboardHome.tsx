@@ -190,7 +190,13 @@ export default function DashboardHome() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, delay: 0.25 }}
         >
-          <AgentTeamWidget agents={agentTeam} />
+          <AgentTeamWidget
+            agents={agentTeam}
+            industry={data.org.industry}
+            goals={[]}
+            companySize={data.org.size}
+            systemIds={data.project.systems}
+          />
         </motion.div>
 
         <motion.div

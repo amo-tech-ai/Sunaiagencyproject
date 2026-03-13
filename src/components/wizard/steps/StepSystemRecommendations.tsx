@@ -9,6 +9,7 @@ import { useWizard } from '../WizardContext';
 import { WizardLayout } from '../WizardLayout';
 import { AI_SYSTEMS, getIndustryPrioritizedSystems, type AISystem } from '../data/wizardData';
 import { calculateFitScores, isQuickWin, type FitScoreResult } from '../data/agentData';
+import { CATALOG_AGENTS } from '../data/agentCatalog';
 import { motion, AnimatePresence } from 'motion/react';
 import { Check, ChevronDown, ExternalLink, Zap } from 'lucide-react';
 import { Link } from 'react-router';
@@ -353,7 +354,7 @@ function SystemCard({ system, rank, fitScore, quickWin, isSelected, onToggle, is
         </div>
 
         {/* Badges */}
-        <div className="flex items-center gap-3 text-xs">
+        <div className="flex items-center gap-3 text-xs flex-wrap">
           <span className="px-2 py-1 rounded" style={{ backgroundColor: '#F5F5F0', borderRadius: '2px' }}>
             Impact: <span style={{ color: impactColor }}>{system.impact}</span>
           </span>
@@ -363,6 +364,7 @@ function SystemCard({ system, rank, fitScore, quickWin, isSelected, onToggle, is
           <span className="px-2 py-1 rounded" style={{ backgroundColor: '#F5F5F0', borderRadius: '2px' }}>
             {system.timeline}
           </span>
+          <AgentReasoningBadge systemId={system.id} />
         </div>
       </div>
 
@@ -461,5 +463,42 @@ function SystemCard({ system, rank, fitScore, quickWin, isSelected, onToggle, is
         <div className="h-0.5" style={{ backgroundColor: '#00875A' }} />
       )}
     </motion.div>
+  );
+}
+
+/* ────── Agent Reasoning Badge ────── */
+
+/** Maps each AI system to the primary agent that powers its recommendation */
+const SYSTEM_AGENT_SLUGS: Record<string, string> = {
+  'support-engine': 'support-responder',
+  'growth-engine': 'growth-hacker',
+  'operations-autopilot': 'software-architect',
+  'data-intelligence': 'ai-engineer',
+  'content-engine': 'content-creator',
+  'onboarding-system': 'rapid-prototyper',
+  'cart-recovery': 'growth-hacker',
+  'recommendation-engine': 'ai-engineer',
+  'sales-automation': 'outbound-strategist',
+  'loyalty-system': 'growth-hacker',
+  'booking-engine': 'rapid-prototyper',
+  'compliance-automation': 'reality-checker',
+};
+
+function AgentReasoningBadge({ systemId }: { systemId: string }) {
+  const agentSlug = SYSTEM_AGENT_SLUGS[systemId];
+  if (!agentSlug) return null;
+
+  const agent = CATALOG_AGENTS.find(a => a.slug === agentSlug);
+  if (!agent) return null;
+
+  return (
+    <span
+      className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs"
+      style={{ backgroundColor: `${agent.color}10`, color: agent.color, borderRadius: '2px' }}
+      title={`${agent.name} powers this recommendation`}
+    >
+      <span role="img" aria-hidden="true">{agent.emoji}</span>
+      {agent.name}
+    </span>
   );
 }

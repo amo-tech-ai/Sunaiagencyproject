@@ -852,6 +852,14 @@ export const CATALOG_AGENTS: CatalogAgent[] = [
 
 /* ────────────────── SEARCH & FILTER ────────────────── */
 
+import { EXPANDED_AGENTS } from './agentCatalogExpanded';
+
+/** Full catalog: 16 curated + 104 expanded = 120 agents */
+export const ALL_CATALOG_AGENTS: CatalogAgent[] = [
+  ...CATALOG_AGENTS,
+  ...EXPANDED_AGENTS,
+];
+
 export function searchAgents(agents: CatalogAgent[], query: string): CatalogAgent[] {
   if (!query.trim()) return agents;
   const lower = query.toLowerCase();
@@ -870,5 +878,5 @@ export function filterByDivision(agents: CatalogAgent[], division: Division | 'A
 }
 
 export function getAgentBySlug(slug: string): CatalogAgent | undefined {
-  return CATALOG_AGENTS.find(a => a.slug === slug);
+  return ALL_CATALOG_AGENTS.find(a => a.slug === slug);
 }

@@ -10,11 +10,13 @@ import { motion } from 'motion/react';
 import { pipelineApi } from '../../../lib/supabase';
 import { useAuth } from '../../AuthContext';
 import { useRealtimeDealUpdates } from '../../../lib/hooks/useRealtimeDealUpdates';
+import { scoreDeals, getPipelineHealthSummary } from '../../../lib/dealScoring';
 import type { Pipeline, Stage, Deal, PipelineData, DealCreateInput } from '../../../lib/types/crm-pipeline';
 import StageColumn from './StageColumn';
 import DealDetailPanel from './DealDetailPanel';
 import DealQuickCreate from './DealQuickCreate';
 import ForecastChart from './ForecastChart';
+import { AgentBadge } from '../../shared/agents/AgentBadge';
 
 function formatCurrency(value: number): string {
   if (value >= 1000) return `$${(value / 1000).toFixed(value % 1000 === 0 ? 0 : 1)}K`;
@@ -227,8 +229,14 @@ export default function CRMPipelinePage() {
 
   // ── Computed values ──
   const stages = pipelineData?.stages || [];
-  const deals = pipelineData?.deals || [];
+  const rawDeals = pipelineData?.deals || [];
   const forecast = pipelineData?.forecast || [];
+
+  // Apply AI deal scoring (Pipeline Analyst + Deal Strategist)
+  // Scores are computed deterministically on every render from deal attributes
+  const deals = stages.length > 0 && rawDeals.length > 0
+    ? scoreDeals(rawDeals, stages)
+    : rawDeals;
 
   // Active deals (not in terminal stages)
   const activeStageIds = stages.filter(s => !s.is_closed_won && !s.is_closed_lost).map(s => s.id);

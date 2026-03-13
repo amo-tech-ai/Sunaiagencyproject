@@ -1,9 +1,11 @@
-// C07-DEAL-CARD — Compact deal card for kanban board
+// C07-DEAL-CARD — Compact deal card for kanban board (v2)
+// Now uses DealHealthBar from shared agent components for AI-scored health
 // Draggable via native HTML5 drag API. Shows title, value, contact, probability, days-in-stage.
 // Stale indicators: >7 days amber border, >14 days red border, high-value green accent.
 
 import type { Deal } from '../../../lib/types/crm-pipeline';
 import { GripVertical } from 'lucide-react';
+import { DealHealthBar } from '../../shared/agents/DealHealthBar';
 
 interface DealCardProps {
   deal: Deal;
@@ -88,41 +90,21 @@ export default function DealCard({ deal, onClick, onDragStart }: DealCardProps) 
             )}
           </div>
 
-          {/* Agent health score (if available) */}
+          {/* Agent Health Score — now using DealHealthBar component */}
           {deal.healthScore !== undefined && (
             <div className="mt-2 pt-2 border-t border-[#F0F0EC]">
-              <div className="flex items-center justify-between mb-1">
-                <span className={`text-[10px] font-medium ${
-                  deal.healthLabel === 'HIGH' ? 'text-[#00875A]' :
-                  deal.healthLabel === 'MEDIUM' ? 'text-[#D97706]' :
-                  'text-[#DC2626]'
-                }`}>
-                  Health: {deal.healthLabel || 'N/A'}
-                </span>
-                <span className="text-[10px] text-[#9CA39B] font-mono">
-                  {deal.healthScore}%
-                </span>
-              </div>
-              <div className="w-full h-1 rounded-full bg-[#F0F0EC]">
-                <div
-                  className="h-1 rounded-full transition-all duration-300"
-                  style={{
-                    width: `${deal.healthScore}%`,
-                    backgroundColor:
-                      deal.healthLabel === 'HIGH' ? '#00875A' :
-                      deal.healthLabel === 'MEDIUM' ? '#D97706' :
-                      '#DC2626',
-                  }}
-                />
-              </div>
+              <DealHealthBar
+                score={deal.healthScore}
+                riskLabel={
+                  deal.healthLabel === 'HIGH' ? 'Low Risk' :
+                  deal.healthLabel === 'MEDIUM' ? 'Medium Risk' :
+                  'At Risk'
+                }
+                agentSlug={deal.scoringAgent === 'Pipeline Analyst' ? 'pipeline-analyst' : deal.scoringAgent === 'Deal Strategist' ? 'deal-strategist' : undefined}
+              />
               {deal.healthInsight && (
-                <p className="text-[10px] text-[#6B6B63] mt-1 leading-tight">
+                <p className="text-[10px] text-[#6B6B63] mt-1.5 leading-tight">
                   {deal.healthInsight}
-                </p>
-              )}
-              {deal.scoringAgent && (
-                <p className="text-[10px] text-[#9CA39B] mt-0.5">
-                  Agent: {deal.scoringAgent}
                 </p>
               )}
             </div>

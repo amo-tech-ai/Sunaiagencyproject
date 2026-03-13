@@ -9,9 +9,11 @@ import { AI_SYSTEMS, ROADMAP_PHASES } from '../data/wizardData';
 import { matchAgents, type AssignedAgent } from '../data/agentData';
 import { motion, AnimatePresence } from 'motion/react';
 import { aiApi } from '../../../lib/supabase';
+import { agentCatalogApi, type AgentMatchResponse } from '../../../lib/supabase';
+import { AgentTeamCard, type AgentTeamCardAgent } from '../../shared/agents/AgentTeamCard';
 import {
   Pencil, Check, X, Clock, ShoppingCart, RefreshCw, DollarSign,
-  FileText, Printer, Share2, ArrowRight, Loader2, AlertCircle, BarChart3
+  FileText, Printer, Share2, ArrowRight, Loader2, AlertCircle, BarChart3, Users
 } from 'lucide-react';
 
 interface ReadinessData {
@@ -32,7 +34,7 @@ export function StepExecutiveSummary() {
   const [editingSection, setEditingSection] = useState<string | null>(null);
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
-  // ── Agent Team ──
+  // ── Agent Team (local matching — immediate) ──
   const agentTeam = useMemo(() => {
     if (step3.selectedSystems.length === 0) return [];
     return matchAgents(step3.selectedSystems, step1.industry || '', step1.companyName || '');
@@ -40,6 +42,66 @@ export function StepExecutiveSummary() {
 
   const primaryAgents = agentTeam.filter(a => a.isPrimary);
   const supportAgents = agentTeam.filter(a => !a.isPrimary);
+
+  // ── AI-Powered Agent Matching (from POST /agents/match) ──
+  const [aiTeam, setAiTeam] = useState<AgentTeamCardAgent[]>([]);
+  const [aiTeamLoading, setAiTeamLoading] = useState(false);
+  const [aiTeamError, setAiTeamError] = useState<string | null>(null);
+  const aiTeamFetchedRef = useRef(false);
+
+  useEffect(() => {
+    if (aiTeamFetchedRef.current) return;
+    if (step3.selectedSystems.length === 0) return;
+    aiTeamFetchedRef.current = true;
+
+    async function fetchAiTeam() {
+      setAiTeamLoading(true);
+      setAiTeamError(null);
+      try {
+        const { data, error } = await agentCatalogApi.match({
+          industry: step1.industry || '',
+          goals: step1.goal ? [step1.goal] : [],
+          companySize: step1.companySize || '',
+          systemIds: step3.selectedSystems,
+        });
+        if (error) {
+          console.warn('[Step4] AI team match error (using local):', error);
+          setAiTeamError(error);
+        } else if (data?.matches) {
+          setAiTeam(data.matches.map(m => ({
+            slug: m.slug,
+            name: m.name,
+            emoji: m.emoji || '🤖',
+            division: m.division || '',
+            role: m.role || '',
+            firstTask: m.firstTask || m.reason || '',
+            fitScore: m.fitScore,
+            reason: m.reason,
+          })));
+        }
+      } catch (e) {
+        console.warn('[Step4] AI team match exception (using local):', e);
+        setAiTeamError(String(e));
+      } finally {
+        setAiTeamLoading(false);
+      }
+    }
+    fetchAiTeam();
+  }, [step1.industry, step1.goal, step1.companySize, step3.selectedSystems]);
+
+  // Use AI-matched team if available, otherwise fall back to local matching
+  const displayTeam: AgentTeamCardAgent[] = useMemo(() => {
+    if (aiTeam.length > 0) return aiTeam;
+    // Convert local match to AgentTeamCardAgent shape
+    return agentTeam.map(a => ({
+      slug: a.id,
+      name: a.name,
+      emoji: '🤖',
+      division: a.division,
+      role: a.role,
+      firstTask: a.task,
+    }));
+  }, [aiTeam, agentTeam]);
 
   // ── AI Readiness Score State ──
   const [readiness, setReadiness] = useState<ReadinessData | null>(null);
@@ -479,61 +541,43 @@ export function StepExecutiveSummary() {
           </div>
 
           {/* ─── Section 4.5: Your AI Team ─── */}
-          {agentTeam.length > 0 && (
+          {(displayTeam.length > 0 || aiTeamLoading) && (
             <div id="your-ai-team" ref={(el) => { sectionRefs.current['your-ai-team'] = el; }}>
-              <SectionHeading title="Your AI Team" />
+              <div className="flex items-center gap-2">
+                <Users className="w-4.5 h-4.5" style={{ color: '#00875A' }} />
+                <SectionHeading title="Your AI Team" />
+              </div>
               <p className="text-sm mt-2 mb-4" style={{ color: '#6B6B63' }}>
-                We've assembled a team of AI specialists for your project:
+                {aiTeam.length > 0
+                  ? 'AI-matched specialists curated for your industry, goals, and selected systems:'
+                  : 'Specialists assembled for your project:'}
               </p>
 
-              {/* Primary agent cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
-                {primaryAgents.map((agent, idx) => {
-                  const AgentIcon = agent.icon;
-                  return (
-                    <motion.div
-                      key={agent.id}
-                      className="border rounded p-4 transition-all"
-                      style={{ borderColor: '#E8E8E4', borderRadius: '4px', backgroundColor: '#FFFFFF' }}
-                      initial={{ opacity: 0, y: 12 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: idx * 0.08 }}
-                      whileHover={{ y: -2, boxShadow: '0 2px 8px rgba(26,26,26,0.06)' }}
-                    >
-                      <div className="flex items-center gap-2.5 mb-2">
-                        <div
-                          className="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
-                          style={{ backgroundColor: agent.color + '18' }}
-                        >
-                          <AgentIcon className="w-4 h-4" style={{ color: agent.color }} />
-                        </div>
-                        <div>
-                          <p className="text-sm" style={{ fontFamily: 'Georgia, serif', color: '#1A1A1A' }}>
-                            {agent.name}
-                          </p>
-                          <p className="text-xs" style={{ color: '#9CA39B' }}>{agent.division}</p>
-                        </div>
-                      </div>
-                      <p className="text-xs leading-relaxed" style={{ color: '#6B6B63' }}>
-                        {agent.task}
-                      </p>
-                    </motion.div>
-                  );
-                })}
-              </div>
-
-              {/* Support agents as list */}
-              {supportAgents.length > 0 && (
-                <div className="space-y-1.5">
-                  {supportAgents.map(agent => (
-                    <div key={agent.id} className="flex items-center gap-2">
-                      <span className="text-sm" style={{ color: '#00875A' }}>+</span>
-                      <span className="text-sm" style={{ color: '#1A1A1A' }}>{agent.name}</span>
-                      <span className="text-sm" style={{ color: '#6B6B63' }}>({agent.role})</span>
-                    </div>
-                  ))}
+              {aiTeamLoading && (
+                <div className="flex items-center gap-2 px-4 py-3 border rounded" style={{ borderColor: '#E8E8E4', borderRadius: '4px', backgroundColor: '#FAFAF8' }}>
+                  <Loader2 className="w-4 h-4 animate-spin" style={{ color: '#00875A' }} />
+                  <span className="text-xs" style={{ color: '#6B6B63' }}>Matching AI agents to your project…</span>
                 </div>
               )}
+
+              {aiTeamError && !aiTeamLoading && (
+                <div className="flex items-center gap-2 px-3 py-2 mb-3 rounded text-xs" style={{ backgroundColor: '#FEF9E7', color: '#D97706' }}>
+                  <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                  Using local matching — AI matching unavailable
+                </div>
+              )}
+
+              {/* AI-matched team using AgentTeamCard */}
+              <div className="space-y-2.5">
+                {displayTeam.map((agent, idx) => (
+                  <AgentTeamCard
+                    key={agent.slug}
+                    agent={agent}
+                    status="active"
+                    delay={idx * 0.06}
+                  />
+                ))}
+              </div>
             </div>
           )}
 

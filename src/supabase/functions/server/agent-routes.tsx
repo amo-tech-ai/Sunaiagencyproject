@@ -7,6 +7,7 @@ import { Hono } from "npm:hono";
 import { adminClient } from "./db.tsx";
 import { callGemini, logAIRun } from "./gemini.tsx";
 import { ensureAISchema } from "./ensure-schema.tsx";
+import { selectAgents, compilePrompt, extractExcerpt, getAgentMeta, type ClientContext, type AgentMatch } from "./agent-loader.tsx";
 
 const agents = new Hono();
 const PREFIX = "/make-server-283466b6";
@@ -35,19 +36,24 @@ agents.post(`${PREFIX}/agents/run`, async (c) => {
 
     const outputFormat = format || "structured";
 
-    // Build a system prompt that makes Gemini behave as this specific agent
-    const systemPrompt = `You are "${agentName || slug}", a specialist AI agent at Sun AI Agency.
+    // Use agent-loader to compile a proper 4-layer prompt
+    const agentMeta = getAgentMeta(slug);
+    const agentExcerpt = extractExcerpt(slug);
+
+    const baseInstructions = `You are "${agentName || agentMeta?.name || slug}", a specialist AI agent at Sun AI Agency.
 Your role is to execute tasks with expert-level quality, providing actionable, specific output.
 
-OUTPUT FORMAT: ${outputFormat === "json" ? "Return valid JSON only." : outputFormat === "freeform" ? "Return natural prose." : "Return a well-structured report with clear headers, bullet points, and sections."}
+OUTPUT FORMAT: ${outputFormat === "json" ? "Return valid JSON only." : outputFormat === "freeform" ? "Return natural prose." : "Return a well-structured report with clear headers, bullet points, and sections."}`;
 
-RULES:
+    const routeInstructions = `RULES:
 - Be specific and actionable — no vague advice
 - Include concrete numbers, timelines, and costs when relevant
 - Cite tools, frameworks, or methodologies by name
 - Flag assumptions explicitly
 - Keep output concise but thorough (aim for 300-800 words for structured, 200-500 for freeform)`;
 
+    const compiled = compilePrompt(baseInstructions, [slug], routeInstructions);
+    const systemPrompt = compiled.systemPrompt;
     const userPrompt = `${context ? `CONTEXT:\n${context}\n\n` : ""}TASK:\n${task}`;
 
     const startMs = Date.now();
@@ -141,65 +147,15 @@ agents.post(`${PREFIX}/agents/match`, async (c) => {
       return c.json({ error: "industry is required for agent matching" }, 400);
     }
 
-    const systemPrompt = `You are the Agent Matching Engine at Sun AI Agency. Given a client profile, recommend the best AI agents from the catalog.
+    const clientContext: ClientContext = {
+      industry,
+      goals: Array.isArray(goals) ? goals : [],
+      companySize,
+      systemIds: Array.isArray(systemIds) ? systemIds : [],
+    };
 
-Available agents (slug | name | division):
-- software-architect | Software Architect | Engineering
-- rapid-prototyper | Rapid Prototyper | Engineering
-- frontend-developer | Frontend Developer | Engineering
-- backend-architect | Backend Architect | Engineering
-- ai-engineer | AI Engineer | Engineering
-- devops-automator | DevOps Automator | Engineering
-- pipeline-analyst | Pipeline Analyst | Sales
-- outbound-strategist | Outbound Strategist | Sales
-- growth-hacker | Growth Hacker | Marketing
-- content-creator | Content Creator | Marketing
-- seo-specialist | SEO Specialist | Marketing
-- brand-guardian | Brand Guardian | Design
-- project-shepherd | Project Shepherd | PM
-- reality-checker | Reality Checker | Testing
-- support-responder | Support Responder | Support
-- deal-strategist | Deal Strategist | Sales
-
-Return a JSON array of 4-8 recommended agents, ordered by fit:
-[
-  {
-    "slug": "agent-slug",
-    "name": "Agent Name",
-    "fitScore": 0.95,
-    "reason": "One-sentence explanation of why this agent fits"
-  }
-]`;
-
-    const userPrompt = `Client profile:
-Industry: ${industry}
-Goals: ${Array.isArray(goals) ? goals.join(", ") : goals || "Not specified"}
-Company size: ${companySize || "Not specified"}
-Selected systems: ${Array.isArray(systemIds) ? systemIds.join(", ") : "None selected"}
-
-Recommend the best agents for this client.`;
-
-    const result = await callGemini(
-      "agents-match",
-      systemPrompt,
-      userPrompt,
-      { industry, goals, companySize, systemIds },
-      undefined
-    );
-
-    // Ensure result is an array
-    let matches: unknown[];
-    if (Array.isArray(result)) {
-      matches = result;
-    } else if (
-      typeof result === "object" &&
-      result !== null &&
-      "matches" in (result as Record<string, unknown>)
-    ) {
-      matches = (result as Record<string, unknown>).matches as unknown[];
-    } else {
-      matches = [];
-    }
+    // Use the agent-loader's deterministic matching algorithm
+    const matches = selectAgents(clientContext);
 
     console.log(
       `[Agent] Match complete: ${matches.length} agents matched for ${industry}`

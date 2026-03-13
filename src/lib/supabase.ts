@@ -842,8 +842,12 @@ export interface AgentMatchResponse {
   matches: {
     slug: string;
     name: string;
+    emoji: string;
+    division: string;
+    role: string;
     fitScore: number;
     reason: string;
+    firstTask: string;
   }[];
 }
 

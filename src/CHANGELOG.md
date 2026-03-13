@@ -3,8 +3,63 @@
 **Project:** Sun AI Agency — AI Consulting & Solutions Website
 **Stack:** Vite + React + Tailwind CSS v4 + Supabase + Vercel
 **Design System:** BCG Consulting-Inspired (Calm Luxury Editorial)
-**Current Version:** v0.26.1
+**Current Version:** v0.27.0
 **Last Updated:** 2026-03-13
+
+---
+
+## [0.27.0] — 2026-03-13 — Dashboard Agent Team Widget, CRM Deal Scoring, 116-Agent Catalog
+
+### Summary
+
+Three major deliverables: (1) Rebuilt the Dashboard Agent Team Widget with AgentAvatar, live API matching via POST /agents/match, fit score badges, running/online/idle status indicators, and scrollable agent list with catalog link. (2) Integrated CRM deal scoring into the pipeline kanban — every deal now gets a deterministic health score (0-100) computed from probability alignment, recency, value, contact coverage, and notes coverage. Pipeline Analyst scores early-pipeline deals; Deal Strategist scores late-pipeline deals. DealHealthBar from shared components replaces the inline health bar. (3) Expanded the agent catalog from 16 to 116 agents across all 10 divisions.
+
+### Added
+
+- `/components/wizard/data/agentCatalogExpanded.ts` — 100 additional agents across 10 divisions
+- `/lib/dealScoring.ts` — Deterministic deal health scoring with scoreDeals() and getPipelineHealthSummary()
+
+### Changed
+
+- `/components/dashboard/AgentTeamWidget.tsx` (v2) — Complete rebuild with AgentAvatar, API matching, fit scores, status dots
+- `/components/dashboard/DashboardHome.tsx` — Passes industry/goals/companySize/systemIds to AgentTeamWidget
+- `/components/dashboard/crm/DealCard.tsx` (v2) — Uses DealHealthBar with agent attribution
+- `/components/dashboard/crm/CRMPipelinePage.tsx` — Auto-scores all deals via scoreDeals()
+- `/components/wizard/data/agentCatalog.ts` — Added ALL_CATALOG_AGENTS export (116 total), updated getAgentBySlug()
+
+---
+
+## [0.26.2] — 2026-03-13 — Agent Loader, 6 Reusable UI Components, Wizard AI Team Wiring
+
+### Summary
+
+Built the server-side `agent-loader.tsx` utility for runtime agent prompt compilation (16-agent registry, 4-layer prompt assembly, deterministic matching algorithm with scoring by system/industry/goal). Created 6 reusable UI components (AgentAvatar, AgentBadge, AgentTeamCard, AgentStatusRow, InsightCard, DealHealthBar) in `/components/shared/agents/`. Wired `POST /agents/match` into wizard Steps 3-5: Step 3 shows `AgentReasoningBadge` per system card, Steps 4-5 call the match API on mount and display the AI-matched team using `AgentTeamCard` components with fit scores, division labels, and first tasks. The match endpoint now uses deterministic server-side scoring (no Gemini call needed) while `/agents/run` uses `compilePrompt()` to inject agent capabilities into Gemini prompts.
+
+### Added
+
+- **`/supabase/functions/server/agent-loader.tsx`** — Server-side agent prompt utility. 16-agent registry with capabilities, rules, mission, industries, goals. Functions: `getAgentMeta()`, `getAllAgentMeta()`, `extractExcerpt()`, `selectAgents()` (deterministic scoring: +25 system, +15 industry, +10 goal, +12 industry extras), `compilePrompt()` (4-layer: base → agent excerpt → route instructions → JSON schema). System-agent map for 12 AI systems. Industry extras for 9 industries. Goal-agent map for 6 goal types. Task templates for system-specific first tasks.
+- **`/components/shared/agents/AgentAvatar.tsx`** — Emoji in colored circle. Props: slug, size (sm/md/lg), emoji override, color override.
+- **`/components/shared/agents/AgentBadge.tsx`** — Compact pill: emoji + name. Color from division. Used on insight cards, deal cards, recommendations.
+- **`/components/shared/agents/AgentTeamCard.tsx`** — Full agent card: avatar, name, division, role, first task, fit score badge, reason, status dot. Used in wizard Steps 4-5 and dashboard.
+- **`/components/shared/agents/AgentStatusRow.tsx`** — Compact row: avatar, name, status dot (online/idle/running/error), last output preview, last run time.
+- **`/components/shared/agents/InsightCard.tsx`** — Priority-coded insight: left border color, icon, agent attribution badge, impact label, action buttons.
+- **`/components/shared/agents/DealHealthBar.tsx`** — Horizontal score bar (0-100) with color coding, risk label, agent attribution.
+- **`/components/shared/agents/index.ts`** — Barrel export for all 6 components.
+
+### Changed
+
+- **`/supabase/functions/server/agent-routes.tsx`** — `POST /agents/match` now uses deterministic `selectAgents()` from agent-loader (no Gemini call). `POST /agents/run` now uses `compilePrompt()` to inject agent capabilities/rules/mission into the Gemini prompt (4-layer compilation).
+- **`/lib/supabase.ts`** — `AgentMatchResponse` type updated with emoji, division, role, firstTask fields.
+- **`/components/wizard/steps/StepSystemRecommendations.tsx`** — Added `AgentReasoningBadge` showing which agent powers each system recommendation (emoji + name pill per card).
+- **`/components/wizard/steps/StepExecutiveSummary.tsx`** — Calls `POST /agents/match` on mount. Shows AI-matched team using `AgentTeamCard` components with fit scores. Falls back to local `matchAgents()` if API fails.
+- **`/components/wizard/steps/StepLaunchProject.tsx`** — Calls `POST /agents/match` on mount. Replaces old icon-based agent list with `AgentTeamCard` grid. Shows loading state during match.
+
+### Production Status
+
+- Shared UI components: 6 new reusable agent components
+- Server utilities: 1 new (agent-loader.tsx with 5 exported functions)
+- Wizard steps enhanced: 3 (Steps 3, 4, 5)
+- API routes enhanced: 2 (`/agents/match`, `/agents/run`)
 
 ---
 

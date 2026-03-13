@@ -11,8 +11,9 @@ import { WizardLayout } from '../WizardLayout';
 import { motion } from 'motion/react';
 import { Check, ArrowRight, Loader2, AlertCircle, RefreshCw, Users } from 'lucide-react';
 import { Link } from 'react-router';
-import { aiApi, onboardingApi } from '../../../lib/supabase';
+import { aiApi, onboardingApi, agentCatalogApi } from '../../../lib/supabase';
 import type { OnboardingCompleteResponse } from '../../../lib/supabase';
+import { AgentTeamCard, type AgentTeamCardAgent } from '../../shared/agents/AgentTeamCard';
 
 interface RoadmapPhase {
   phaseNumber: number;
@@ -203,11 +204,59 @@ export function StepLaunchProject() {
     roadmap ? `${roadmap.quickWins?.length || 0} quick wins identified` : '12 initial tasks generated',
   ];
 
-  // Match agents to the project
+  // Match agents to the project (local fallback)
   const agentTeam = useMemo(() => {
     if (step3.selectedSystems.length === 0) return [];
     return matchAgents(step3.selectedSystems, step1.industry || '', step1.companyName || '');
   }, [step3.selectedSystems, step1.industry, step1.companyName]);
+
+  // ── AI-Powered Agent Matching (from POST /agents/match) ──
+  const [aiTeam, setAiTeam] = useState<AgentTeamCardAgent[]>([]);
+  const [aiTeamLoading, setAiTeamLoading] = useState(false);
+  const aiTeamRef = useRef(false);
+
+  useEffect(() => {
+    if (aiTeamRef.current || step3.selectedSystems.length === 0) return;
+    aiTeamRef.current = true;
+
+    async function fetchAiTeam() {
+      setAiTeamLoading(true);
+      try {
+        const { data, error } = await agentCatalogApi.match({
+          industry: step1.industry || '',
+          goals: step1.goal ? [step1.goal] : [],
+          companySize: step1.companySize || '',
+          systemIds: step3.selectedSystems,
+        });
+        if (!error && data?.matches) {
+          setAiTeam(data.matches.map(m => ({
+            slug: m.slug,
+            name: m.name,
+            emoji: m.emoji || '🤖',
+            division: m.division || '',
+            role: m.role || '',
+            firstTask: m.firstTask || m.reason || '',
+            fitScore: m.fitScore,
+            reason: m.reason,
+          })));
+        }
+      } catch (e) {
+        console.warn('[Step5] AI team match failed (using local):', e);
+      } finally {
+        setAiTeamLoading(false);
+      }
+    }
+    fetchAiTeam();
+  }, [step1.industry, step1.goal, step1.companySize, step3.selectedSystems]);
+
+  // Display team: AI-matched if available, else local
+  const displayTeam: AgentTeamCardAgent[] = useMemo(() => {
+    if (aiTeam.length > 0) return aiTeam;
+    return agentTeam.map(a => ({
+      slug: a.id, name: a.name, emoji: '🤖',
+      division: a.division, role: a.role, firstTask: a.task,
+    }));
+  }, [aiTeam, agentTeam]);
 
   return (
     <WizardLayout>
@@ -509,46 +558,31 @@ export function StepLaunchProject() {
             </div>
 
             {/* Assigned Agents */}
-            {agentTeam.length > 0 && (
+            {displayTeam.length > 0 && (
               <>
                 <div className="border-t" style={{ borderColor: '#F0F0EC' }} />
                 <div>
-                  <div className="flex items-center gap-2 mb-4">
+                  <div className="flex items-center gap-2 mb-2">
                     <Users className="w-4 h-4" style={{ color: '#00875A' }} />
                     <p className="text-xs tracking-widest uppercase" style={{ color: '#00875A', letterSpacing: '0.08em' }}>
-                      Your Team is Ready
+                      Your AI Team is Ready
                     </p>
                   </div>
+                  {aiTeamLoading && (
+                    <div className="flex items-center gap-2 px-4 py-3 mb-3 border rounded" style={{ borderColor: '#E8E8E4', borderRadius: '4px', backgroundColor: '#FAFAF8' }}>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" style={{ color: '#00875A' }} />
+                      <span className="text-xs" style={{ color: '#6B6B63' }}>Matching agents to your project…</span>
+                    </div>
+                  )}
                   <div className="space-y-2.5">
-                    {agentTeam.map((agent, idx) => {
-                      const AgentIcon = agent.icon;
-                      return (
-                        <motion.div
-                          key={agent.id}
-                          className="flex items-center gap-3 px-4 py-3 border rounded transition-all"
-                          style={{ borderColor: '#E8E8E4', borderRadius: '4px', backgroundColor: '#FAFAF8' }}
-                          initial={{ opacity: 0, x: -12 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: 1.0 + idx * 0.08, duration: 0.3 }}
-                        >
-                          <div
-                            className="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
-                            style={{ backgroundColor: agent.color + '18' }}
-                          >
-                            <AgentIcon className="w-4 h-4" style={{ color: agent.color }} />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm" style={{ fontFamily: 'Georgia, serif', color: '#1A1A1A' }}>
-                              {agent.name}
-                            </p>
-                          </div>
-                          <div className="flex items-center gap-1.5 shrink-0">
-                            <span className="text-xs" style={{ color: '#9CA39B' }}>First task:</span>
-                            <span className="text-xs" style={{ color: '#6B6B63' }}>{agent.task}</span>
-                          </div>
-                        </motion.div>
-                      );
-                    })}
+                    {displayTeam.map((agent, idx) => (
+                      <AgentTeamCard
+                        key={agent.slug}
+                        agent={agent}
+                        status="active"
+                        delay={1.0 + idx * 0.06}
+                      />
+                    ))}
                   </div>
                 </div>
               </>
