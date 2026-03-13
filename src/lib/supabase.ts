@@ -826,3 +826,70 @@ export const onboardingApi = {
   status: (sessionId: string, token?: string) =>
     api<OnboardingStatusResponse>(`/onboarding/status/${sessionId}`, { token }),
 };
+
+// ── Agent Catalog API (Agency Agents feature) ──
+export interface AgentRunResponse {
+  success: boolean;
+  output: string;
+  tokens: number;
+  durationMs: number;
+  model: string;
+  cached: boolean;
+}
+
+export interface AgentMatchResponse {
+  success: boolean;
+  matches: {
+    slug: string;
+    name: string;
+    fitScore: number;
+    reason: string;
+  }[];
+}
+
+export interface AgentRunHistoryEntry {
+  id: string;
+  prompt_type: string;
+  model: string;
+  tokens_used: number;
+  duration_ms: number;
+  success: boolean;
+  error_message: string | null;
+  created_at: string;
+}
+
+export const agentCatalogApi = {
+  /** Execute an agent on a task via Gemini */
+  run: (params: {
+    slug: string;
+    agentName: string;
+    task: string;
+    context?: string;
+    format?: 'structured' | 'freeform' | 'json';
+  }, token?: string) =>
+    api<AgentRunResponse>('/agents/run', {
+      method: 'POST',
+      body: params as Record<string, unknown>,
+      token,
+    }),
+
+  /** Match agents to a client profile */
+  match: (params: {
+    industry: string;
+    goals?: string[];
+    companySize?: string;
+    systemIds?: string[];
+  }, token?: string) =>
+    api<AgentMatchResponse>('/agents/match', {
+      method: 'POST',
+      body: params as Record<string, unknown>,
+      token,
+    }),
+
+  /** Fetch run history for a specific agent */
+  history: (slug: string, limit?: number, token?: string) =>
+    api<{ runs: AgentRunHistoryEntry[] }>(
+      `/agents/history/${slug}${limit ? `?limit=${limit}` : ''}`,
+      { token }
+    ),
+};

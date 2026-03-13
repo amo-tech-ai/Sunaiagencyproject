@@ -15,6 +15,7 @@ import { workflows } from "./workflow-routes.tsx";
 import { financial } from "./financial-routes.tsx";
 import { strategy } from "./strategy-routes.tsx";
 import { onboarding } from "./onboarding-routes.tsx";
+import { agents } from "./agent-routes.tsx";
 import { createUser } from "./auth.tsx";
 import { ensureAISchema } from "./ensure-schema.tsx";
 import { ensureOnboardingSchema } from "./ensure-schema.tsx";
@@ -179,6 +180,13 @@ app.use(`${PREFIX}/onboarding/*`, async (c, next) => {
   await next();
 });
 app.route("/", onboarding);
+
+// ── Mount Agent Catalog routes (Agency Agents feature) ──
+app.use(`${PREFIX}/agents/*`, async (c, next) => {
+  await ensureAISchema();
+  await next();
+});
+app.route("/", agents);
 
 // ── 404 handler ──
 app.notFound((c) => {

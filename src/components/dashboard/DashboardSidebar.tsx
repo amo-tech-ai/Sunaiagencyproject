@@ -32,6 +32,7 @@ const NAV_ITEMS: NavItem[] = [
     to: '/app/agents', label: 'AI Agents', icon: Bot,
     children: [
       { to: '/app/agents/catalog', label: 'Catalog' },
+      { to: '/app/agents/system-map', label: 'System Map' },
       { to: '/app/agents', label: 'Monitor' },
     ],
   },

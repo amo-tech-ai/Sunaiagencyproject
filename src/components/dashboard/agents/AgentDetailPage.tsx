@@ -2,7 +2,7 @@
 // Tabs: About, Capabilities, Use Cases, Run History
 // Design: white cards, blue accents (#2563EB), emoji avatar
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router';
 import { motion } from 'motion/react';
 import {
@@ -11,6 +11,9 @@ import {
 } from 'lucide-react';
 import { getAgentBySlug, DIVISION_COLORS } from '../../wizard/data/agentCatalog';
 import type { CatalogAgent } from '../../wizard/data/agentCatalog';
+import { agentCatalogApi } from '../../../lib/supabase';
+import type { AgentRunHistoryEntry } from '../../../lib/supabase';
+import { publicAnonKey } from '../../../utils/supabase/info';
 
 type TabId = 'about' | 'capabilities' | 'use-cases' | 'run-history';
 
@@ -349,12 +352,52 @@ function UseCasesTab({ agent }: { agent: CatalogAgent }) {
 /* ---- Run History Tab ---- */
 
 const MOCK_RUNS = [
-  { id: '1', task: 'Scope WhatsApp booking bot MVP', tokens: 1847, duration: 3.2, date: '2026-03-11', format: 'Structured' },
-  { id: '2', task: 'Design order flow for meal delivery', tokens: 2104, duration: 4.1, date: '2026-03-10', format: 'Structured' },
-  { id: '3', task: 'Evaluate Supabase vs Firebase for auth', tokens: 1523, duration: 2.8, date: '2026-03-08', format: 'JSON' },
+  { id: '1', prompt_type: 'agent-run:mock', model: 'gemini-2.0-flash', tokens_used: 1847, duration_ms: 3200, success: true, error_message: null, created_at: '2026-03-11T14:30:00Z' },
+  { id: '2', prompt_type: 'agent-run:mock', model: 'gemini-2.0-flash', tokens_used: 2104, duration_ms: 4100, success: true, error_message: null, created_at: '2026-03-10T09:15:00Z' },
+  { id: '3', prompt_type: 'agent-run:mock', model: 'gemini-2.0-flash', tokens_used: 1523, duration_ms: 2800, success: true, error_message: null, created_at: '2026-03-08T16:45:00Z' },
 ];
 
 function RunHistoryTab({ agent }: { agent: CatalogAgent }) {
+  const [runs, setRuns] = useState<AgentRunHistoryEntry[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [usingMock, setUsingMock] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function fetchHistory() {
+      try {
+        const { data, error } = await agentCatalogApi.history(agent.slug, 20, publicAnonKey);
+        if (!cancelled) {
+          if (error || !data || !data.runs || data.runs.length === 0) {
+            setRuns(MOCK_RUNS as AgentRunHistoryEntry[]);
+            setUsingMock(true);
+          } else {
+            setRuns(data.runs);
+            setUsingMock(false);
+          }
+          setLoading(false);
+        }
+      } catch {
+        if (!cancelled) {
+          setRuns(MOCK_RUNS as AgentRunHistoryEntry[]);
+          setUsingMock(true);
+          setLoading(false);
+        }
+      }
+    }
+    fetchHistory();
+    return () => { cancelled = true; };
+  }, [agent.slug]);
+
+  if (loading) {
+    return (
+      <div className="bg-white rounded-xl border border-[#E5E7EB] p-12 text-center">
+        <div className="w-6 h-6 border-2 border-[#E5E7EB] border-t-[#2563EB] rounded-full animate-spin mx-auto mb-3" />
+        <p className="text-sm text-[#9CA3AF]">Loading run history...</p>
+      </div>
+    );
+  }
+
   return (
     <motion.div
       className="bg-white rounded-xl border border-[#E5E7EB] overflow-hidden"
@@ -362,52 +405,62 @@ function RunHistoryTab({ agent }: { agent: CatalogAgent }) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.2 }}
     >
+      {usingMock && (
+        <div className="px-5 py-2 bg-[#FFFBEB] border-b border-[#FCD34D] text-xs text-[#92400E]">
+          Showing sample data — run this agent to populate real history
+        </div>
+      )}
+
       {/* Desktop Table */}
       <div className="hidden sm:block">
-        <div className="grid grid-cols-[1fr_80px_80px_100px_80px] gap-3 px-5 py-3 bg-[#F9FAFB] border-b border-[#E5E7EB] text-[11px] font-semibold uppercase tracking-wider text-[#9CA3AF]">
-          <span>Task</span>
+        <div className="grid grid-cols-[1fr_80px_80px_100px_60px] gap-3 px-5 py-3 bg-[#F9FAFB] border-b border-[#E5E7EB] text-[11px] font-semibold uppercase tracking-wider text-[#9CA3AF]">
+          <span>Run ID</span>
           <span>Tokens</span>
           <span>Duration</span>
           <span>Date</span>
-          <span>Format</span>
+          <span>Status</span>
         </div>
-        {MOCK_RUNS.map(run => (
+        {runs.map(run => (
           <div
             key={run.id}
-            className="grid grid-cols-[1fr_80px_80px_100px_80px] gap-3 px-5 py-3.5 border-b border-[#F3F4F6] last:border-0 hover:bg-[#F9FAFB] transition-colors"
+            className="grid grid-cols-[1fr_80px_80px_100px_60px] gap-3 px-5 py-3.5 border-b border-[#F3F4F6] last:border-0 hover:bg-[#F9FAFB] transition-colors"
           >
-            <span className="text-sm text-[#374151] truncate">{run.task}</span>
+            <span className="text-sm text-[#374151] truncate font-mono text-xs">{run.prompt_type}</span>
             <span className="text-sm text-[#6B7280] flex items-center gap-1">
               <Hash className="w-3 h-3 text-[#9CA3AF]" />
-              {run.tokens.toLocaleString()}
+              {run.tokens_used.toLocaleString()}
             </span>
             <span className="text-sm text-[#6B7280] flex items-center gap-1">
               <Clock className="w-3 h-3 text-[#9CA3AF]" />
-              {run.duration}s
+              {(run.duration_ms / 1000).toFixed(1)}s
             </span>
-            <span className="text-sm text-[#9CA3AF]">{run.date}</span>
-            <span className="text-xs text-[#6B7280] bg-[#F3F4F6] px-2 py-0.5 rounded self-center text-center">{run.format}</span>
+            <span className="text-sm text-[#9CA3AF]">{new Date(run.created_at).toLocaleDateString()}</span>
+            <span className={`text-xs px-2 py-0.5 rounded self-center text-center ${run.success ? 'bg-[#ECFDF5] text-[#059669]' : 'bg-[#FEF2F2] text-[#EF4444]'}`}>
+              {run.success ? 'OK' : 'Fail'}
+            </span>
           </div>
         ))}
       </div>
 
       {/* Mobile Card List */}
       <div className="sm:hidden divide-y divide-[#F3F4F6]">
-        {MOCK_RUNS.map(run => (
+        {runs.map(run => (
           <div key={run.id} className="px-4 py-3.5">
-            <p className="text-sm text-[#374151] font-medium mb-2">{run.task}</p>
+            <p className="text-sm text-[#374151] font-medium mb-2 font-mono text-xs">{run.prompt_type}</p>
             <div className="flex items-center gap-4 text-xs text-[#9CA3AF]">
-              <span className="flex items-center gap-1"><Hash className="w-3 h-3" />{run.tokens.toLocaleString()}</span>
-              <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{run.duration}s</span>
-              <span>{run.date}</span>
-              <span className="bg-[#F3F4F6] text-[#6B7280] px-1.5 py-0.5 rounded">{run.format}</span>
+              <span className="flex items-center gap-1"><Hash className="w-3 h-3" />{run.tokens_used.toLocaleString()}</span>
+              <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{(run.duration_ms / 1000).toFixed(1)}s</span>
+              <span>{new Date(run.created_at).toLocaleDateString()}</span>
+              <span className={`px-1.5 py-0.5 rounded ${run.success ? 'bg-[#ECFDF5] text-[#059669]' : 'bg-[#FEF2F2] text-[#EF4444]'}`}>
+                {run.success ? 'OK' : 'Fail'}
+              </span>
             </div>
           </div>
         ))}
       </div>
 
       <div className="px-5 py-3 bg-[#F9FAFB] text-xs text-[#9CA3AF]">
-        Showing {MOCK_RUNS.length} most recent runs &middot; Full history available via API
+        Showing {runs.length} most recent runs
       </div>
     </motion.div>
   );

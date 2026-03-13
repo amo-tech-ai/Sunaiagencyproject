@@ -11,6 +11,8 @@ import {
   Check, Clock, Zap,
 } from 'lucide-react';
 import { getAgentBySlug } from '../../wizard/data/agentCatalog';
+import { agentCatalogApi } from '../../../lib/supabase';
+import { publicAnonKey } from '../../../utils/supabase/info';
 
 type OutputFormat = 'structured' | 'freeform' | 'json';
 
@@ -30,22 +32,54 @@ export default function AgentRunnerPage() {
   const [running, setRunning] = useState(false);
   const [result, setResult] = useState<RunResult | null>(null);
   const [copied, setCopied] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleRun = useCallback(async () => {
     if (!task.trim() || !agent) return;
     setRunning(true);
     setResult(null);
+    setError(null);
 
-    // Simulate agent execution (in production, calls POST /agents/:slug/run)
-    await new Promise(resolve => setTimeout(resolve, 2200 + Math.random() * 1500));
+    try {
+      // Call the real Gemini-backed edge function
+      const { data, error: apiError } = await agentCatalogApi.run({
+        slug: agent.slug,
+        agentName: agent.name,
+        task: task.trim(),
+        context: context.trim() || undefined,
+        format,
+      }, publicAnonKey);
 
-    const simulatedOutput = generateSimulatedOutput(agent.name, task, context, format);
-    setResult({
-      output: simulatedOutput,
-      tokens: 800 + Math.floor(Math.random() * 1200),
-      durationMs: 2200 + Math.floor(Math.random() * 1500),
-    });
-    setRunning(false);
+      if (apiError || !data) {
+        console.error('[AgentRunner] API error, falling back to simulated:', apiError);
+        // Fallback to simulated output if API fails
+        const simulatedOutput = generateSimulatedOutput(agent.name, task, context, format);
+        setResult({
+          output: simulatedOutput,
+          tokens: 800 + Math.floor(Math.random() * 1200),
+          durationMs: 2200 + Math.floor(Math.random() * 1500),
+        });
+        setError('Using simulated output (API unavailable)');
+      } else {
+        setResult({
+          output: data.output,
+          tokens: data.tokens,
+          durationMs: data.durationMs,
+        });
+      }
+    } catch (err) {
+      console.error('[AgentRunner] Exception:', err);
+      // Fallback to simulated output
+      const simulatedOutput = generateSimulatedOutput(agent.name, task, context, format);
+      setResult({
+        output: simulatedOutput,
+        tokens: 800 + Math.floor(Math.random() * 1200),
+        durationMs: 2200 + Math.floor(Math.random() * 1500),
+      });
+      setError('Using simulated output (connection error)');
+    } finally {
+      setRunning(false);
+    }
   }, [agent, task, context, format]);
 
   const handleCopy = useCallback(() => {
@@ -248,6 +282,11 @@ export default function AgentRunnerPage() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3 }}
                 >
+                  {error && (
+                    <div className="mb-2 px-3 py-1.5 bg-[#FFFBEB] border border-[#FCD34D] rounded-lg text-xs text-[#92400E]">
+                      {error}
+                    </div>
+                  )}
                   <div
                     className="flex-1 bg-[#F9FAFB] rounded-lg p-4 text-sm text-[#111827] leading-relaxed whitespace-pre-wrap font-mono overflow-auto max-h-[520px] border border-[#F3F4F6]"
                     style={{ fontSize: '13px' }}
