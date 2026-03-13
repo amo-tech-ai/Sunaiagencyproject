@@ -49,6 +49,7 @@ import AgentDetailPage from './components/dashboard/agents/AgentDetailPage';
 import AgentRunnerPage from './components/dashboard/agents/AgentRunnerPage';
 import AgentSystemMap from './components/dashboard/agents/AgentSystemMap';
 import AgentERDiagram from './components/dashboard/agents/AgentERDiagram';
+import AgentArchitectureDiagram from './components/dashboard/agents/AgentArchitectureDiagram';
 import ClientsListPage from './components/dashboard/clients/ClientsListPage';
 import ClientDetailPage from './components/dashboard/clients/ClientDetailPage';
 import CRMPipelinePage from './components/dashboard/crm/CRMPipelinePage';
@@ -135,6 +136,7 @@ export const router = createBrowserRouter([
       { path: 'agents/catalog/:slug/run', Component: AgentRunnerPage },
       { path: 'agents/system-map', Component: AgentSystemMap },
       { path: 'agents/er-diagram', Component: AgentERDiagram },
+      { path: 'agents/architecture-diagram', Component: AgentArchitectureDiagram },
     ],
   },
   {

@@ -34,6 +34,7 @@ const NAV_ITEMS: NavItem[] = [
       { to: '/app/agents/catalog', label: 'Catalog' },
       { to: '/app/agents/system-map', label: 'System Map' },
       { to: '/app/agents/er-diagram', label: 'Data Model' },
+      { to: '/app/agents/architecture-diagram', label: 'Architecture' },
       { to: '/app/agents', label: 'Monitor' },
     ],
   },

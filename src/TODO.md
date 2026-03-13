@@ -1,7 +1,7 @@
 # TODO — Sun AI Agency Website
 
 **Project:** Sun AI Agency — AI Consulting & Solutions Website
-**Current Version:** v0.26.0
+**Current Version:** v0.26.1
 **Last Updated:** 2026-03-13
 
 ---
@@ -35,7 +35,10 @@
 - [ ] System Map hover highlights connections and dims unrelated elements
 - [ ] Data Model ERD page loads at `/app/agents/er-diagram` with 5 table cards and relationship arrows
 - [ ] ERD hover highlights related tables; click opens inspector panel with column specs
-- [ ] Sidebar shows 4 sub-items under AI Agents: Catalog, System Map, Data Model, Monitor
+- [ ] Sidebar shows 5 sub-items under AI Agents: Catalog, System Map, Data Model, Architecture, Monitor
+- [ ] Architecture diagram loads at `/app/agents/architecture-diagram` with 3-column blueprint layout
+- [ ] Architecture hover highlights complete data path across all 3 columns (component → API → table)
+- [ ] Architecture click on API route opens detail panel with source file and connections
 - [ ] Verify `POST /agents/match` returns agent recommendations for a given industry/goals payload
 
 ### Smoke Testing — Onboarding Agent (Task 064)
@@ -394,8 +397,8 @@
 
 ## PROJECT STATS
 
-- **Total Routes:** 53 (32 public + 18 authenticated + 3 aliases)
-- **Dashboard Pages:** 45 production components, 0 placeholders
+- **Total Routes:** 54 (32 public + 19 authenticated + 3 aliases)
+- **Dashboard Pages:** 46 production components, 0 placeholders
 - **Edge Function Routes:** 68 total (49 prior + 14 strategy engine + 2 onboarding agent + 3 agent catalog)
 - **Realtime Channels:** 4 (all broadcast pattern — ai-runs, wizard-sync, pipeline-deals, canvas-sync)
 - **Custom Hooks:** 13 (6 utility + 4 Realtime domain + 2 data + 1 legacy base)
@@ -405,6 +408,6 @@
 - **Auto-Migration Functions:** 2 (ensureAISchema + ensureOnboardingSchema)
 - **SQL Trigger Files:** 4 (broadcast triggers for Realtime)
 - **RLS Policies on realtime.messages:** 4 (ai_runs_read, wizard_sessions_read, pipeline_deals_read, canvas_blocks_read)
-- **Planning Docs:** 17 spec documents in `/docs/lean/` + 8 agency docs in `/docs/agency/`
-- **Current Version:** v0.26.0
+- **Planning Docs:** 17 spec documents in `/docs/lean/` + 9 agency docs in `/docs/agency/`
+- **Current Version:** v0.26.1
 - **Project Completion:** ~94% (all 14 dashboard phases complete; onboarding agent wired; full Realtime system; agent catalog live with Gemini; enhancements + infrastructure remaining)

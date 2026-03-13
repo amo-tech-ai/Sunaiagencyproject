@@ -3,8 +3,30 @@
 **Project:** Sun AI Agency — AI Consulting & Solutions Website
 **Stack:** Vite + React + Tailwind CSS v4 + Supabase + Vercel
 **Design System:** BCG Consulting-Inspired (Calm Luxury Editorial)
-**Current Version:** v0.26.0
+**Current Version:** v0.26.1
 **Last Updated:** 2026-03-13
+
+---
+
+## [0.26.1] — 2026-03-13 — Full-Stack Architecture Diagram (Blueprint Aesthetic)
+
+### Summary
+
+Created an interactive three-column system architecture diagram at `/app/agents/architecture-diagram` with a dark navy blueprint aesthetic. Maps the complete data flow: 31 frontend components (left column, nested boxes) → 38 API edge function routes (center column, method-colored horizontal bars) → 25 database tables (right column, table icons with column counts). 20 data flow paths shown as bezier curve arrows connecting all three columns. Hover any element to highlight its complete data path and dim unrelated elements. Click an API route to open a detail panel showing source file, group, and connected components/tables.
+
+### Added
+
+- **`/components/dashboard/agents/AgentArchitectureDiagram.tsx`** — Interactive SVG architecture diagram. Blueprint grid background (20px fine + 100px major). Color-coded groups: Wizard (purple), AI (orange), Agents (cyan), CRM (amber), Strategy (indigo), Onboarding (teal). Method badges (GET=green, POST=blue, PUT=yellow, DELETE=red). Rotated group labels. Stats footer + summary cards.
+- **`/docs/agency/08-architecture-diagram.md`** — Full documentation: 31 components, 38 API routes, 25 tables, 20 data flows, interactive features.
+
+### Changed
+
+- **`/routes.tsx`** — Added route `agents/architecture-diagram`
+- **`/components/dashboard/DashboardSidebar.tsx`** — AI Agents: 5 sub-items (Catalog, System Map, Data Model, Architecture, Monitor)
+
+### Production Status
+
+- Dashboard pages: 46 | Agency docs: 9 (00-08) | Total routes: 54
 
 ---
 
