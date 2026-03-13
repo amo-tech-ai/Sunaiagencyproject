@@ -12,12 +12,13 @@
 
 ### Summary
 
-Three major deliverables: (1) Rebuilt the Dashboard Agent Team Widget with AgentAvatar, live API matching via POST /agents/match, fit score badges, running/online/idle status indicators, and scrollable agent list with catalog link. (2) Integrated CRM deal scoring into the pipeline kanban — every deal now gets a deterministic health score (0-100) computed from probability alignment, recency, value, contact coverage, and notes coverage. Pipeline Analyst scores early-pipeline deals; Deal Strategist scores late-pipeline deals. DealHealthBar from shared components replaces the inline health bar. (3) Expanded the agent catalog from 16 to 116 agents across all 10 divisions.
+Three major deliverables: (1) Rebuilt the Dashboard Agent Team Widget with AgentAvatar, live API matching via POST /agents/match, fit score badges, running/online/idle status indicators, and scrollable agent list with catalog link. (2) Integrated CRM deal scoring into the pipeline kanban — every deal now gets a deterministic health score (0-100) computed from probability alignment, recency, value, contact coverage, and notes coverage. Pipeline Analyst scores early-pipeline deals; Deal Strategist scores late-pipeline deals. DealHealthBar from shared components replaces the inline health bar. (3) Expanded the agent catalog from 16 to 116 agents across all 10 divisions. (4) Created comprehensive agent list documentation cataloging all 116 agents in table format with division breakdowns, data model reference, and usage matrix.
 
 ### Added
 
 - `/components/wizard/data/agentCatalogExpanded.ts` — 100 additional agents across 10 divisions
 - `/lib/dealScoring.ts` — Deterministic deal health scoring with scoreDeals() and getPipelineHealthSummary()
+- `/docs/agency/09-agents-list.md` — Complete 116-agent reference doc: summary table (10 divisions with curated/expanded/total counts), per-division detail tables (emoji, slug, name, role, curated status), flat quick-reference table of all 116 agents, `CatalogAgent` TypeScript interface spec, source file index, and agent usage matrix across wizard/dashboard/CRM/catalog/runner surfaces
 
 ### Changed
 

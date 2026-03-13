@@ -1,7 +1,7 @@
 # TODO — Sun AI Agency Website
 
 **Project:** Sun AI Agency — AI Consulting & Solutions Website
-**Current Version:** v0.26.2
+**Current Version:** v0.27.0
 **Last Updated:** 2026-03-13
 
 ---
@@ -25,7 +25,7 @@
 - [ ] **Watch for Hono Sub-Router 404s** — After deploy, test all AI routes (`/ai/generate`, `/ai/cache`, `/agent-stats/*`, etc.) for 404s caused by Hono sub-router mounting. If any 404, move route handler from `ai-routes.tsx` to direct registration in `index.tsx` (same fix applied to `/dashboard-insights` in v0.22.2 and all 14 strategy routes in v0.23.0)
 
 ### Smoke Testing — Agent Catalog & Diagrams (v0.26.0)
-- [ ] Agent Catalog page loads at `/app/agents/catalog` with 16 curated agent cards
+- [ ] Agent Catalog page loads at `/app/agents/catalog` with 116 agent cards (16 curated by default, "Show All" toggle for full catalog)
 - [ ] Agent Detail page loads at `/app/agents/catalog/software-architect` with About/Capabilities/Use Cases/Run History tabs
 - [ ] Run History tab fetches real data from `GET /agents/history/:slug` (shows sample data notice if empty)
 - [ ] Agent Runner page loads at `/app/agents/catalog/software-architect/run` with task input + output panes
@@ -40,6 +40,18 @@
 - [ ] Architecture hover highlights complete data path across all 3 columns (component → API → table)
 - [ ] Architecture click on API route opens detail panel with source file and connections
 - [ ] Verify `POST /agents/match` returns agent recommendations for a given industry/goals payload
+
+### Smoke Testing — Agent Team Widget, Deal Scoring, 116-Agent Catalog (v0.27.0)
+- [ ] Dashboard home loads AgentTeamWidget with agents matched via `POST /agents/match`
+- [ ] AgentTeamWidget shows AgentAvatar with emoji, fit score badges, and status dots (online/idle/running)
+- [ ] AgentTeamWidget scrollable list with "View All Agents" link to catalog
+- [ ] CRM Pipeline deals show DealHealthBar with color-coded scores (green/amber/red)
+- [ ] Early-pipeline deals attributed to Pipeline Analyst; late-pipeline deals to Deal Strategist
+- [ ] Deal risk labels display correctly (Healthy / At Risk / Critical)
+- [ ] `ALL_CATALOG_AGENTS` export returns 116 agents (16 curated + 100 expanded)
+- [ ] `getAgentBySlug()` finds agents from both curated and expanded catalogs
+- [ ] Agent Catalog page "Show All" toggle displays all 116 agents grouped by division
+- [ ] Division filter counts match: Engineering 22, Sales 8, Marketing 26, Design 8, Product 4, PM 6, Testing 8, Paid Media 7, Support 6, Specialized 21
 
 ### Smoke Testing — Onboarding Agent (Task 064)
 - [ ] Complete wizard end-to-end (Steps 1-5) and verify onboarding status indicator shows "Project saved" in Step 5
@@ -145,8 +157,9 @@
 | 14 | Lean Strategy Engine | Done | v0.24.0 |
 | T064 | Onboarding Agent | Done | v0.25.0 |
 | AGT | Agent Catalog Wiring + Diagrams | Done | v0.26.0 |
+| AGT2 | Agent Team Widget, Deal Scoring, 116-Agent Catalog | Done | v0.27.0 |
 
-**ALL 14 DASHBOARD PHASES COMPLETE** (26/26 strategy tasks) | CRM Auth Hardened in v0.22.1 | Hono 404 Fix in v0.22.2 | Sitemap v13 in v0.24.1 | Onboarding Agent in v0.25.0 | Agent Catalog Live + Diagrams in v0.26.0
+**ALL 14 DASHBOARD PHASES COMPLETE** (26/26 strategy tasks) | CRM Auth Hardened in v0.22.1 | Hono 404 Fix in v0.22.2 | Sitemap v13 in v0.24.1 | Onboarding Agent in v0.25.0 | Agent Catalog Live + Diagrams in v0.26.0 | Agent Team + Deal Scoring + 116 Agents in v0.27.0
 
 ---
 
@@ -194,6 +207,33 @@
 - [x] **WizardContext update** — Calls `markLocalSave()` before cloud saves
 - [x] **3 SQL trigger files** — ai-runs, wizard-sessions, lean-canvases broadcast triggers
 - [x] **Wiring map rewrite** — 4 broadcast channels, 4 SQL triggers, updated architecture docs
+
+---
+
+## COMPLETED — Agent Team Widget, Deal Scoring, 116-Agent Catalog (v0.27.0)
+
+> Progress: **4 / 4 items** (100%)
+
+### Dashboard Agent Team Widget
+- [x] **AgentTeamWidget rebuild** — Calls `POST /agents/match` on mount, renders agents with `AgentAvatar` + `AgentStatusRow` components
+- [x] **Fit score badges** — Each matched agent shows fit score percentage
+- [x] **Live status indicators** — Running/online/idle status dots per agent
+- [x] **DashboardHome wiring** — Passes industry/goals/companySize/systemIds props
+
+### CRM Deal Scoring
+- [x] **`/lib/dealScoring.ts`** — Deterministic formula: probability alignment + recency + value + contact coverage + notes coverage
+- [x] **DealCard integration** — `DealHealthBar` with color-coded scores, risk labels, contextual insights
+- [x] **Agent attribution** — Pipeline Analyst scores early-pipeline deals; Deal Strategist scores late-pipeline
+- [x] **CRMPipelinePage wiring** — Auto-scores all deals via `scoreDeals()` on load
+
+### 116-Agent Catalog Expansion
+- [x] **`agentCatalogExpanded.ts`** — 100 additional agents across all 10 divisions
+- [x] **`ALL_CATALOG_AGENTS` export** — Merged 16 curated + 100 expanded = 116 total
+- [x] **`getAgentBySlug()` updated** — Searches full catalog (curated + expanded)
+- [x] **Division counts verified** — Engineering 22, Sales 8, Marketing 26, Design 8, Product 4, PM 6, Testing 8, Paid Media 7, Support 6, Specialized 21
+
+### Documentation
+- [x] **`/docs/agency/09-agents-list.md`** — Complete 116-agent reference with division tables, flat list, data model spec, source file index, usage matrix
 
 ---
 
@@ -317,10 +357,14 @@
 - [x] **Wire `POST /agents/match`** into wizard Steps 3-5 for AI-powered agent team assembly
 - [x] **Agent-loader utility** — Server-side prompt compilation with 16-agent registry, deterministic scoring, 4-layer prompt assembly
 - [x] **6 reusable UI components** — AgentAvatar, AgentBadge, AgentTeamCard, AgentStatusRow, InsightCard, DealHealthBar
+- [x] **Build remaining 100+ agents** — Expanded to 116 total agents across 10 divisions in `agentCatalogExpanded.ts` (v0.27.0)
+- [x] **CRM deal scoring** — Integrated Pipeline Analyst + Deal Strategist via `/lib/dealScoring.ts` into DealCard with DealHealthBar (v0.27.0)
+- [x] **Dashboard Agent Team widget** — Rebuilt AgentTeamWidget with POST /agents/match, fit scores, live status indicators (v0.27.0)
+- [x] **Agent list documentation** — Created `/docs/agency/09-agents-list.md` with all 116 agents in table format (v0.27.0)
+- [ ] **Update Agent Catalog page** — Display all 116 agents with division filter tabs and "Show All" toggle (currently shows only 16 curated)
+- [ ] **Replace `generateSimulatedOutput()`** — Wire real Gemini calls via `compilePrompt()` in AgentRunnerPage
+- [ ] **Build `POST /agents/score-deals`** — Server endpoint for richer AI-powered deal insights (beyond deterministic scoring)
 - [ ] **Persist full run outputs** — Store task + output text in `agent_outputs` table (currently uses `ai_run_logs` generic fields only)
-- [ ] **Build remaining 100+ agents** — Expand `agentCatalog.ts` from 16 curated to full catalog
-- [ ] **CRM deal scoring** — Integrate Pipeline Analyst + Deal Strategist agents into CRM pipeline
-- [ ] **Dashboard Agent Team widget** — Show assigned agents with status on dashboard home
 - [ ] **Agent team templates** — Add `agent_team_templates` table for industry+goal auto-assignment
 - [ ] **Create agent database tables** — Create `agent_catalog`, `agent_assignments`, `agent_runs`, `agent_outputs`, `insight_cards` via Supabase Dashboard (schema documented in `/docs/agency/07-data-model-erd.md`)
 - [ ] **Update `/docs/agency/05-screen-design-spec.md`** — Remove references to deleted negative-margin layout approach
@@ -410,6 +454,7 @@
 - **Auto-Migration Functions:** 2 (ensureAISchema + ensureOnboardingSchema)
 - **SQL Trigger Files:** 4 (broadcast triggers for Realtime)
 - **RLS Policies on realtime.messages:** 4 (ai_runs_read, wizard_sessions_read, pipeline_deals_read, canvas_blocks_read)
-- **Planning Docs:** 17 spec documents in `/docs/lean/` + 9 agency docs in `/docs/agency/`
-- **Current Version:** v0.26.2
-- **Project Completion:** ~94% (all 14 dashboard phases complete; onboarding agent wired; full Realtime system; agent catalog live with Gemini; enhancements + infrastructure remaining)
+- **Agent Catalog:** 116 agents (16 curated + 100 expanded) across 10 divisions
+- **Planning Docs:** 17 spec documents in `/docs/lean/` + 10 agency docs in `/docs/agency/` (00-09)
+- **Current Version:** v0.27.0
+- **Project Completion:** ~95% (all 14 dashboard phases complete; onboarding agent wired; full Realtime system; agent catalog live with Gemini; 116-agent catalog; deal scoring; enhancements + infrastructure remaining)
