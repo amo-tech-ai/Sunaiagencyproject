@@ -1,58 +1,14 @@
 # TODO — Sun AI Agency Website
 
 **Project:** Sun AI Agency — AI Consulting & Solutions Website
-**Current Version:** v0.27.1
-**Last Updated:** 2026-03-14
-
----
-
-## AUDIT — Errors, Red Flags, Failure Points & Blockers (v0.27.1)
-
-> Full audit performed 2026-03-14. See CHANGELOG v0.27.1 for details.
-
-### CRITICAL Blockers (Must Fix Before Deploy)
-
-| # | Status | Issue | File | Action |
-|---|--------|-------|------|--------|
-| 1 | **FIXED** | `vercel.json` missing `"framework": "vite"` — Vercel auto-detects as Next.js | `/vercel.json` | Added framework + build config |
-| 2 | **BLOCKED** | `next-server@v7.0.2-canary.49` in `package.json` — deprecated Next.js 7 package requires React 16, causes ERESOLVE with React 18, triggers Vercel Next.js detection | GitHub `package.json` | **Remove on GitHub**: `npm uninstall next-server && npm install` |
-
-### HIGH Priority Bugs (Fixed in v0.27.1)
-
-| # | Status | Issue | File | Fix |
-|---|--------|-------|------|-----|
-| 3 | **FIXED** | Agent Catalog showed only 16 of 116 agents — imported `CATALOG_AGENTS` not `ALL_CATALOG_AGENTS` | `AgentCatalogPage.tsx` | Now uses `ALL_CATALOG_AGENTS` with curated/all toggle |
-| 4 | **FIXED** | `AgentAvatar` returned fallback emoji `🤖` for all 100 expanded agents | `AgentAvatar.tsx` | Changed to `ALL_CATALOG_AGENTS.find()` |
-| 5 | **FIXED** | `AgentBadge` returned `null` for all 100 expanded agents (badge invisible) | `AgentBadge.tsx` | Changed to `ALL_CATALOG_AGENTS.find()` |
-
-### MEDIUM Red Flags (Tech Debt)
-
-| # | Status | Issue | File | Risk |
-|---|--------|-------|------|------|
-| 6 | **FIXED** | Unused `AgentBadge` import (dead code) | `AgentTeamWidget.tsx` | Removed |
-| 7 | **FLAGGED** | Imports `next-themes@0.4.6` (Next.js package) — dead code, no consumer, would crash if imported | `/components/ui/sonner.tsx` | Not imported anywhere. WizardPage correctly imports Toaster from `sonner@2.0.3` directly. Safe to delete file. |
-| 8 | **FLAGGED** | 20 shadcn UI files have `"use client"` directive (Next.js artifact) — harmless string in Vite | `/components/ui/*.tsx` | Cosmetic only. No runtime impact. |
-| 9 | **OPEN** | `generateSimulatedOutput()` still used as fallback in AgentRunnerPage — should be replaced with real Gemini calls | `AgentRunnerPage.tsx` | See "Replace generateSimulatedOutput()" below |
-
-### Validated Clean (No Issues Found)
-
-- **0** `react-router-dom` imports (all use `react-router`)
-- **0** `framer-motion` imports (all use `motion/react`)
-- **0** direct `supabase.from()` in frontend components (all go through edge functions)
-- **0** Next.js artifacts in compiled code (only in `/imports/` reference docs)
-- **0** circular dependencies (verified `agentCatalogExpanded.ts` uses `import type`)
-- **54/54** routes resolve to existing component exports
-- **10/10** edge function route modules mounted correctly
-- **Auth flow** complete: session restore, onAuthStateChange, 5 auth methods
-- **Deal scoring types** correct: optional fields on Deal interface
+**Current Version:** v0.28.0
+**Last Updated:** 2026-03-13
 
 ---
 
 ## IMMEDIATE PRIORITIES (This Sprint)
 
 ### Deployment Steps
-- [x] **Fix Vercel Build** — Added `"framework": "vite"` to `vercel.json` with `buildCommand`, `outputDirectory`, `installCommand` (v0.27.1)
-- [ ] **Remove `next-server` from GitHub** — Run `npm uninstall next-server` in repo, commit, push. This is the final Vercel build blocker
 - [ ] **Deploy Edge Function** — Deploy updated server with all 68 routes (65 prior + 3 agent catalog now mounted) to Supabase Edge Functions. Includes: Phase 8 documents, Phase 11 workflows, Phase 13 financial, CRM auth fix, dashboard-insights 404 fix, **Phase 14 strategy engine** (14 endpoints), **Task 064 onboarding agent** (2 endpoints with auto-migration), and **Agent Catalog** (3 endpoints: POST /agents/run, POST /agents/match, GET /agents/history/:slug — were defined but not mounted until v0.26.0)
 - [ ] **Run CRM Pipeline Migrations** — Execute `20260307120300_create_crm_pipeline_tables.sql` and `20260307120400_seed_default_pipeline_and_verify.sql` in Supabase SQL Editor to create `crm_pipelines`, `crm_stages`, `crm_deals`, `crm_interactions` tables and seed default pipelines
 - [ ] **Run Strategy Engine Migration** — Execute `/imports/create-strategy-tables.txt` in Supabase SQL Editor to create 12 strategy tables (`lean_canvases`, `lean_canvas_versions`, `strategy_insights`, `automation_opportunities`, `strategy_recommendations`, `strategy_actions`, + 6 advanced tables). Verified against docs 15 and 16 with 5 extra indexes, append-only RLS on audit tables
@@ -69,11 +25,11 @@
 - [ ] **Watch for Hono Sub-Router 404s** — After deploy, test all AI routes (`/ai/generate`, `/ai/cache`, `/agent-stats/*`, etc.) for 404s caused by Hono sub-router mounting. If any 404, move route handler from `ai-routes.tsx` to direct registration in `index.tsx` (same fix applied to `/dashboard-insights` in v0.22.2 and all 14 strategy routes in v0.23.0)
 
 ### Smoke Testing — Agent Catalog & Diagrams (v0.26.0)
-- [ ] Agent Catalog page loads at `/app/agents/catalog` with 116 agent cards (all shown by default, curated-only toggle available)
+- [ ] Agent Catalog page loads at `/app/agents/catalog` with 116 agent cards (16 curated by default, "Show All" toggle for full catalog)
 - [ ] Agent Detail page loads at `/app/agents/catalog/software-architect` with About/Capabilities/Use Cases/Run History tabs
 - [ ] Run History tab fetches real data from `GET /agents/history/:slug` (shows sample data notice if empty)
 - [ ] Agent Runner page loads at `/app/agents/catalog/software-architect/run` with task input + output panes
-- [ ] Agent Runner calls real `POST /agents/run` edge function (Gemini 2.0 Flash) — verify live output
+- [ ] Agent Runner calls real `POST /agents/run` edge function (Gemini 3 Flash Preview) — verify live output
 - [ ] Agent Runner gracefully falls back to simulated output with yellow warning if API is unavailable
 - [ ] System Map page loads at `/app/agents/system-map` with 9 product areas and 13 agent circles
 - [ ] System Map hover highlights connections and dims unrelated elements
@@ -202,9 +158,8 @@
 | T064 | Onboarding Agent | Done | v0.25.0 |
 | AGT | Agent Catalog Wiring + Diagrams | Done | v0.26.0 |
 | AGT2 | Agent Team Widget, Deal Scoring, 116-Agent Catalog | Done | v0.27.0 |
-| AUDIT | Vite Audit, Catalog Fix, Deploy Blockers | Done | v0.27.1 |
 
-**ALL 14 DASHBOARD PHASES COMPLETE** (26/26 strategy tasks) | CRM Auth Hardened in v0.22.1 | Hono 404 Fix in v0.22.2 | Sitemap v13 in v0.24.1 | Onboarding Agent in v0.25.0 | Agent Catalog Live + Diagrams in v0.26.0 | Agent Team + Deal Scoring + 116 Agents in v0.27.0 | Full Audit + Catalog/Avatar/Badge Fix in v0.27.1
+**ALL 14 DASHBOARD PHASES COMPLETE** (26/26 strategy tasks) | CRM Auth Hardened in v0.22.1 | Hono 404 Fix in v0.22.2 | Sitemap v13 in v0.24.1 | Onboarding Agent in v0.25.0 | Agent Catalog Live + Diagrams in v0.26.0 | Agent Team + Deal Scoring + 116 Agents in v0.27.0
 
 ---
 
@@ -252,25 +207,6 @@
 - [x] **WizardContext update** — Calls `markLocalSave()` before cloud saves
 - [x] **3 SQL trigger files** — ai-runs, wizard-sessions, lean-canvases broadcast triggers
 - [x] **Wiring map rewrite** — 4 broadcast channels, 4 SQL triggers, updated architecture docs
-
----
-
-## COMPLETED — Vite Audit, 116-Agent Catalog Fix, Deploy Blockers (v0.27.1)
-
-> Progress: **6 / 6 items** (100%) — 1 GitHub-side action remaining
-
-### Audit & Fixes
-- [x] **Full project audit** — Scanned all imports, routes, types, edge functions, auth, deal scoring
-- [x] **vercel.json** — Added explicit `"framework": "vite"` to prevent Next.js auto-detection
-- [x] **AgentCatalogPage fix** — Now imports `ALL_CATALOG_AGENTS` (116 agents) with curated/all toggle
-- [x] **AgentAvatar fix** — Changed to `ALL_CATALOG_AGENTS.find()` for 116-agent resolution
-- [x] **AgentBadge fix** — Changed to `ALL_CATALOG_AGENTS.find()` for 116-agent resolution
-- [x] **AgentTeamWidget cleanup** — Removed unused `AgentBadge` import
-
-### Identified Red Flags (Documented)
-- [x] **`next-server` in `package.json`** — Flagged as critical GitHub-side blocker (requires manual removal)
-- [x] **`/components/ui/sonner.tsx`** — Flagged as dead code importing `next-themes@0.4.6` (no consumer)
-- [x] **20 `"use client"` directives** — Flagged as harmless shadcn/ui tech debt
 
 ---
 
@@ -425,7 +361,7 @@
 - [x] **CRM deal scoring** — Integrated Pipeline Analyst + Deal Strategist via `/lib/dealScoring.ts` into DealCard with DealHealthBar (v0.27.0)
 - [x] **Dashboard Agent Team widget** — Rebuilt AgentTeamWidget with POST /agents/match, fit scores, live status indicators (v0.27.0)
 - [x] **Agent list documentation** — Created `/docs/agency/09-agents-list.md` with all 116 agents in table format (v0.27.0)
-- [x] **Update Agent Catalog page** — Display all 116 agents with division filter tabs and curated/all toggle (fixed in v0.27.1 — was importing CATALOG_AGENTS instead of ALL_CATALOG_AGENTS)
+- [ ] **Update Agent Catalog page** — Display all 116 agents with division filter tabs and "Show All" toggle (currently shows only 16 curated)
 - [ ] **Replace `generateSimulatedOutput()`** — Wire real Gemini calls via `compilePrompt()` in AgentRunnerPage
 - [ ] **Build `POST /agents/score-deals`** — Server endpoint for richer AI-powered deal insights (beyond deterministic scoring)
 - [ ] **Persist full run outputs** — Store task + output text in `agent_outputs` table (currently uses `ai_run_logs` generic fields only)
@@ -479,11 +415,6 @@
 - [ ] Add AI client payment history timeline
 - [ ] Add document search full-text indexing
 
-### Next.js Artifact Cleanup (from v0.27.1 Audit)
-- [ ] **Delete `/components/ui/sonner.tsx`** — Dead code importing `next-themes@0.4.6`. No consumer. WizardPage imports Toaster directly from `sonner@2.0.3`. Will crash if anyone tries to import it.
-- [ ] **Remove `"use client"` directives** — 20 shadcn/ui files have Next.js-specific directive (harmless but confusing in Vite project)
-- [ ] **Remove `next-server` from GitHub `package.json`** — Critical: `npm uninstall next-server && rm -rf node_modules package-lock.json && npm install && npx vite build`
-
 ### General UX
 - [ ] Update StyleGuidePage to show BCG design system tokens
 - [ ] Add breadcrumb navigation for nested dashboard pages
@@ -519,11 +450,13 @@
 - **Custom Hooks:** 13 (6 utility + 4 Realtime domain + 2 data + 1 legacy base)
 - **Auth Methods:** 5 (email sign-in, email sign-up, Google OAuth, LinkedIn OIDC, guest/anonymous)
 - **Supabase Storage:** 1 private bucket (make-283466b6-documents)
-- **Database Tables:** 48 (32 prior + 12 strategy engine + 4 onboarding: projects, roadmaps, roadmap_phases, activities)
+- **Database Tables:** 49 (32 prior + 12 strategy engine + 4 onboarding + 1 dashboard_documents)
 - **Auto-Migration Functions:** 2 (ensureAISchema + ensureOnboardingSchema)
 - **SQL Trigger Files:** 4 (broadcast triggers for Realtime)
 - **RLS Policies on realtime.messages:** 4 (ai_runs_read, wizard_sessions_read, pipeline_deals_read, canvas_blocks_read)
 - **Agent Catalog:** 116 agents (16 curated + 100 expanded) across 10 divisions
 - **Planning Docs:** 17 spec documents in `/docs/lean/` + 10 agency docs in `/docs/agency/` (00-09)
-- **Current Version:** v0.27.1
-- **Project Completion:** ~95% (all 14 dashboard phases complete; onboarding agent wired; full Realtime system; agent catalog live with Gemini; 116-agent catalog fully browsable; deal scoring; Vite build config fixed; enhancements + infrastructure remaining)
+- **Current Version:** v0.28.0
+- **KV Store Migration:** Complete — all 3 route modules migrated to Supabase tables (v0.28.0)
+- **Gemini Model:** `gemini-3-flash-preview` (upgraded from deprecated `gemini-2.0-flash` in v0.28.0)
+- **Project Completion:** ~96% (all 14 dashboard phases complete; KV migration done; onboarding agent wired; full Realtime system; agent catalog live with Gemini; 116-agent catalog; deal scoring; enhancements + infrastructure remaining)

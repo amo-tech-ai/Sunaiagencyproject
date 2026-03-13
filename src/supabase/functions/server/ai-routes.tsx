@@ -574,7 +574,7 @@ ai.get(`${PREFIX}/ai/aggregate-stats`, async (c) => {
       avgDuration,
       activeCacheEntries,
       byType,
-      model: "gemini-2.0-flash",
+      model: "gemini-3-flash-preview",
     });
   } catch (error) {
     console.log(`[AI] aggregate-stats error: ${error}`);

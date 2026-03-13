@@ -113,7 +113,7 @@ OUTPUT FORMAT: ${outputFormat === "json" ? "Return valid JSON only." : outputFor
       output: outputText,
       tokens: estimatedTokens,
       durationMs,
-      model: "gemini-2.0-flash",
+      model: "gemini-3-flash-preview",
       cached: false,
     });
   } catch (error) {
@@ -238,7 +238,7 @@ async function logAgentRun(params: {
     // Store in ai_run_logs with a catalog-specific prompt_type
     await db.from("ai_run_logs").insert({
       prompt_type: `agent-run:${params.slug}`,
-      model: "gemini-2.0-flash",
+      model: "gemini-3-flash-preview",
       tokens_used: params.tokens,
       duration_ms: params.durationMs,
       success: params.success,

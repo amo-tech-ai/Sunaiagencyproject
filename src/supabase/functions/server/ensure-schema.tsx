@@ -50,7 +50,7 @@ export async function ensureAISchema(): Promise<{ ok: boolean; error?: string }>
     await sql`ALTER TABLE ai_run_logs ADD COLUMN IF NOT EXISTS session_id text`;
     await sql`ALTER TABLE ai_run_logs ADD COLUMN IF NOT EXISTS org_id uuid`;
     await sql`ALTER TABLE ai_run_logs ADD COLUMN IF NOT EXISTS prompt_type text NOT NULL DEFAULT 'unknown'`;
-    await sql`ALTER TABLE ai_run_logs ADD COLUMN IF NOT EXISTS model text NOT NULL DEFAULT 'gemini-2.0-flash'`;
+    await sql`ALTER TABLE ai_run_logs ADD COLUMN IF NOT EXISTS model text NOT NULL DEFAULT 'gemini-3-flash-preview'`;
     await sql`ALTER TABLE ai_run_logs ADD COLUMN IF NOT EXISTS tokens_used integer NOT NULL DEFAULT 0`;
     await sql`ALTER TABLE ai_run_logs ADD COLUMN IF NOT EXISTS duration_ms integer NOT NULL DEFAULT 0`;
     await sql`ALTER TABLE ai_run_logs ADD COLUMN IF NOT EXISTS success boolean NOT NULL DEFAULT true`;
@@ -109,7 +109,7 @@ export async function ensureAISchema(): Promise<{ ok: boolean; error?: string }>
       CREATE TABLE IF NOT EXISTS ai_cache (
         input_hash text PRIMARY KEY,
         response jsonb NOT NULL DEFAULT '{}'::jsonb,
-        model text NOT NULL DEFAULT 'gemini-2.0-flash',
+        model text NOT NULL DEFAULT 'gemini-3-flash-preview',
         tokens_used integer NOT NULL DEFAULT 0,
         expires_at timestamptz NOT NULL DEFAULT now(),
         created_at timestamptz NOT NULL DEFAULT now()
@@ -118,7 +118,7 @@ export async function ensureAISchema(): Promise<{ ok: boolean; error?: string }>
 
     // Add missing columns for an existing table that has input_hash but is incomplete
     await sql`ALTER TABLE ai_cache ADD COLUMN IF NOT EXISTS response jsonb NOT NULL DEFAULT '{}'::jsonb`;
-    await sql`ALTER TABLE ai_cache ADD COLUMN IF NOT EXISTS model text NOT NULL DEFAULT 'gemini-2.0-flash'`;
+    await sql`ALTER TABLE ai_cache ADD COLUMN IF NOT EXISTS model text NOT NULL DEFAULT 'gemini-3-flash-preview'`;
     await sql`ALTER TABLE ai_cache ADD COLUMN IF NOT EXISTS tokens_used integer NOT NULL DEFAULT 0`;
     await sql`ALTER TABLE ai_cache ADD COLUMN IF NOT EXISTS expires_at timestamptz NOT NULL DEFAULT now()`;
     await sql`ALTER TABLE ai_cache ADD COLUMN IF NOT EXISTS created_at timestamptz NOT NULL DEFAULT now()`;
