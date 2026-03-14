@@ -3,8 +3,74 @@
 **Project:** Sun AI Agency — AI Consulting & Solutions Website
 **Stack:** Vite + React + Tailwind CSS v4 + Supabase + Vercel
 **Design System:** BCG Consulting-Inspired (Calm Luxury Editorial)
-**Current Version:** v0.27.0
-**Last Updated:** 2026-03-13
+**Current Version:** v0.27.1
+**Last Updated:** 2026-03-14
+
+---
+
+## [0.27.1] — 2026-03-14 — Vite Audit, 116-Agent Catalog Fix, Deployment Blockers Resolved
+
+### Summary
+
+Full project audit identifying errors, red flags, failure points, and blockers. Fixed 5 files with high-priority bugs: Agent Catalog page was only displaying 16 of 116 agents, AgentAvatar and AgentBadge could not resolve expanded agents (returning fallback emoji/null for 100 agents), and vercel.json lacked explicit Vite framework declaration causing Vercel to misdetect the project as Next.js. Identified dead code in `sonner.tsx` importing `next-themes` (a Next.js package). Confirmed zero instances of `react-router-dom`, `framer-motion`, or direct `supabase.from()` calls in frontend components.
+
+### Audit Findings — Errors & Red Flags
+
+| # | Severity | File | Issue | Resolution |
+|---|----------|------|-------|------------|
+| 1 | **CRITICAL** | `vercel.json` | No `"framework"` field — Vercel auto-detects as Next.js when `next-server` is in `package.json` | Added `"framework": "vite"`, `buildCommand`, `outputDirectory`, `installCommand` |
+| 2 | **CRITICAL** | GitHub `package.json` | `next-server@v7.0.2-canary.49` (deprecated Next.js 7 package requiring React 16) in dependencies — causes ERESOLVE conflict with React 18 and triggers Next.js auto-detection | **Requires GitHub-side removal**: `npm uninstall next-server` |
+| 3 | **HIGH** | `AgentCatalogPage.tsx` | Imported `CATALOG_AGENTS` (16 agents) instead of `ALL_CATALOG_AGENTS` (116) — 100 expanded agents invisible | Changed to `ALL_CATALOG_AGENTS` with curated/all toggle, dynamic division counts |
+| 4 | **HIGH** | `AgentAvatar.tsx` | Used `CATALOG_AGENTS.find()` — expanded agent slugs returned fallback emoji `🤖` | Changed to `ALL_CATALOG_AGENTS.find()` |
+| 5 | **HIGH** | `AgentBadge.tsx` | Used `CATALOG_AGENTS.find()` — expanded agent slugs returned `null` (badge not rendered) | Changed to `ALL_CATALOG_AGENTS.find()` |
+| 6 | **MEDIUM** | `AgentTeamWidget.tsx` | Unused `AgentBadge` import (dead import) | Removed |
+| 7 | **MEDIUM** | `/components/ui/sonner.tsx` | Imports `next-themes@0.4.6` (Next.js package). Dead code — no consumer imports this file. Would crash if imported without a `ThemeProvider`. | Flagged as tech debt — `WizardPage.tsx` correctly imports `Toaster` directly from `sonner@2.0.3` |
+| 8 | **LOW** | 20 `/components/ui/*.tsx` files | `"use client"` directive (Next.js artifact from shadcn/ui generator) — harmless string literal in Vite | No action needed — cosmetic tech debt |
+
+### Audit Findings — Validated Clean (No Issues)
+
+| Area | Status | Notes |
+|------|--------|-------|
+| `react-router-dom` imports | **0 found** | All 50+ route files use `react-router` correctly |
+| `framer-motion` imports | **0 found** | All files use `motion/react` correctly |
+| Direct `supabase.from()` in frontend | **0 found** | All DB access goes through edge function API layer |
+| Next.js artifacts in compiled code | **0 found** | Only in `/imports/` reference docs (not compiled) |
+| Circular dependencies | **0 found** | `agentCatalogExpanded.ts` uses `import type` (erased at compile time) |
+| Route → component resolution | **All 54 routes resolve** | Every `Component:` reference maps to an existing default export |
+| Edge function server | **All 10 route modules mounted** | `Deno.serve(app.fetch)` at end, CORS configured, logger enabled |
+| Auth flow | **Complete** | Session restore, onAuthStateChange listener, 5 auth methods |
+| Deal scoring types | **Correct** | `Deal` type has optional `healthScore/healthLabel/healthInsight/scoringAgent` |
+
+### Fixed
+
+- **`/components/dashboard/agents/AgentCatalogPage.tsx`** — Now imports `ALL_CATALOG_AGENTS` (116 agents). Added `showAll` state toggle (defaults to true = all 116 visible). Source agents switch between `ALL_CATALOG_AGENTS` and `CATALOG_AGENTS` based on toggle. Division tab counts dynamically reflect active source. Header shows "Showing X of Y agents" with toggle link.
+- **`/components/shared/agents/AgentAvatar.tsx`** — Changed `CATALOG_AGENTS.find()` → `ALL_CATALOG_AGENTS.find()` so expanded agents resolve correct emoji and division color.
+- **`/components/shared/agents/AgentBadge.tsx`** — Changed `CATALOG_AGENTS.find()` → `ALL_CATALOG_AGENTS.find()` so expanded agent badges render instead of returning null.
+- **`/components/dashboard/AgentTeamWidget.tsx`** — Removed unused `AgentBadge` import.
+- **`/vercel.json`** — Added `"framework": "vite"`, `"buildCommand": "vite build"`, `"outputDirectory": "dist"`, `"installCommand": "npm install"` to prevent Vercel Next.js auto-detection.
+
+### Files Modified
+
+```
+/components/dashboard/agents/AgentCatalogPage.tsx — ALL_CATALOG_AGENTS + showAll toggle
+/components/shared/agents/AgentAvatar.tsx — ALL_CATALOG_AGENTS lookup
+/components/shared/agents/AgentBadge.tsx — ALL_CATALOG_AGENTS lookup
+/components/dashboard/AgentTeamWidget.tsx — Removed unused import
+/vercel.json — Explicit Vite framework declaration
+```
+
+### Remaining Blockers (GitHub-Side)
+
+1. Remove `next-server@v7.0.2-canary.49` from `package.json` — causes React 16/18 ERESOLVE conflict and Vercel Next.js detection
+2. Run `npm install` to regenerate clean `package-lock.json`
+3. Run `npx vite build` locally to verify build passes before push
+
+### Production Status
+
+- Current Version: v0.27.1
+- Dashboard pages: 46 production components
+- Edge function routes: 68
+- Agent Catalog: 116 agents now fully browsable with division filters
 
 ---
 
