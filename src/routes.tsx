@@ -1,25 +1,24 @@
-import WizardPage from './components/wizard/WizardPage';
-import ProcessingPage from './components/wizard/ProcessingPage';
-import ProposalPage from './components/wizard/ProposalPage';
-import { createBrowserRouter, Link, Navigate } from 'react-router';
+import { createBrowserRouter, Navigate, Link } from 'react-router';
+
+// Public page imports
 import Layout from './components/Layout';
-import HomePageV2 from './components/HomePageV2';
 import HomePage from './components/HomePage';
+import HomePageV2 from './components/HomePageV2';
+import HomePageV3 from './components/HomePageV3';
 import SolutionsPage from './components/SolutionsPage';
 import IndustriesPage from './components/IndustriesPage';
-import AboutPage from './components/AboutPage';
-import ProcessPageV12 from './components/process/v12/ProcessPageV12';
-import ProjectsPage from './components/ProjectsPage';
-import AgentsPage from './components/AgentsPage';
-import ChatbotsPage from './components/ChatbotsPage';
 import EcommercePage from './components/EcommercePage';
 import FashionPage from './components/FashionPage';
 import TravelPage from './components/TravelPage';
+import AboutPage from './components/AboutPage';
+import { ProcessPageV12 } from './components/process/v12';
+import ProjectsPage from './components/ProjectsPage';
+import AgentsPage from './components/AgentsPage';
+import ChatbotsPage from './components/ChatbotsPage';
 import CaseStudiesPage from './components/CaseStudiesPage';
 import BookingPage from './components/BookingPage';
 import StyleGuidePage from './components/StyleGuidePage';
 import SectionsPage from './components/SectionsPage';
-import HomePageV3 from './components/HomePageV3';
 import FinancialPage from './components/FinancialPage';
 import { ServicesPage } from './components/services/ServicesPage';
 import WebDesignPage from './pages/WebDesignPage';
@@ -32,8 +31,18 @@ import SitemapPage from './components/SitemapPage';
 import ChatbotServicePage from './components/services/ChatbotServicePage';
 import WhatsAppAIPage from './pages/WhatsAppAIPage';
 import SupabaseArchitecturePage from './components/SupabaseArchitecturePage';
+
+// Wizard imports
+import WizardPage from './components/wizard/WizardPage';
+import ProcessingPage from './components/wizard/ProcessingPage';
+import ProposalPage from './components/wizard/ProposalPage';
+
+// Auth imports
 import AuthPage from './components/AuthPage';
 import AuthCallbackPage from './components/AuthCallbackPage';
+
+// Blog imports
+import AIAdoptionByIndustry from './components/blog/AIAdoptionByIndustry';
 
 // Dashboard imports — Phase 1 (shell) + Phase 2-5 (production pages)
 import DashboardLayout from './components/dashboard/DashboardLayout';
@@ -175,6 +184,7 @@ export const router = createBrowserRouter([
       { path: 'services/chatbot', Component: ChatbotServicePage },
       { path: 'whatsapp-ai', Component: WhatsAppAIPage },
       { path: 'docs/supabase', Component: SupabaseArchitecturePage },
+      { path: 'blog/ai-adoption-by-industry', Component: AIAdoptionByIndustry },
       { path: '*', Component: NotFound },
     ],
   },

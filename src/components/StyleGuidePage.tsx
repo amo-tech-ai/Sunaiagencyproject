@@ -2,6 +2,7 @@
 
 import { useNavigate } from 'react-router';
 import { useRef } from 'react';
+import { motion, useInView } from 'motion/react';
 import { Check, ArrowRight, Brain, Zap, Workflow, Bot, Globe, BarChart3 } from 'lucide-react';
 import { pageToPath } from '../lib/navigation';
 import WebDesignServicesGrid from './web-design/WebDesignServicesGrid';
