@@ -20,6 +20,7 @@ export default function Footer() {
     { path: '/web-apps', label: 'Web Apps' },
     { path: '/mvp-v2', label: 'MVP Builder' },
     { path: '/sales-crm', label: 'Sales CRM' },
+    { path: '/services/infographics', label: 'AI Infographics' },
   ];
 
   const agentsLinks = [
