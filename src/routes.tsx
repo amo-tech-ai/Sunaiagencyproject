@@ -30,6 +30,7 @@ import SalesCRMPage from './pages/SalesCRMPage';
 import SitemapPage from './components/SitemapPage';
 import ChatbotServicePage from './components/services/ChatbotServicePage';
 import InfographicsPage from './components/services/InfographicsPage';
+import InfographicsPageV2 from './components/services/InfographicsPageV2';
 import WhatsAppAIPage from './pages/WhatsAppAIPage';
 import SupabaseArchitecturePage from './components/SupabaseArchitecturePage';
 
@@ -184,6 +185,7 @@ export const router = createBrowserRouter([
       { path: 'sitemap', Component: SitemapPage },
       { path: 'services/chatbot', Component: ChatbotServicePage },
       { path: 'services/infographics', Component: InfographicsPage },
+      { path: 'services/infographicv2', Component: InfographicsPageV2 },
       { path: 'whatsapp-ai', Component: WhatsAppAIPage },
       { path: 'docs/supabase', Component: SupabaseArchitecturePage },
       { path: 'blog/ai-adoption-by-industry', Component: AIAdoptionByIndustry },
