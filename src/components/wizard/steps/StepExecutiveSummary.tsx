@@ -6,14 +6,12 @@ import { useState, useRef, useEffect, useMemo, useCallback, forwardRef } from 'r
 import { useWizard } from '../WizardContext';
 import { WizardLayout } from '../WizardLayout';
 import { AI_SYSTEMS, ROADMAP_PHASES } from '../data/wizardData';
-import { matchAgents, type AssignedAgent } from '../data/agentData';
 import { motion, AnimatePresence } from 'motion/react';
 import { aiApi } from '../../../lib/supabase';
-import { agentCatalogApi, type AgentMatchResponse } from '../../../lib/supabase';
-import { AgentTeamCard, type AgentTeamCardAgent } from '../../shared/agents/AgentTeamCard';
+import { AITeamSection } from '../../shared/agents/AITeamSection';
 import {
   Pencil, Check, X, Clock, ShoppingCart, RefreshCw, DollarSign,
-  FileText, Printer, Share2, ArrowRight, Loader2, AlertCircle, BarChart3, Users
+  FileText, Printer, Share2, ArrowRight, Loader2, AlertCircle, BarChart3
 } from 'lucide-react';
 
 interface ReadinessData {
@@ -34,74 +32,7 @@ export function StepExecutiveSummary() {
   const [editingSection, setEditingSection] = useState<string | null>(null);
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
-  // ── Agent Team (local matching — immediate) ──
-  const agentTeam = useMemo(() => {
-    if (step3.selectedSystems.length === 0) return [];
-    return matchAgents(step3.selectedSystems, step1.industry || '', step1.companyName || '');
-  }, [step3.selectedSystems, step1.industry, step1.companyName]);
-
-  const primaryAgents = agentTeam.filter(a => a.isPrimary);
-  const supportAgents = agentTeam.filter(a => !a.isPrimary);
-
-  // ── AI-Powered Agent Matching (from POST /agents/match) ──
-  const [aiTeam, setAiTeam] = useState<AgentTeamCardAgent[]>([]);
-  const [aiTeamLoading, setAiTeamLoading] = useState(false);
-  const [aiTeamError, setAiTeamError] = useState<string | null>(null);
-  const aiTeamFetchedRef = useRef(false);
-
-  useEffect(() => {
-    if (aiTeamFetchedRef.current) return;
-    if (step3.selectedSystems.length === 0) return;
-    aiTeamFetchedRef.current = true;
-
-    async function fetchAiTeam() {
-      setAiTeamLoading(true);
-      setAiTeamError(null);
-      try {
-        const { data, error } = await agentCatalogApi.match({
-          industry: step1.industry || '',
-          goals: step1.goal ? [step1.goal] : [],
-          companySize: step1.companySize || '',
-          systemIds: step3.selectedSystems,
-        });
-        if (error) {
-          console.warn('[Step4] AI team match error (using local):', error);
-          setAiTeamError(error);
-        } else if (data?.matches) {
-          setAiTeam(data.matches.map(m => ({
-            slug: m.slug,
-            name: m.name,
-            emoji: m.emoji || '🤖',
-            division: m.division || '',
-            role: m.role || '',
-            firstTask: m.firstTask || m.reason || '',
-            fitScore: m.fitScore,
-            reason: m.reason,
-          })));
-        }
-      } catch (e) {
-        console.warn('[Step4] AI team match exception (using local):', e);
-        setAiTeamError(String(e));
-      } finally {
-        setAiTeamLoading(false);
-      }
-    }
-    fetchAiTeam();
-  }, [step1.industry, step1.goal, step1.companySize, step3.selectedSystems]);
-
-  // Use AI-matched team if available, otherwise fall back to local matching
-  const displayTeam: AgentTeamCardAgent[] = useMemo(() => {
-    if (aiTeam.length > 0) return aiTeam;
-    // Convert local match to AgentTeamCardAgent shape
-    return agentTeam.map(a => ({
-      slug: a.id,
-      name: a.name,
-      emoji: '🤖',
-      division: a.division,
-      role: a.role,
-      firstTask: a.task,
-    }));
-  }, [aiTeam, agentTeam]);
+  const hasSelectedSystems = step3.selectedSystems.length > 0;
 
   // ── AI Readiness Score State ──
   const [readiness, setReadiness] = useState<ReadinessData | null>(null);
@@ -206,7 +137,7 @@ export function StepExecutiveSummary() {
     { id: 'industry-analysis', label: 'Industry Analysis' },
     { id: 'ai-readiness', label: 'AI Readiness Score' },
     { id: 'recommended-systems', label: 'Recommended Systems' },
-    ...(agentTeam.length > 0 ? [{ id: 'your-ai-team', label: 'Your AI Team' }] : []),
+    ...(hasSelectedSystems ? [{ id: 'your-ai-team', label: 'Your AI Team' }] : []),
     { id: 'proposed-roadmap', label: 'Proposed Roadmap' },
     { id: 'expected-outcomes', label: 'Expected Outcomes' },
     { id: 'next-steps', label: 'Next Steps' },
@@ -541,43 +472,15 @@ export function StepExecutiveSummary() {
           </div>
 
           {/* ─── Section 4.5: Your AI Team ─── */}
-          {(displayTeam.length > 0 || aiTeamLoading) && (
+          {hasSelectedSystems && (
             <div id="your-ai-team" ref={(el) => { sectionRefs.current['your-ai-team'] = el; }}>
-              <div className="flex items-center gap-2">
-                <Users className="w-4.5 h-4.5" style={{ color: '#00875A' }} />
-                <SectionHeading title="Your AI Team" />
-              </div>
-              <p className="text-sm mt-2 mb-4" style={{ color: '#6B6B63' }}>
-                {aiTeam.length > 0
-                  ? 'AI-matched specialists curated for your industry, goals, and selected systems:'
-                  : 'Specialists assembled for your project:'}
-              </p>
-
-              {aiTeamLoading && (
-                <div className="flex items-center gap-2 px-4 py-3 border rounded" style={{ borderColor: '#E8E8E4', borderRadius: '4px', backgroundColor: '#FAFAF8' }}>
-                  <Loader2 className="w-4 h-4 animate-spin" style={{ color: '#00875A' }} />
-                  <span className="text-xs" style={{ color: '#6B6B63' }}>Matching AI agents to your project…</span>
-                </div>
-              )}
-
-              {aiTeamError && !aiTeamLoading && (
-                <div className="flex items-center gap-2 px-3 py-2 mb-3 rounded text-xs" style={{ backgroundColor: '#FEF9E7', color: '#D97706' }}>
-                  <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-                  Using local matching — AI matching unavailable
-                </div>
-              )}
-
-              {/* AI-matched team using AgentTeamCard */}
-              <div className="space-y-2.5">
-                {displayTeam.map((agent, idx) => (
-                  <AgentTeamCard
-                    key={agent.slug}
-                    agent={agent}
-                    status="active"
-                    delay={idx * 0.06}
-                  />
-                ))}
-              </div>
+              <AITeamSection
+                industry={step1.industry || ''}
+                goals={step1.goal ? [step1.goal] : []}
+                companySize={step1.companySize || ''}
+                systemIds={step3.selectedSystems}
+                companyName={step1.companyName || ''}
+              />
             </div>
           )}
 

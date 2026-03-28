@@ -27,7 +27,7 @@ import type { InvoiceStatus, InvoiceStatusFilter, PaymentMethod } from '../../..
 
 export default function FinancialDashboardPage() {
   const { accessToken } = useAuth();
-  const token = accessToken || undefined;
+  const token = accessToken ? 'use-fresh-token' : undefined;
 
   const [metrics, setMetrics] = useState<RevenueMetrics | null>(null);
   const [invoices, setInvoices] = useState<Invoice[]>([]);

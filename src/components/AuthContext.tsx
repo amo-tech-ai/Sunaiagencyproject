@@ -2,7 +2,7 @@
 // Wraps Supabase Auth state, provides login/signup/logout (Email, Google, LinkedIn), persists session
 
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
-import { getSupabaseClient, authApi } from '../lib/supabase';
+import { getSupabaseClient, authApi, AUTH_FAILURE_EVENT } from '../lib/supabase';
 
 export interface AuthUser {
   id: string;
@@ -106,9 +106,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     });
 
+    // Listen for API-layer auth failures (401 after token refresh)
+    // This catches cases where the session is server-revoked but the SDK doesn't know
+    function handleAuthFailure() {
+      if (!mounted) return;
+      console.warn('[Auth] Session expired (API 401) — signing out');
+      setState({ user: null, accessToken: null, loading: false, error: null });
+      // Supabase signOut to clean up refresh token
+      getSupabaseClient().auth.signOut().catch(() => {});
+    }
+    window.addEventListener(AUTH_FAILURE_EVENT, handleAuthFailure);
+
     return () => {
       mounted = false;
       subscription.unsubscribe();
+      window.removeEventListener(AUTH_FAILURE_EVENT, handleAuthFailure);
     };
   }, []);
 

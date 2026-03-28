@@ -7,7 +7,7 @@ import { X, Phone, Mail, Calendar, FileText, Send, ChevronRight, Trash2 } from '
 import { motion, AnimatePresence } from 'motion/react';
 import type { Deal, Interaction, InteractionCreateInput } from '../../../lib/types/crm-pipeline';
 import { pipelineApi } from '../../../lib/supabase';
-import { publicAnonKey } from '../../../utils/supabase/info';
+import { useAuth } from '../../AuthContext';
 
 interface DealDetailPanelProps {
   deal: Deal | null;
@@ -58,7 +58,8 @@ export default function DealDetailPanel({
   const [interactionSummary, setInteractionSummary] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  const token = publicAnonKey;
+  const { accessToken } = useAuth();
+  const token = accessToken ? 'use-fresh-token' : undefined;
 
   const fetchDealDetail = useCallback(async () => {
     if (!deal) return;

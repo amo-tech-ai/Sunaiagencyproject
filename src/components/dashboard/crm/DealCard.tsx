@@ -3,14 +3,18 @@
 // Draggable via native HTML5 drag API. Shows title, value, contact, probability, days-in-stage.
 // Stale indicators: >7 days amber border, >14 days red border, high-value green accent.
 
-import type { Deal } from '../../../lib/types/crm-pipeline';
+import { useState } from 'react';
+import type { Deal, Stage } from '../../../lib/types/crm-pipeline';
 import { GripVertical } from 'lucide-react';
 import { DealHealthBar } from '../../shared/agents/DealHealthBar';
+import { DealScoreCard } from '../../shared/agents/DealScoreCard';
 
 interface DealCardProps {
   deal: Deal;
+  stages?: Stage[];
   onClick: (deal: Deal) => void;
   onDragStart: (e: React.DragEvent, deal: Deal) => void;
+  onRescore?: () => void;
 }
 
 function formatCurrency(value: number): string {
@@ -18,7 +22,8 @@ function formatCurrency(value: number): string {
   return `$${value.toLocaleString()}`;
 }
 
-export default function DealCard({ deal, onClick, onDragStart }: DealCardProps) {
+export default function DealCard({ deal, stages = [], onClick, onDragStart, onRescore }: DealCardProps) {
+  const [scoreCardOpen, setScoreCardOpen] = useState(false);
   const isHighValue = deal.value >= 10000;
 
   // Left border color based on status
@@ -92,7 +97,11 @@ export default function DealCard({ deal, onClick, onDragStart }: DealCardProps) 
 
           {/* Agent Health Score — now using DealHealthBar component */}
           {deal.healthScore !== undefined && (
-            <div className="mt-2 pt-2 border-t border-[#F0F0EC]">
+            <div
+              className="mt-2 pt-2 border-t border-[#F0F0EC] cursor-pointer hover:bg-[#FAFAF8] rounded -mx-1 px-1 transition-colors"
+              onClick={(e) => { e.stopPropagation(); setScoreCardOpen(true); }}
+              title="Click to see score breakdown"
+            >
               <DealHealthBar
                 score={deal.healthScore}
                 riskLabel={
@@ -111,6 +120,15 @@ export default function DealCard({ deal, onClick, onDragStart }: DealCardProps) 
           )}
         </div>
       </div>
+
+      {/* Deal Score Card Modal */}
+      <DealScoreCard
+        deal={deal}
+        stages={stages}
+        open={scoreCardOpen}
+        onClose={() => setScoreCardOpen(false)}
+        onRescore={onRescore}
+      />
     </div>
   );
 }

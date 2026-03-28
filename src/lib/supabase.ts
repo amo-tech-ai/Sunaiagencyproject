@@ -4,6 +4,14 @@
 import { createClient } from '@supabase/supabase-js';
 import { projectId, publicAnonKey } from '../utils/supabase/info';
 
+// ── Auth failure event — dispatched when API returns 401 after token refresh ──
+// AuthContext listens for this to trigger signOut + redirect to /auth
+export const AUTH_FAILURE_EVENT = 'sunai:auth-failure';
+
+function emitAuthFailure() {
+  window.dispatchEvent(new CustomEvent(AUTH_FAILURE_EVENT));
+}
+
 const SUPABASE_URL = `https://${projectId}.supabase.co`;
 const BASE_URL = `${SUPABASE_URL}/functions/v1/make-server-283466b6`;
 
@@ -84,10 +92,8 @@ export async function api<T = unknown>(
     const url = `${BASE_URL}${route.startsWith('/') ? route : `/${route}`}`;
     let response = await fetch(url, fetchOptions);
 
-    // If still 401 after using a fresh token, try one explicit refresh cycle
-    // then fall back to anon key so the edge function gateway accepts the request
+    // If 401 after using a fresh token, try one explicit refresh cycle
     if (response.status === 401 && activeToken && activeToken !== publicAnonKey) {
-      // Attempt to force-refresh the Supabase session for a new token
       try {
         const supabase = getSupabaseClient();
         const { data: refreshData } = await supabase.auth.refreshSession();
@@ -100,15 +106,14 @@ export async function api<T = unknown>(
           }
         }
       } catch {
-        // Refresh failed — fall through to anon key retry
+        // Refresh failed — session is dead
       }
 
-      // Silently fall back to anon key — this is expected when session is stale
-      const retryHeaders = { ...headers, Authorization: `Bearer ${publicAnonKey}` };
-      response = await fetch(url, {
-        ...fetchOptions,
-        headers: retryHeaders,
-      });
+      // Token refresh failed or retried request still 401 — session is invalid.
+      // Signal auth failure so AuthContext can redirect to /auth.
+      console.warn(`[API] ${method} ${route}: 401 after token refresh — signing out`);
+      emitAuthFailure();
+      return { data: null, error: 'Session expired. Please sign in again.' };
     }
 
     const data = await response.json();
@@ -116,6 +121,10 @@ export async function api<T = unknown>(
     if (!response.ok) {
       const errorMsg = data?.error || `API error: ${response.status} ${response.statusText}`;
       console.error(`[API] ${method} ${route} failed:`, errorMsg);
+      // If a 401 slipped through (e.g., anon-key request to protected endpoint), signal auth failure
+      if (response.status === 401 && activeToken && activeToken !== publicAnonKey) {
+        emitAuthFailure();
+      }
       return { data: null, error: errorMsg };
     }
 

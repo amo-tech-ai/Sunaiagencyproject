@@ -3,17 +3,16 @@
 // Celebration + confirmation screen with staggered animations
 // NOW WIRED: Calls /generate-roadmap for live AI-generated implementation roadmap
 
-import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useWizard } from '../WizardContext';
 import { AI_SYSTEMS, ROADMAP_PHASES, DASHBOARD_PREVIEW_CARDS, STEPS } from '../data/wizardData';
-import { matchAgents, type AssignedAgent } from '../data/agentData';
 import { WizardLayout } from '../WizardLayout';
 import { motion } from 'motion/react';
-import { Check, ArrowRight, Loader2, AlertCircle, RefreshCw, Users } from 'lucide-react';
+import { Check, ArrowRight, Loader2, AlertCircle, RefreshCw } from 'lucide-react';
 import { Link } from 'react-router';
-import { aiApi, onboardingApi, agentCatalogApi } from '../../../lib/supabase';
+import { aiApi, onboardingApi } from '../../../lib/supabase';
 import type { OnboardingCompleteResponse } from '../../../lib/supabase';
-import { AgentTeamCard, type AgentTeamCardAgent } from '../../shared/agents/AgentTeamCard';
+import { AITeamSection } from '../../shared/agents/AITeamSection';
 
 interface RoadmapPhase {
   phaseNumber: number;
@@ -204,59 +203,8 @@ export function StepLaunchProject() {
     roadmap ? `${roadmap.quickWins?.length || 0} quick wins identified` : '12 initial tasks generated',
   ];
 
-  // Match agents to the project (local fallback)
-  const agentTeam = useMemo(() => {
-    if (step3.selectedSystems.length === 0) return [];
-    return matchAgents(step3.selectedSystems, step1.industry || '', step1.companyName || '');
-  }, [step3.selectedSystems, step1.industry, step1.companyName]);
-
-  // ── AI-Powered Agent Matching (from POST /agents/match) ──
-  const [aiTeam, setAiTeam] = useState<AgentTeamCardAgent[]>([]);
-  const [aiTeamLoading, setAiTeamLoading] = useState(false);
-  const aiTeamRef = useRef(false);
-
-  useEffect(() => {
-    if (aiTeamRef.current || step3.selectedSystems.length === 0) return;
-    aiTeamRef.current = true;
-
-    async function fetchAiTeam() {
-      setAiTeamLoading(true);
-      try {
-        const { data, error } = await agentCatalogApi.match({
-          industry: step1.industry || '',
-          goals: step1.goal ? [step1.goal] : [],
-          companySize: step1.companySize || '',
-          systemIds: step3.selectedSystems,
-        });
-        if (!error && data?.matches) {
-          setAiTeam(data.matches.map(m => ({
-            slug: m.slug,
-            name: m.name,
-            emoji: m.emoji || '🤖',
-            division: m.division || '',
-            role: m.role || '',
-            firstTask: m.firstTask || m.reason || '',
-            fitScore: m.fitScore,
-            reason: m.reason,
-          })));
-        }
-      } catch (e) {
-        console.warn('[Step5] AI team match failed (using local):', e);
-      } finally {
-        setAiTeamLoading(false);
-      }
-    }
-    fetchAiTeam();
-  }, [step1.industry, step1.goal, step1.companySize, step3.selectedSystems]);
-
-  // Display team: AI-matched if available, else local
-  const displayTeam: AgentTeamCardAgent[] = useMemo(() => {
-    if (aiTeam.length > 0) return aiTeam;
-    return agentTeam.map(a => ({
-      slug: a.id, name: a.name, emoji: '🤖',
-      division: a.division, role: a.role, firstTask: a.task,
-    }));
-  }, [aiTeam, agentTeam]);
+  // Agent team visibility check (need at least 1 system selected)
+  const hasAgentTeam = step3.selectedSystems.length > 0;
 
   return (
     <WizardLayout>
@@ -558,33 +506,18 @@ export function StepLaunchProject() {
             </div>
 
             {/* Assigned Agents */}
-            {displayTeam.length > 0 && (
+            {hasAgentTeam && (
               <>
                 <div className="border-t" style={{ borderColor: '#F0F0EC' }} />
-                <div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <Users className="w-4 h-4" style={{ color: '#00875A' }} />
-                    <p className="text-xs tracking-widest uppercase" style={{ color: '#00875A', letterSpacing: '0.08em' }}>
-                      Your AI Team is Ready
-                    </p>
-                  </div>
-                  {aiTeamLoading && (
-                    <div className="flex items-center gap-2 px-4 py-3 mb-3 border rounded" style={{ borderColor: '#E8E8E4', borderRadius: '4px', backgroundColor: '#FAFAF8' }}>
-                      <Loader2 className="w-3.5 h-3.5 animate-spin" style={{ color: '#00875A' }} />
-                      <span className="text-xs" style={{ color: '#6B6B63' }}>Matching agents to your project…</span>
-                    </div>
-                  )}
-                  <div className="space-y-2.5">
-                    {displayTeam.map((agent, idx) => (
-                      <AgentTeamCard
-                        key={agent.slug}
-                        agent={agent}
-                        status="active"
-                        delay={1.0 + idx * 0.06}
-                      />
-                    ))}
-                  </div>
-                </div>
+                <AITeamSection
+                  industry={step1.industry || ''}
+                  goals={step1.goal ? [step1.goal] : []}
+                  companySize={step1.companySize || ''}
+                  systemIds={step3.selectedSystems}
+                  companyName={step1.companyName || ''}
+                  heading="Your AI Team is Ready"
+                  animationDelay={1.0}
+                />
               </>
             )}
           </div>

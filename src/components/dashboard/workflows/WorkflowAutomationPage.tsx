@@ -23,7 +23,7 @@ type TabId = 'active' | 'templates' | 'executions';
 
 export default function WorkflowAutomationPage() {
   const { accessToken } = useAuth();
-  const token = accessToken || undefined;
+  const token = accessToken ? 'use-fresh-token' : undefined;
 
   const [workflows, setWorkflows] = useState<Workflow[]>([]);
   const [executions, setExecutions] = useState<WorkflowExecution[]>([]);

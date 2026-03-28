@@ -406,9 +406,11 @@ export default function CRMPipelinePage() {
                     key={stage.id}
                     stage={stage}
                     deals={stageDeals}
+                    allStages={stages}
                     onDealClick={setSelectedDeal}
                     onDealDragStart={handleDealDragStart}
                     onDealDrop={handleDealDrop}
+                    onRescore={() => activePipelineId && fetchPipelineData(activePipelineId)}
                   />
                 );
               })}

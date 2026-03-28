@@ -26,3 +26,30 @@ Thumbs.db
 
 # Backups / temp
 backups/
+
+# Local working directories (not application code)
+plan/
+tasks/
+agency/
+sunAI Agency/
+sunai-figma/
+remotion/
+figma/
+images/
+prompts/archive/
+prompts/data/
+prompts/prompts/
+prompts/wireframes/
+prompts/plan/
+
+# Claude Code / AI tooling
+.claude/
+.agents/
+CLAUDE.local.md
+skills-lock.json
+
+# Misc non-app files
+summary.md
+system.md
+roadmap.md
+wifi-report.md

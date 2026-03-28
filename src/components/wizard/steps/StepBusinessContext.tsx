@@ -25,68 +25,27 @@ interface AnalysisResult {
   aiOpportunities: string[];
 }
 
-/* ────────────────── Mock Analysis Simulation ────────────────── */
-
-function simulateAnalysis(url: string): Promise<AnalysisResult> {
-  return new Promise((resolve, reject) => {
-    // Simulate occasional failure for demo
-    const shouldFail = url.includes('fail');
-    setTimeout(() => {
-      if (shouldFail) {
-        reject(new Error('Analysis unavailable'));
-        return;
-      }
-      // Extract company name hint from URL
-      const domain = url.replace(/^(https?:\/\/)?(www\.)?/, '').split(/[./]/)[0] || 'Company';
-      const name = domain.charAt(0).toUpperCase() + domain.slice(1);
-      resolve({
-        companySummary: `${name} appears to be a mid-market company focused on delivering technology-driven solutions. The website emphasizes customer experience and operational efficiency.`,
-        detectedIndustry: 'Technology / SaaS',
-        productsServices: ['SaaS Platform', 'Consulting Services', 'API Integrations', 'Customer Portal'],
-        teamSizeEstimate: '50–200 employees',
-        technologySignals: ['React / Next.js', 'Cloud Infrastructure', 'REST APIs', 'Analytics Suite'],
-        aiOpportunities: ['Customer support automation', 'Predictive analytics', 'Content personalization', 'Workflow optimization'],
-      });
-    }, 3800);
-  });
-}
-
-/** Try real Gemini analysis first, fall back to mock simulation */
+/** Analyze business URL via Gemini API */
 async function analyzeBusinessUrl(url: string, description?: string, industry?: string): Promise<AnalysisResult> {
-  // Error trigger for demo/testing
-  if (url.includes('fail')) {
-    throw new Error('Analysis unavailable');
+  const { data, error } = await aiApi.analyzeBusiness({
+    url,
+    description: description || '',
+    industry: industry || '',
+  });
+
+  if (data?.analysis) {
+    const a = data.analysis;
+    return {
+      companySummary: a.companySummary || '',
+      detectedIndustry: a.detectedIndustry || 'Technology / SaaS',
+      productsServices: a.productsServices || [],
+      teamSizeEstimate: a.teamSizeEstimate || '',
+      technologySignals: a.technologySignals || [],
+      aiOpportunities: a.aiOpportunities || [],
+    };
   }
 
-  try {
-    const { data, error } = await aiApi.analyzeBusiness({
-      url,
-      description: description || '',
-      industry: industry || '',
-    });
-
-    if (data?.analysis) {
-      // Map Gemini response to local AnalysisResult shape
-      const a = data.analysis;
-      return {
-        companySummary: a.companySummary || '',
-        detectedIndustry: a.detectedIndustry || 'Technology / SaaS',
-        productsServices: a.productsServices || [],
-        teamSizeEstimate: a.teamSizeEstimate || '',
-        technologySignals: a.technologySignals || [],
-        aiOpportunities: a.aiOpportunities || [],
-      };
-    }
-
-    if (error) {
-      console.warn('[StepBusinessContext] Gemini analysis failed, using fallback:', error);
-    }
-  } catch (e) {
-    console.warn('[StepBusinessContext] Gemini API error, using fallback:', e);
-  }
-
-  // Fallback to mock simulation
-  return simulateAnalysis(url);
+  throw new Error(error || 'Business analysis unavailable — please try again');
 }
 
 function isValidUrl(url: string): boolean {

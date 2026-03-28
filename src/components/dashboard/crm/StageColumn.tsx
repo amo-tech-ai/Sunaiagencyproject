@@ -9,9 +9,11 @@ import { useState } from 'react';
 interface StageColumnProps {
   stage: Stage;
   deals: Deal[];
+  allStages?: Stage[];
   onDealClick: (deal: Deal) => void;
   onDealDragStart: (e: React.DragEvent, deal: Deal) => void;
   onDealDrop: (stageId: string) => void;
+  onRescore?: () => void;
 }
 
 function formatCurrency(value: number): string {
@@ -22,9 +24,11 @@ function formatCurrency(value: number): string {
 export default function StageColumn({
   stage,
   deals,
+  allStages = [],
   onDealClick,
   onDealDragStart,
   onDealDrop,
+  onRescore,
 }: StageColumnProps) {
   const [isOver, setIsOver] = useState(false);
 
@@ -95,8 +99,10 @@ export default function StageColumn({
           <DealCard
             key={deal.id}
             deal={deal}
+            stages={allStages}
             onClick={onDealClick}
             onDragStart={onDealDragStart}
+            onRescore={onRescore}
           />
         ))}
       </div>
