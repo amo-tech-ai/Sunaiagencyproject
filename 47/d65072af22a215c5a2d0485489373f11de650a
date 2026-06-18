@@ -1,0 +1,55 @@
+src/utils/supabase/info.tsx
+  s_b77994974e4d51::t_47e665dcf7169d 1,3-8
+supabase/seed.sql
+  s_b77994974e4d51::t_47e665dcf7169d 1-36
+src/types/supabase.ts
+  s_b77994974e4d51::t_0f1d27783adbaa 1-2271
+docs/audit/01-tests-report.md
+  s_b77994974e4d51::t_159e0bf11e3dc6 1-2,7-225
+  s_b77994974e4d51::t_b96c971ab48d23 3-6
+scripts/smoke-prod.mjs
+  s_b77994974e4d51::t_525df6308b29c0 1-99
+supabase/functions/make-server-283466b6/ensure-schema.tsx
+  s_b77994974e4d51::t_9c2432ef64357a 19
+  s_b77994974e4d51::t_97596caa6445f7 1-3,7-18,20-85,88,91-95,98-106,108-126,128-134,136-138,141,143-146,148-160,162-167,169-172,174-176,178-181,183,187-189,193-194,196-199,201,203
+.gitignore
+  s_b77994974e4d51::t_7271350dc18773 10
+  s_b77994974e4d51::t_bd45127df653f1 20,50
+supabase/config.toml
+  s_b77994974e4d51::t_37b41b0c0a93ef 5,11-12,17,39,45,66-69,76-80
+  s_b77994974e4d51::t_47e665dcf7169d 1-4,6-10,13-16,18-38,40-44,46-65,70-75
+src/lib/supabase.ts
+  s_b77994974e4d51::t_47e665dcf7169d 14-22,915
+docs/audit/02-final-verification-report.md
+  s_b77994974e4d51::t_e06099d26af755 1-2,9-194
+  s_b77994974e4d51::t_b96c971ab48d23 3-8
+index.html
+  s_b77994974e4d51::t_4e6ced9bcd7b8b 7
+package.json
+  s_b77994974e4d51::t_525df6308b29c0 69-70,72
+src/routes.tsx
+  s_b77994974e4d51::t_4e6ced9bcd7b8b 109-113,200
+.env.example
+  s_b77994974e4d51::t_47e665dcf7169d 1-16
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.8",
+  "base_commit_sha": "47d65072af22a215c5a2d0485489373f11de650a",
+  "prompts": {},
+  "humans": {
+    "h_172b2d6a06e84e": {
+      "author": "amo-tech-ai <ai@ipix.co>"
+    }
+  },
+  "sessions": {
+    "s_b77994974e4d51": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019edae6-0f4b-7e80-a813-1b780719fe05",
+        "model": "gpt-5.5"
+      },
+      "human_author": "amo-tech-ai <ai@ipix.co>"
+    }
+  }
+}
