@@ -2,7 +2,6 @@
 // All backend communication goes through this module
 
 import { createClient } from '@supabase/supabase-js';
-import { projectId, publicAnonKey } from '../utils/supabase/info';
 
 // ── Auth failure event — dispatched when API returns 401 after token refresh ──
 // AuthContext listens for this to trigger signOut + redirect to /auth
@@ -12,7 +11,15 @@ function emitAuthFailure() {
   window.dispatchEvent(new CustomEvent(AUTH_FAILURE_EVENT));
 }
 
-const SUPABASE_URL = `https://${projectId}.supabase.co`;
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const publicAnonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+
+if (!SUPABASE_URL || !publicAnonKey) {
+  throw new Error(
+    'Missing Supabase env vars: VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY are required.'
+  );
+}
+
 const BASE_URL = `${SUPABASE_URL}/functions/v1/make-server-283466b6`;
 
 // ── Singleton Supabase client ──

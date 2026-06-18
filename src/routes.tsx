@@ -106,6 +106,11 @@ export const router = createBrowserRouter([
     path: '/login',
     element: <Navigate to="/auth" replace />,
   },
+  // Legacy /dashboard alias — redirect to authenticated app dashboard
+  {
+    path: '/dashboard',
+    element: <Navigate to="/app/dashboard" replace />,
+  },
   // OAuth callback — handles redirect from Google/LinkedIn via Supabase
   {
     path: '/auth/callback',

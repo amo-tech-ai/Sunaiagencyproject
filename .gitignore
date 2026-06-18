@@ -7,6 +7,7 @@ dist/
 .env
 .env.local
 .env.*.local
+envbk.md
 
 # IDE / Editor
 .cursor/
@@ -16,6 +17,7 @@ dist/
 
 # Vercel
 .vercel/
+.vercel_linkage_archive/
 
 # Supabase local
 supabase/.temp/
@@ -45,6 +47,7 @@ prompts/plan/
 # Claude Code / AI tooling
 .claude/
 .agents/
+.playwright-cli/
 CLAUDE.local.md
 skills-lock.json
 
